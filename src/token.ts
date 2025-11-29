@@ -245,6 +245,37 @@ export const KeywordDescTable = [
 ];
 
 export const descKeywordTable: { [key: string]: Token } =  {
+  El: Token.LetKeyword,
+  La: Token.LetKeyword,
+  Loz: Token.LetKeyword,
+  Laz: Token.LetKeyword,
+  Kuando: Token.LetKeyword,
+  En_ezte_bloke: Token.LetKeyword,
+
+  Fynalmente: Token.ReturnKeyword,
+  entonzez: Token.ReturnKeyword,
+  debolbemoz: Token.ReturnKeyword,
+  Y_no_debolbemoz_nada: Token.ReturnKeyword,
+  En_kazo_kontraryo: Token.ReturnKeyword,
+
+  Ay_kazoz_en_loz_ke: Token.IfKeyword,
+  Zy: Token.IfKeyword,
+  y: Token.IfKeyword,
+  pero: Token.IfKeyword,
+
+  zý: Token.TrueKeyword,
+  no: Token.FalseKeyword,
+  nada: Token.NullKeyword,
+  azemoz_ezte_prozedymyento: Token.FunctionKeyword,
+  ezte_prozedymyento: Token.FunctionKeyword,
+  ymportamoz: Token.ImportKeyword,
+  dezde: Token.FromKeyword,
+  Debolbemoz_: Token.ExportKeyword,
+  __: Token.DefaultKeyword,
+  Yntentamoz_ezto: Token.TryKeyword,
+  Azemoz_ezto_zy_faja: Token.CatchKeyword,
+  el_typo_del: Token.TypeofKeyword,
+
   this: Token.ThisKeyword,
   function: Token.FunctionKeyword,
   if: Token.IfKeyword,

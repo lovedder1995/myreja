@@ -1,3 +1,37 @@
+<h1 align="center">Myreja</h1>
+Myreja ez una byfurkazyón de «Meriyah» kon palabraz klabe alternatybaz en ezpañol:
+
+- El : let
+- La : let
+- Loz : let
+- Laz : let
+- Kuando : let
+- En_ezte_bloke : let
+
+- Fynalmente : return
+- entonzez : return
+- debolbemoz: return
+- Y_no_debolbemoz_nada : return
+- En_kazo_kontraryo: return,
+
+- Ay_kazoz_en_loz_ke: if
+- Zy : if
+- y : if
+- pero : if
+
+- zý : true
+- no : false
+- nada : null
+- azemoz_ezte_prozedymyento : function
+- ezte_prozedymyento : function
+- ymportamoz : import
+- dezde : from
+- Debolbemoz\_: export,
+- \_\_: default,
+- Yntentamoz_ezto : try
+- Azemoz_ezto_zy_faja : catch
+- el_typo_del : typeof
+
 <h1 align="center">Meriyah</h1>
 
 <p align="center"> 100% compliant, self-hosted javascript parser with high focus on both performance and stability. Stable and already used in production.</p>
