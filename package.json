@@ -43,7 +43,11 @@
     "lexer",
     "ast"
   ],
+  "bin": {
+    "meriyah": "./bin/meriyah.mjs"
+  },
   "files": [
+    "bin",
     "dist",
     "README.md",
     "CHANGELOG.md",
@@ -63,6 +67,7 @@
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix",
     "fix:prettier": "prettier . --write",
+    "formatear": "node bin/meriyah.mjs --formatear",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:unicode": "node scripts/generate-unicode.mjs --check",
