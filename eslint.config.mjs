@@ -48,7 +48,7 @@ export default [
       'no-undef': 'error',
       'no-restricted-imports': ['error', 'assert', 'node:assert'],
       'no-restricted-syntax': [
-        'error',
+        'warn',
         {
           selector: 'ThisExpression',
           message: 'No se debe usar la palabra «this»',

@@ -245,62 +245,62 @@ export const KeywordDescTable = [
 ];
 
 export const descKeywordTable: { [key: string]: Token } =  {
-  this: Token.ThisKeyword,
+  this: Token.ThisKeyword, // Prohibida
   function: Token.FunctionKeyword,
   if: Token.IfKeyword,
   return: Token.ReturnKeyword,
-  var: Token.VarKeyword,
-  else: Token.ElseKeyword,
-  for: Token.ForKeyword,
+  var: Token.VarKeyword, // Prohibida
+  else: Token.ElseKeyword, // Prohibida
+  for: Token.ForKeyword, // Prohibida
   new: Token.NewKeyword,
-  in: Token.InKeyword,
+  in: Token.InKeyword, // Prohibida
   typeof: Token.TypeofKeyword,
-  while: Token.WhileKeyword,
-  case: Token.CaseKeyword,
-  break: Token.BreakKeyword,
+  while: Token.WhileKeyword, // Prohibida
+  case: Token.CaseKeyword, // Prohibida
+  break: Token.BreakKeyword, // Prohibida
   try: Token.TryKeyword,
   catch: Token.CatchKeyword,
   delete: Token.DeleteKeyword,
   throw: Token.ThrowKeyword,
-  switch: Token.SwitchKeyword,
-  continue: Token.ContinueKeyword,
+  switch: Token.SwitchKeyword, // Prohibida
+  continue: Token.ContinueKeyword, // Prohibida
   default: Token.DefaultKeyword,
   instanceof: Token.InstanceofKeyword,
-  do: Token.DoKeyword,
-  void: Token.VoidKeyword,
-  finally: Token.FinallyKeyword,
+  do: Token.DoKeyword, // Prohibida
+  void: Token.VoidKeyword, // Prohibida
+  finally: Token.FinallyKeyword, // Prohibida
   async: Token.AsyncKeyword,
   await: Token.AwaitKeyword,
-  class: Token.ClassKeyword,
-  const: Token.ConstKeyword,
-  constructor: Token.ConstructorKeyword,
-  debugger: Token.DebuggerKeyword,
+  class: Token.ClassKeyword, // Prohibida
+  const: Token.ConstKeyword, // Prohibida
+  constructor: Token.ConstructorKeyword, // Prohibida
+  debugger: Token.DebuggerKeyword, 
   export: Token.ExportKeyword,
-  extends: Token.ExtendsKeyword,
+  extends: Token.ExtendsKeyword, // Prohibida
   false: Token.FalseKeyword,
   from: Token.FromKeyword,
   get: Token.GetKeyword,
-  implements: Token.ImplementsKeyword,
+  implements: Token.ImplementsKeyword, // Prohibida
   import: Token.ImportKeyword,
-  interface: Token.InterfaceKeyword,
+  interface: Token.InterfaceKeyword, // Prohibida
   let: Token.LetKeyword,
   null: Token.NullKeyword,
-  of: Token.OfKeyword,
-  package: Token.PackageKeyword,
-  private: Token.PrivateKeyword,
-  protected: Token.ProtectedKeyword,
-  public: Token.PublicKeyword,
-  set: Token.SetKeyword,
-  static: Token.StaticKeyword,
-  super: Token.SuperKeyword,
+  of: Token.OfKeyword, // Prohibida
+  package: Token.PackageKeyword, // Prohibida
+  private: Token.PrivateKeyword, // Prohibida
+  protected: Token.ProtectedKeyword, // Prohibida
+  public: Token.PublicKeyword, // Prohibida
+  set: Token.SetKeyword, // Prohibida
+  static: Token.StaticKeyword, // Prohibida
+  super: Token.SuperKeyword, // Prohibida
   true: Token.TrueKeyword,
-  with: Token.WithKeyword,
-  yield: Token.YieldKeyword,
-  enum: Token.EnumKeyword,
-  eval: Token.Eval,
+  with: Token.WithKeyword, // Prohibida
+  yield: Token.YieldKeyword, // Prohibida
+  enum: Token.EnumKeyword, // Prohibida
+  eval: Token.Eval, // Prohibida
   as: Token.AsKeyword,
   arguments: Token.Arguments,
-  target: Token.Target,
-  meta: Token.Meta,
-  accessor: Token.AccessorKeyword,
+  target: Token.Target, // Prohibida
+  meta: Token.Meta, // Prohibida
+  accessor: Token.AccessorKeyword, // Prohibida
 }
