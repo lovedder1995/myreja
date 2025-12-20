@@ -47,13 +47,6 @@ export default [
       ],
       'no-undef': 'error',
       'no-restricted-imports': ['error', 'assert', 'node:assert'],
-      'no-restricted-syntax': [
-        'warn',
-        {
-          selector: 'ThisExpression',
-          message: 'No se debe usar la palabra «this»',
-        },
-      ],
 
       '@stylistic/quotes': [
         'error',
@@ -114,6 +107,12 @@ export default [
   {
     files: ['**/*.mjs'],
     ...eslintPluginN.configs['flat/recommended-module'],
+  },
+  {
+    files: ['bin/meriyah.mjs'],
+    rules: {
+      'prefer-const': 0,
+    },
   },
   {
     files: ['test/**/*.ts', 'scripts/**/*.mjs', 'vitest.config.ts'],

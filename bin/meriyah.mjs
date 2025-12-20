@@ -2,7 +2,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { fileURLToPath } from 'node:url';
 
 async function importMeriyah() {
   try {
@@ -21,9 +20,10 @@ async function importTypescript() {
 }
 
 async function loadForbiddenWords() {
-  const fallback = new Set(['this']);
-  const binPath = fileURLToPath(import.meta.url);
-  const tokenFilePath = path.resolve(path.dirname(binPath), '..', 'src', 'token.ts');
+  let fallback = new Set(['this']);
+  let scriptPath = process.argv[1];
+  if (typeof scriptPath !== 'string' || scriptPath.length === 0) scriptPath = process.cwd();
+  let tokenFilePath = path.resolve(path.dirname(path.resolve(scriptPath)), '..', 'src', 'token.ts');
 
   let content;
   try {
@@ -32,24 +32,19 @@ async function loadForbiddenWords() {
     return fallback;
   }
 
-  const forbidden = new Set();
-  const entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm;
-  for (const match of content.matchAll(entryRegExp)) {
+  let forbidden = new Set();
+  let entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm;
+  Array.from(content.matchAll(entryRegExp)).forEach(function (match) {
     forbidden.add(match[1]);
-  }
+  });
 
-  return forbidden.size > 0 ? forbidden : fallback;
+  if (forbidden.size > 0) return forbidden;
+  return fallback;
 }
 
 function printHelp() {
   process.stdout.write(`Uso:
   meriyah --formatear <archivo|directorio> [...]
-
-Reglas:
-  - No se debe usar la palabra «this»
-
-Salida:
-  Imprime un error por cada uso de \`this\` como expresión y retorna exit code 1 si encuentra alguno.
 `);
 }
 
@@ -59,7 +54,7 @@ function isPathLike(value) {
 
 async function pathKind(p) {
   try {
-    const stats = await fs.stat(p);
+    let stats = await fs.stat(p);
     if (stats.isDirectory()) return 'dir';
     if (stats.isFile()) return 'file';
     return 'other';
@@ -69,25 +64,30 @@ async function pathKind(p) {
 }
 
 async function collectFiles(inputPath, out) {
-  const kind = await pathKind(inputPath);
+  let kind = await pathKind(inputPath);
   if (kind === 'file') {
     out.add(path.resolve(inputPath));
     return;
   }
   if (kind !== 'dir') return;
 
-  const entries = await fs.readdir(inputPath, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(inputPath, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage') continue;
-      await collectFiles(fullPath, out);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    if (!/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)) continue;
-    out.add(path.resolve(fullPath));
-  }
+  let entries = await fs.readdir(inputPath, { withFileTypes: true });
+  await Promise.all(
+    entries.map(async function (entry) {
+      let fullPath = path.join(inputPath, entry.name);
+
+      if (entry.isDirectory()) {
+        let isSkipped = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage';
+        if (isSkipped) return;
+        await collectFiles(fullPath, out);
+        return;
+      }
+
+      if (!entry.isFile()) return;
+      if (!/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)) return;
+      out.add(path.resolve(fullPath));
+    }),
+  );
 }
 
 function isSkippableIdentifierContext(parent, key) {
@@ -103,8 +103,8 @@ function isSkippableIdentifierContext(parent, key) {
 }
 
 function addFinding(findings, filePath, keyword, node, ruleId) {
-  const line = node?.loc?.start?.line ?? 1;
-  const column = node?.loc?.start?.column ?? 0;
+  let line = node?.loc?.start?.line ?? 1;
+  let column = node?.loc?.start?.column ?? 0;
   findings.push({
     filePath,
     line,
@@ -115,203 +115,203 @@ function addFinding(findings, filePath, keyword, node, ruleId) {
 }
 
 function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
-  const findings = [];
+  let findings = [];
 
-  const visit = (node, parent, key) => {
+  function visit(node, parent, key) {
     if (!node || typeof node !== 'object') return;
+
     if (Array.isArray(node)) {
-      for (const item of node) visit(item, parent, key);
+      node.forEach(function (item) {
+        visit(item, parent, key);
+      });
       return;
     }
 
     if (typeof node.type !== 'string') {
-      for (const child of Object.values(node)) visit(child, node, undefined);
+      Object.values(node).forEach(function (child) {
+        visit(child, node, undefined);
+      });
       return;
     }
 
-    switch (node.type) {
-      case 'ThisExpression': {
-        if (forbiddenWords.has('this')) addFinding(findings, filePath, 'this', node, 'formatear/no-this');
-        break;
-      }
-      case 'IfStatement': {
-        if (forbiddenWords.has('if')) addFinding(findings, filePath, 'if', node, 'formatear/no-if');
-        if (node.alternate && forbiddenWords.has('else')) {
-          addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else');
-        }
-        break;
-      }
-      case 'ReturnStatement': {
-        if (forbiddenWords.has('return')) addFinding(findings, filePath, 'return', node, 'formatear/no-return');
-        break;
-      }
-      case 'VariableDeclaration': {
-        if (node.kind === 'var' && forbiddenWords.has('var'))
-          addFinding(findings, filePath, 'var', node, 'formatear/no-var');
-        if (node.kind === 'let' && forbiddenWords.has('let'))
-          addFinding(findings, filePath, 'let', node, 'formatear/no-let');
-        if (node.kind === 'const' && forbiddenWords.has('const'))
-          addFinding(findings, filePath, 'const', node, 'formatear/no-const');
-        break;
-      }
-      case 'ForStatement':
-      case 'ForInStatement':
-      case 'ForOfStatement': {
-        if (forbiddenWords.has('for')) addFinding(findings, filePath, 'for', node, 'formatear/no-for');
-        if (node.type === 'ForInStatement' && forbiddenWords.has('in'))
-          addFinding(findings, filePath, 'in', node, 'formatear/no-in');
-        if (node.type === 'ForOfStatement' && forbiddenWords.has('of'))
-          addFinding(findings, filePath, 'of', node, 'formatear/no-of');
-        break;
-      }
-      case 'WhileStatement': {
-        if (forbiddenWords.has('while')) addFinding(findings, filePath, 'while', node, 'formatear/no-while');
-        break;
-      }
-      case 'DoWhileStatement': {
-        if (forbiddenWords.has('do')) addFinding(findings, filePath, 'do', node, 'formatear/no-do');
-        break;
-      }
-      case 'SwitchStatement': {
-        if (forbiddenWords.has('switch')) addFinding(findings, filePath, 'switch', node, 'formatear/no-switch');
-        break;
-      }
-      case 'SwitchCase': {
-        if (node.test && forbiddenWords.has('case')) addFinding(findings, filePath, 'case', node, 'formatear/no-case');
-        if (!node.test && forbiddenWords.has('default'))
-          addFinding(findings, filePath, 'default', node, 'formatear/no-default');
-        break;
-      }
-      case 'BreakStatement': {
-        if (forbiddenWords.has('break')) addFinding(findings, filePath, 'break', node, 'formatear/no-break');
-        break;
-      }
-      case 'ContinueStatement': {
-        if (forbiddenWords.has('continue')) addFinding(findings, filePath, 'continue', node, 'formatear/no-continue');
-        break;
-      }
-      case 'TryStatement': {
-        if (forbiddenWords.has('try')) addFinding(findings, filePath, 'try', node, 'formatear/no-try');
-        if (node.finalizer && forbiddenWords.has('finally')) {
-          addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally');
-        }
-        break;
-      }
-      case 'CatchClause': {
-        if (forbiddenWords.has('catch')) addFinding(findings, filePath, 'catch', node, 'formatear/no-catch');
-        break;
-      }
-      case 'ThrowStatement': {
-        if (forbiddenWords.has('throw')) addFinding(findings, filePath, 'throw', node, 'formatear/no-throw');
-        break;
-      }
-      case 'NewExpression': {
-        if (forbiddenWords.has('new')) addFinding(findings, filePath, 'new', node, 'formatear/no-new');
-        break;
-      }
-      case 'UnaryExpression': {
-        const op = node.operator;
-        if (op === 'typeof' && forbiddenWords.has('typeof'))
-          addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof');
-        if (op === 'void' && forbiddenWords.has('void'))
-          addFinding(findings, filePath, 'void', node, 'formatear/no-void');
-        if (op === 'delete' && forbiddenWords.has('delete'))
-          addFinding(findings, filePath, 'delete', node, 'formatear/no-delete');
-        break;
-      }
-      case 'BinaryExpression': {
-        const op = node.operator;
-        if (op === 'in' && forbiddenWords.has('in')) addFinding(findings, filePath, 'in', node, 'formatear/no-in');
-        if (op === 'instanceof' && forbiddenWords.has('instanceof'))
-          addFinding(findings, filePath, 'instanceof', node, 'formatear/no-instanceof');
-        break;
-      }
-      case 'FunctionDeclaration':
-      case 'FunctionExpression': {
-        if (forbiddenWords.has('function')) addFinding(findings, filePath, 'function', node, 'formatear/no-function');
-        if (node.async === true && forbiddenWords.has('async'))
-          addFinding(findings, filePath, 'async', node, 'formatear/no-async');
-        break;
-      }
-      case 'ArrowFunctionExpression': {
-        if (node.async === true && forbiddenWords.has('async'))
-          addFinding(findings, filePath, 'async', node, 'formatear/no-async');
-        break;
-      }
-      case 'AwaitExpression': {
-        if (forbiddenWords.has('await')) addFinding(findings, filePath, 'await', node, 'formatear/no-await');
-        break;
-      }
-      case 'YieldExpression': {
-        if (forbiddenWords.has('yield')) addFinding(findings, filePath, 'yield', node, 'formatear/no-yield');
-        break;
-      }
-      case 'ClassDeclaration':
-      case 'ClassExpression': {
-        if (forbiddenWords.has('class')) addFinding(findings, filePath, 'class', node, 'formatear/no-class');
-        if (node.superClass && forbiddenWords.has('extends'))
-          addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends');
-        break;
-      }
-      case 'Super': {
-        if (forbiddenWords.has('super')) addFinding(findings, filePath, 'super', node, 'formatear/no-super');
-        break;
-      }
-      case 'ImportDeclaration':
-      case 'ImportExpression': {
-        if (forbiddenWords.has('import')) addFinding(findings, filePath, 'import', node, 'formatear/no-import');
-        break;
-      }
-      case 'ExportNamedDeclaration':
-      case 'ExportDefaultDeclaration':
-      case 'ExportAllDeclaration': {
-        if (forbiddenWords.has('export')) addFinding(findings, filePath, 'export', node, 'formatear/no-export');
-        break;
-      }
-      case 'MetaProperty': {
-        if (node.meta?.name === 'new' && node.property?.name === 'target' && forbiddenWords.has('target')) {
-          addFinding(findings, filePath, 'target', node, 'formatear/no-target');
-        }
-        if (node.meta?.name === 'import' && node.property?.name === 'meta' && forbiddenWords.has('meta')) {
-          addFinding(findings, filePath, 'meta', node, 'formatear/no-meta');
-        }
-        break;
-      }
-      case 'WithStatement': {
-        if (forbiddenWords.has('with')) addFinding(findings, filePath, 'with', node, 'formatear/no-with');
-        break;
-      }
-      case 'DebuggerStatement': {
-        if (forbiddenWords.has('debugger')) addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger');
-        break;
-      }
-      case 'Identifier': {
-        if (
-          typeof node.name === 'string' &&
-          forbiddenWords.has(node.name) &&
-          !isSkippableIdentifierContext(parent, key)
-        ) {
-          addFinding(findings, filePath, node.name, node, `formatear/no-${node.name}`);
-        }
-        break;
-      }
-      default: {
-        break;
+    let { type: nodeType } = node;
+
+    if (nodeType === 'ThisExpression') {
+      if (forbiddenWords.has('this')) addFinding(findings, filePath, 'this', node, 'formatear/no-this');
+    }
+
+    if (nodeType === 'IfStatement') {
+      if (forbiddenWords.has('if')) addFinding(findings, filePath, 'if', node, 'formatear/no-if');
+      if (node.alternate && forbiddenWords.has('else'))
+        addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else');
+    }
+
+    if (nodeType === 'ReturnStatement') {
+      if (forbiddenWords.has('return')) addFinding(findings, filePath, 'return', node, 'formatear/no-return');
+    }
+
+    if (nodeType === 'VariableDeclaration') {
+      if (node.kind === 'var' && forbiddenWords.has('var'))
+        addFinding(findings, filePath, 'var', node, 'formatear/no-var');
+      if (node.kind === 'let' && forbiddenWords.has('let'))
+        addFinding(findings, filePath, 'let', node, 'formatear/no-let');
+      if (node.kind === 'const' && forbiddenWords.has('const'))
+        addFinding(findings, filePath, 'const', node, 'formatear/no-const');
+    }
+
+    if (nodeType === 'ForStatement' || nodeType === 'ForInStatement' || nodeType === 'ForOfStatement') {
+      if (forbiddenWords.has('for')) addFinding(findings, filePath, 'for', node, 'formatear/no-for');
+      if (nodeType === 'ForInStatement' && forbiddenWords.has('in'))
+        addFinding(findings, filePath, 'in', node, 'formatear/no-in');
+      if (nodeType === 'ForOfStatement' && forbiddenWords.has('of'))
+        addFinding(findings, filePath, 'of', node, 'formatear/no-of');
+    }
+
+    if (nodeType === 'WhileStatement') {
+      if (forbiddenWords.has('while')) addFinding(findings, filePath, 'while', node, 'formatear/no-while');
+    }
+
+    if (nodeType === 'DoWhileStatement') {
+      if (forbiddenWords.has('do')) addFinding(findings, filePath, 'do', node, 'formatear/no-do');
+    }
+
+    if (nodeType === 'SwitchStatement') {
+      if (forbiddenWords.has('switch')) addFinding(findings, filePath, 'switch', node, 'formatear/no-switch');
+    }
+
+    if (nodeType === 'SwitchCase') {
+      if (node.test && forbiddenWords.has('case')) addFinding(findings, filePath, 'case', node, 'formatear/no-case');
+      if (!node.test && forbiddenWords.has('default'))
+        addFinding(findings, filePath, 'default', node, 'formatear/no-default');
+    }
+
+    if (nodeType === 'BreakStatement') {
+      if (forbiddenWords.has('break')) addFinding(findings, filePath, 'break', node, 'formatear/no-break');
+    }
+
+    if (nodeType === 'ContinueStatement') {
+      if (forbiddenWords.has('continue')) addFinding(findings, filePath, 'continue', node, 'formatear/no-continue');
+    }
+
+    if (nodeType === 'TryStatement') {
+      if (forbiddenWords.has('try')) addFinding(findings, filePath, 'try', node, 'formatear/no-try');
+      if (node.finalizer && forbiddenWords.has('finally'))
+        addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally');
+    }
+
+    if (nodeType === 'CatchClause') {
+      if (forbiddenWords.has('catch')) addFinding(findings, filePath, 'catch', node, 'formatear/no-catch');
+    }
+
+    if (nodeType === 'ThrowStatement') {
+      if (forbiddenWords.has('throw')) addFinding(findings, filePath, 'throw', node, 'formatear/no-throw');
+    }
+
+    if (nodeType === 'NewExpression') {
+      if (forbiddenWords.has('new')) addFinding(findings, filePath, 'new', node, 'formatear/no-new');
+    }
+
+    if (nodeType === 'UnaryExpression') {
+      let { operator: op } = node;
+      if (op === 'typeof' && forbiddenWords.has('typeof'))
+        addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof');
+      if (op === 'void' && forbiddenWords.has('void'))
+        addFinding(findings, filePath, 'void', node, 'formatear/no-void');
+      if (op === 'delete' && forbiddenWords.has('delete'))
+        addFinding(findings, filePath, 'delete', node, 'formatear/no-delete');
+    }
+
+    if (nodeType === 'BinaryExpression') {
+      let { operator: op } = node;
+      if (op === 'in' && forbiddenWords.has('in')) addFinding(findings, filePath, 'in', node, 'formatear/no-in');
+      if (op === 'instanceof' && forbiddenWords.has('instanceof'))
+        addFinding(findings, filePath, 'instanceof', node, 'formatear/no-instanceof');
+    }
+
+    if (nodeType === 'FunctionDeclaration' || nodeType === 'FunctionExpression') {
+      if (forbiddenWords.has('function')) addFinding(findings, filePath, 'function', node, 'formatear/no-function');
+      if (node.async === true && forbiddenWords.has('async'))
+        addFinding(findings, filePath, 'async', node, 'formatear/no-async');
+    }
+
+    if (nodeType === 'ArrowFunctionExpression') {
+      if (node.async === true && forbiddenWords.has('async'))
+        addFinding(findings, filePath, 'async', node, 'formatear/no-async');
+    }
+
+    if (nodeType === 'AwaitExpression') {
+      if (forbiddenWords.has('await')) addFinding(findings, filePath, 'await', node, 'formatear/no-await');
+    }
+
+    if (nodeType === 'YieldExpression') {
+      if (forbiddenWords.has('yield')) addFinding(findings, filePath, 'yield', node, 'formatear/no-yield');
+    }
+
+    if (nodeType === 'ClassDeclaration' || nodeType === 'ClassExpression') {
+      if (forbiddenWords.has('class')) addFinding(findings, filePath, 'class', node, 'formatear/no-class');
+      if (node.superClass && forbiddenWords.has('extends'))
+        addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends');
+    }
+
+    if (nodeType === 'Super') {
+      if (forbiddenWords.has('super')) addFinding(findings, filePath, 'super', node, 'formatear/no-super');
+    }
+
+    if (nodeType === 'ImportDeclaration' || nodeType === 'ImportExpression') {
+      if (forbiddenWords.has('import')) addFinding(findings, filePath, 'import', node, 'formatear/no-import');
+    }
+
+    if (
+      nodeType === 'ExportNamedDeclaration' ||
+      nodeType === 'ExportDefaultDeclaration' ||
+      nodeType === 'ExportAllDeclaration'
+    ) {
+      if (forbiddenWords.has('export')) addFinding(findings, filePath, 'export', node, 'formatear/no-export');
+    }
+
+    if (nodeType === 'MetaProperty') {
+      let metaNode = node['meta'];
+      let propertyNode = node['property'];
+      let metaName = metaNode && metaNode.name;
+      let propertyName = propertyNode && propertyNode.name;
+
+      if (metaName === 'new' && propertyName === 'target' && forbiddenWords.has('target'))
+        addFinding(findings, filePath, 'target', node, 'formatear/no-target');
+      if (metaName === 'import' && propertyName === 'meta' && forbiddenWords.has('meta'))
+        addFinding(findings, filePath, 'meta', node, 'formatear/no-meta');
+    }
+
+    if (nodeType === 'WithStatement') {
+      if (forbiddenWords.has('with')) addFinding(findings, filePath, 'with', node, 'formatear/no-with');
+    }
+
+    if (nodeType === 'DebuggerStatement') {
+      if (forbiddenWords.has('debugger')) addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger');
+    }
+
+    if (nodeType === 'Identifier') {
+      if (
+        typeof node.name === 'string' &&
+        forbiddenWords.has(node.name) &&
+        !isSkippableIdentifierContext(parent, key)
+      ) {
+        addFinding(findings, filePath, node.name, node, `formatear/no-${node.name}`);
       }
     }
 
-    for (const [childKey, child] of Object.entries(node)) {
-      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') continue;
-      visit(child, node, childKey);
-    }
-  };
+    Object.entries(node).forEach(function (pair) {
+      let childKey = pair[0];
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      visit(pair[1], node, childKey);
+    });
+  }
 
   visit(ast, null, undefined);
   return findings;
 }
 
 function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
-  const lc = sourceFile.getLineAndCharacterOfPosition(pos);
+  let lc = sourceFile.getLineAndCharacterOfPosition(pos);
   findings.push({
     filePath,
     line: lc.line + 1,
@@ -339,243 +339,235 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 }
 
 function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords, ts) {
-  const findings = [];
+  let findings = [];
 
-  const addKeywordNode = (keyword, node, ruleId) => {
+  function addKeywordNode(keyword, node, ruleId) {
     createTsFinding(findings, filePath, keyword, ruleId, sourceFile, node.getStart(sourceFile));
-  };
+  }
 
-  const addModifier = (keyword, modifier, ruleId) => {
+  function addModifier(keyword, modifier, ruleId) {
     createTsFinding(findings, filePath, keyword, ruleId, sourceFile, modifier.getStart(sourceFile));
-  };
+  }
 
-  const visit = (node, parent) => {
-    switch (node.kind) {
-      case ts.SyntaxKind.ThisKeyword: {
-        if (forbiddenWords.has('this')) addKeywordNode('this', node, 'formatear/no-this');
-        break;
-      }
-      case ts.SyntaxKind.IfStatement: {
-        if (forbiddenWords.has('if')) addKeywordNode('if', node, 'formatear/no-if');
-        if (node.elseStatement && forbiddenWords.has('else'))
-          addKeywordNode('else', node.elseStatement, 'formatear/no-else');
-        break;
-      }
-      case ts.SyntaxKind.ReturnStatement: {
-        if (forbiddenWords.has('return')) addKeywordNode('return', node, 'formatear/no-return');
-        break;
-      }
-      case ts.SyntaxKind.ForStatement:
-      case ts.SyntaxKind.ForInStatement:
-      case ts.SyntaxKind.ForOfStatement: {
-        if (forbiddenWords.has('for')) addKeywordNode('for', node, 'formatear/no-for');
-        if (node.kind === ts.SyntaxKind.ForInStatement && forbiddenWords.has('in'))
-          addKeywordNode('in', node, 'formatear/no-in');
-        if (node.kind === ts.SyntaxKind.ForOfStatement && forbiddenWords.has('of'))
-          addKeywordNode('of', node, 'formatear/no-of');
-        break;
-      }
-      case ts.SyntaxKind.WhileStatement: {
-        if (forbiddenWords.has('while')) addKeywordNode('while', node, 'formatear/no-while');
-        break;
-      }
-      case ts.SyntaxKind.DoStatement: {
-        if (forbiddenWords.has('do')) addKeywordNode('do', node, 'formatear/no-do');
-        break;
-      }
-      case ts.SyntaxKind.SwitchStatement: {
-        if (forbiddenWords.has('switch')) addKeywordNode('switch', node, 'formatear/no-switch');
-        break;
-      }
-      case ts.SyntaxKind.CaseClause: {
-        if (forbiddenWords.has('case')) addKeywordNode('case', node, 'formatear/no-case');
-        break;
-      }
-      case ts.SyntaxKind.DefaultClause: {
-        if (forbiddenWords.has('default')) addKeywordNode('default', node, 'formatear/no-default');
-        break;
-      }
-      case ts.SyntaxKind.BreakStatement: {
-        if (forbiddenWords.has('break')) addKeywordNode('break', node, 'formatear/no-break');
-        break;
-      }
-      case ts.SyntaxKind.ContinueStatement: {
-        if (forbiddenWords.has('continue')) addKeywordNode('continue', node, 'formatear/no-continue');
-        break;
-      }
-      case ts.SyntaxKind.TryStatement: {
-        if (forbiddenWords.has('try')) addKeywordNode('try', node, 'formatear/no-try');
-        if (node.finallyBlock && forbiddenWords.has('finally'))
-          addKeywordNode('finally', node.finallyBlock, 'formatear/no-finally');
-        break;
-      }
-      case ts.SyntaxKind.CatchClause: {
-        if (forbiddenWords.has('catch')) addKeywordNode('catch', node, 'formatear/no-catch');
-        break;
-      }
-      case ts.SyntaxKind.ThrowStatement: {
-        if (forbiddenWords.has('throw')) addKeywordNode('throw', node, 'formatear/no-throw');
-        break;
-      }
-      case ts.SyntaxKind.NewExpression: {
-        if (forbiddenWords.has('new')) addKeywordNode('new', node, 'formatear/no-new');
-        break;
-      }
-      case ts.SyntaxKind.TypeOfExpression: {
-        if (forbiddenWords.has('typeof')) addKeywordNode('typeof', node, 'formatear/no-typeof');
-        break;
-      }
-      case ts.SyntaxKind.VoidExpression: {
-        if (forbiddenWords.has('void')) addKeywordNode('void', node, 'formatear/no-void');
-        break;
-      }
-      case ts.SyntaxKind.DeleteExpression: {
-        if (forbiddenWords.has('delete')) addKeywordNode('delete', node, 'formatear/no-delete');
-        break;
-      }
-      case ts.SyntaxKind.BinaryExpression: {
-        const operatorToken = node.operatorToken?.kind;
-        if (operatorToken === ts.SyntaxKind.InKeyword && forbiddenWords.has('in'))
-          addKeywordNode('in', node, 'formatear/no-in');
-        if (operatorToken === ts.SyntaxKind.InstanceOfKeyword && forbiddenWords.has('instanceof'))
-          addKeywordNode('instanceof', node, 'formatear/no-instanceof');
-        break;
-      }
-      case ts.SyntaxKind.FunctionDeclaration:
-      case ts.SyntaxKind.FunctionExpression: {
-        if (forbiddenWords.has('function')) addKeywordNode('function', node, 'formatear/no-function');
-        break;
-      }
-      case ts.SyntaxKind.ClassDeclaration:
-      case ts.SyntaxKind.ClassExpression: {
-        if (forbiddenWords.has('class')) addKeywordNode('class', node, 'formatear/no-class');
-        break;
-      }
-      case ts.SyntaxKind.SuperKeyword: {
-        if (forbiddenWords.has('super')) addKeywordNode('super', node, 'formatear/no-super');
-        break;
-      }
-      case ts.SyntaxKind.AwaitExpression: {
-        if (forbiddenWords.has('await')) addKeywordNode('await', node, 'formatear/no-await');
-        break;
-      }
-      case ts.SyntaxKind.YieldExpression: {
-        if (forbiddenWords.has('yield')) addKeywordNode('yield', node, 'formatear/no-yield');
-        break;
-      }
-      case ts.SyntaxKind.InterfaceDeclaration: {
-        if (forbiddenWords.has('interface')) addKeywordNode('interface', node, 'formatear/no-interface');
-        break;
-      }
-      case ts.SyntaxKind.EnumDeclaration: {
-        if (forbiddenWords.has('enum')) addKeywordNode('enum', node, 'formatear/no-enum');
-        break;
-      }
-      case ts.SyntaxKind.MetaProperty: {
-        const { keywordToken } = node;
-        const name = node.name?.escapedText;
-        if (keywordToken === ts.SyntaxKind.NewKeyword && name === 'target' && forbiddenWords.has('target')) {
-          addKeywordNode('target', node, 'formatear/no-target');
-        }
-        if (keywordToken === ts.SyntaxKind.ImportKeyword && name === 'meta' && forbiddenWords.has('meta')) {
-          addKeywordNode('meta', node, 'formatear/no-meta');
-        }
-        break;
-      }
-      case ts.SyntaxKind.AsExpression: {
-        if (forbiddenWords.has('as')) addKeywordNode('as', node, 'formatear/no-as');
-        break;
-      }
-      case ts.SyntaxKind.WithStatement: {
-        if (forbiddenWords.has('with')) addKeywordNode('with', node, 'formatear/no-with');
-        break;
-      }
-      case ts.SyntaxKind.DebuggerStatement: {
-        if (forbiddenWords.has('debugger')) addKeywordNode('debugger', node, 'formatear/no-debugger');
-        break;
-      }
-      case ts.SyntaxKind.VariableStatement: {
-        const flags = node.declarationList?.flags ?? 0;
-        if (forbiddenWords.has('const') && (flags & ts.NodeFlags.Const) !== 0)
-          addKeywordNode('const', node, 'formatear/no-const');
-        if (forbiddenWords.has('let') && (flags & ts.NodeFlags.Let) !== 0)
-          addKeywordNode('let', node, 'formatear/no-let');
-        if (forbiddenWords.has('var') && (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) === 0)
-          addKeywordNode('var', node, 'formatear/no-var');
-        break;
-      }
-      case ts.SyntaxKind.Constructor: {
-        if (forbiddenWords.has('constructor')) addKeywordNode('constructor', node, 'formatear/no-constructor');
-        break;
-      }
-      case ts.SyntaxKind.Identifier: {
-        const name = node.escapedText;
-        if (typeof name === 'string' && forbiddenWords.has(name) && !isSkippableTsIdentifierContext(parent, node, ts)) {
-          addKeywordNode(name, node, `formatear/no-${name}`);
-        }
-        break;
-      }
-      default: {
-        break;
+  function visit(node, parent) {
+    let { kind } = node;
+
+    if (kind === ts.SyntaxKind.ThisKeyword) {
+      if (forbiddenWords.has('this')) addKeywordNode('this', node, 'formatear/no-this');
+    }
+
+    if (kind === ts.SyntaxKind.IfStatement) {
+      if (forbiddenWords.has('if')) addKeywordNode('if', node, 'formatear/no-if');
+      if (node.elseStatement && forbiddenWords.has('else'))
+        addKeywordNode('else', node.elseStatement, 'formatear/no-else');
+    }
+
+    if (kind === ts.SyntaxKind.ReturnStatement) {
+      if (forbiddenWords.has('return')) addKeywordNode('return', node, 'formatear/no-return');
+    }
+
+    if (
+      kind === ts.SyntaxKind.ForStatement ||
+      kind === ts.SyntaxKind.ForInStatement ||
+      kind === ts.SyntaxKind.ForOfStatement
+    ) {
+      if (forbiddenWords.has('for')) addKeywordNode('for', node, 'formatear/no-for');
+      if (kind === ts.SyntaxKind.ForInStatement && forbiddenWords.has('in'))
+        addKeywordNode('in', node, 'formatear/no-in');
+      if (kind === ts.SyntaxKind.ForOfStatement && forbiddenWords.has('of'))
+        addKeywordNode('of', node, 'formatear/no-of');
+    }
+
+    if (kind === ts.SyntaxKind.WhileStatement) {
+      if (forbiddenWords.has('while')) addKeywordNode('while', node, 'formatear/no-while');
+    }
+
+    if (kind === ts.SyntaxKind.DoStatement) {
+      if (forbiddenWords.has('do')) addKeywordNode('do', node, 'formatear/no-do');
+    }
+
+    if (kind === ts.SyntaxKind.SwitchStatement) {
+      if (forbiddenWords.has('switch')) addKeywordNode('switch', node, 'formatear/no-switch');
+    }
+
+    if (kind === ts.SyntaxKind.CaseClause) {
+      if (forbiddenWords.has('case')) addKeywordNode('case', node, 'formatear/no-case');
+    }
+
+    if (kind === ts.SyntaxKind.DefaultClause) {
+      if (forbiddenWords.has('default')) addKeywordNode('default', node, 'formatear/no-default');
+    }
+
+    if (kind === ts.SyntaxKind.BreakStatement) {
+      if (forbiddenWords.has('break')) addKeywordNode('break', node, 'formatear/no-break');
+    }
+
+    if (kind === ts.SyntaxKind.ContinueStatement) {
+      if (forbiddenWords.has('continue')) addKeywordNode('continue', node, 'formatear/no-continue');
+    }
+
+    if (kind === ts.SyntaxKind.TryStatement) {
+      if (forbiddenWords.has('try')) addKeywordNode('try', node, 'formatear/no-try');
+      if (node.finallyBlock && forbiddenWords.has('finally'))
+        addKeywordNode('finally', node.finallyBlock, 'formatear/no-finally');
+    }
+
+    if (kind === ts.SyntaxKind.CatchClause) {
+      if (forbiddenWords.has('catch')) addKeywordNode('catch', node, 'formatear/no-catch');
+    }
+
+    if (kind === ts.SyntaxKind.ThrowStatement) {
+      if (forbiddenWords.has('throw')) addKeywordNode('throw', node, 'formatear/no-throw');
+    }
+
+    if (kind === ts.SyntaxKind.NewExpression) {
+      if (forbiddenWords.has('new')) addKeywordNode('new', node, 'formatear/no-new');
+    }
+
+    if (kind === ts.SyntaxKind.TypeOfExpression) {
+      if (forbiddenWords.has('typeof')) addKeywordNode('typeof', node, 'formatear/no-typeof');
+    }
+
+    if (kind === ts.SyntaxKind.VoidExpression) {
+      if (forbiddenWords.has('void')) addKeywordNode('void', node, 'formatear/no-void');
+    }
+
+    if (kind === ts.SyntaxKind.DeleteExpression) {
+      if (forbiddenWords.has('delete')) addKeywordNode('delete', node, 'formatear/no-delete');
+    }
+
+    if (kind === ts.SyntaxKind.BinaryExpression) {
+      let { operatorToken } = node;
+      let { kind: operatorKind } = operatorToken || {};
+      if (operatorKind === ts.SyntaxKind.InKeyword && forbiddenWords.has('in'))
+        addKeywordNode('in', node, 'formatear/no-in');
+      if (operatorKind === ts.SyntaxKind.InstanceOfKeyword && forbiddenWords.has('instanceof'))
+        addKeywordNode('instanceof', node, 'formatear/no-instanceof');
+    }
+
+    if (kind === ts.SyntaxKind.FunctionDeclaration || kind === ts.SyntaxKind.FunctionExpression) {
+      if (forbiddenWords.has('function')) addKeywordNode('function', node, 'formatear/no-function');
+    }
+
+    if (kind === ts.SyntaxKind.ClassDeclaration || kind === ts.SyntaxKind.ClassExpression) {
+      if (forbiddenWords.has('class')) addKeywordNode('class', node, 'formatear/no-class');
+    }
+
+    if (kind === ts.SyntaxKind.SuperKeyword) {
+      if (forbiddenWords.has('super')) addKeywordNode('super', node, 'formatear/no-super');
+    }
+
+    if (kind === ts.SyntaxKind.AwaitExpression) {
+      if (forbiddenWords.has('await')) addKeywordNode('await', node, 'formatear/no-await');
+    }
+
+    if (kind === ts.SyntaxKind.YieldExpression) {
+      if (forbiddenWords.has('yield')) addKeywordNode('yield', node, 'formatear/no-yield');
+    }
+
+    if (kind === ts.SyntaxKind.InterfaceDeclaration) {
+      if (forbiddenWords.has('interface')) addKeywordNode('interface', node, 'formatear/no-interface');
+    }
+
+    if (kind === ts.SyntaxKind.EnumDeclaration) {
+      if (forbiddenWords.has('enum')) addKeywordNode('enum', node, 'formatear/no-enum');
+    }
+
+    if (kind === ts.SyntaxKind.MetaProperty) {
+      let { keywordToken, name: nameNode } = node;
+      let { escapedText: name } = nameNode || {};
+      if (keywordToken === ts.SyntaxKind.NewKeyword && name === 'target' && forbiddenWords.has('target'))
+        addKeywordNode('target', node, 'formatear/no-target');
+      if (keywordToken === ts.SyntaxKind.ImportKeyword && name === 'meta' && forbiddenWords.has('meta'))
+        addKeywordNode('meta', node, 'formatear/no-meta');
+    }
+
+    if (kind === ts.SyntaxKind.AsExpression) {
+      if (forbiddenWords.has('as')) addKeywordNode('as', node, 'formatear/no-as');
+    }
+
+    if (kind === ts.SyntaxKind.WithStatement) {
+      if (forbiddenWords.has('with')) addKeywordNode('with', node, 'formatear/no-with');
+    }
+
+    if (kind === ts.SyntaxKind.DebuggerStatement) {
+      if (forbiddenWords.has('debugger')) addKeywordNode('debugger', node, 'formatear/no-debugger');
+    }
+
+    if (kind === ts.SyntaxKind.VariableStatement) {
+      let { declarationList: declList } = node;
+      let { flags = 0 } = declList || {};
+      if (forbiddenWords.has('const') && (flags & ts.NodeFlags.Const) !== 0)
+        addKeywordNode('const', node, 'formatear/no-const');
+      if (forbiddenWords.has('let') && (flags & ts.NodeFlags.Let) !== 0)
+        addKeywordNode('let', node, 'formatear/no-let');
+      if (forbiddenWords.has('var') && (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) === 0)
+        addKeywordNode('var', node, 'formatear/no-var');
+    }
+
+    if (kind === ts.SyntaxKind.Constructor) {
+      if (forbiddenWords.has('constructor')) addKeywordNode('constructor', node, 'formatear/no-constructor');
+    }
+
+    if (kind === ts.SyntaxKind.Identifier) {
+      let { escapedText: name } = node;
+      if (typeof name === 'string' && forbiddenWords.has(name) && !isSkippableTsIdentifierContext(parent, node, ts)) {
+        addKeywordNode(name, node, `formatear/no-${name}`);
       }
     }
 
-    const { modifiers } = node;
+    let { modifiers } = node;
     if (modifiers && modifiers.length) {
-      for (const modifier of modifiers) {
-        switch (modifier.kind) {
-          case ts.SyntaxKind.PublicKeyword: {
-            if (forbiddenWords.has('public')) addModifier('public', modifier, 'formatear/no-public');
-            break;
-          }
-          case ts.SyntaxKind.PrivateKeyword: {
-            if (forbiddenWords.has('private')) addModifier('private', modifier, 'formatear/no-private');
-            break;
-          }
-          case ts.SyntaxKind.ProtectedKeyword: {
-            if (forbiddenWords.has('protected')) addModifier('protected', modifier, 'formatear/no-protected');
-            break;
-          }
-          case ts.SyntaxKind.StaticKeyword: {
-            if (forbiddenWords.has('static')) addModifier('static', modifier, 'formatear/no-static');
-            break;
-          }
-          case ts.SyntaxKind.AsyncKeyword: {
-            if (forbiddenWords.has('async')) addModifier('async', modifier, 'formatear/no-async');
-            break;
-          }
-          case ts.SyntaxKind.AccessorKeyword: {
-            if (forbiddenWords.has('accessor')) addModifier('accessor', modifier, 'formatear/no-accessor');
-            break;
-          }
-          default: {
-            break;
-          }
+      modifiers.forEach(function (modifier) {
+        let { kind: modifierKind } = modifier;
+        if (modifierKind === ts.SyntaxKind.PublicKeyword) {
+          if (forbiddenWords.has('public')) addModifier('public', modifier, 'formatear/no-public');
+          return;
         }
-      }
+        if (modifierKind === ts.SyntaxKind.PrivateKeyword) {
+          if (forbiddenWords.has('private')) addModifier('private', modifier, 'formatear/no-private');
+          return;
+        }
+        if (modifierKind === ts.SyntaxKind.ProtectedKeyword) {
+          if (forbiddenWords.has('protected')) addModifier('protected', modifier, 'formatear/no-protected');
+          return;
+        }
+        if (modifierKind === ts.SyntaxKind.StaticKeyword) {
+          if (forbiddenWords.has('static')) addModifier('static', modifier, 'formatear/no-static');
+          return;
+        }
+        if (modifierKind === ts.SyntaxKind.AsyncKeyword) {
+          if (forbiddenWords.has('async')) addModifier('async', modifier, 'formatear/no-async');
+          return;
+        }
+        if (modifierKind === ts.SyntaxKind.AccessorKeyword) {
+          if (forbiddenWords.has('accessor')) addModifier('accessor', modifier, 'formatear/no-accessor');
+        }
+      });
     }
 
-    if (node.heritageClauses && node.heritageClauses.length) {
-      for (const clause of node.heritageClauses) {
-        if (clause.token === ts.SyntaxKind.ExtendsKeyword && forbiddenWords.has('extends')) {
+    let { heritageClauses } = node;
+    if (heritageClauses && heritageClauses.length) {
+      heritageClauses.forEach(function (clause) {
+        if (clause.token === ts.SyntaxKind.ExtendsKeyword && forbiddenWords.has('extends'))
           addKeywordNode('extends', clause, 'formatear/no-extends');
-        }
-        if (clause.token === ts.SyntaxKind.ImplementsKeyword && forbiddenWords.has('implements')) {
+        if (clause.token === ts.SyntaxKind.ImplementsKeyword && forbiddenWords.has('implements'))
           addKeywordNode('implements', clause, 'formatear/no-implements');
-        }
-      }
+      });
     }
 
-    ts.forEachChild(node, (child) => visit(child, node));
-  };
+    ts.forEachChild(node, function (child) {
+      visit(child, node);
+    });
+  }
 
   visit(sourceFile, null);
   return findings;
 }
 
 async function parseFileMeriyah(filePath, parse) {
-  const sourceText = await fs.readFile(filePath, 'utf8');
-  const parseOptions = { loc: true, next: true, jsx: true, webcompat: true };
+  let sourceText = await fs.readFile(filePath, 'utf8');
+  let parseOptions = { loc: true, next: true, jsx: true, webcompat: true };
 
   let ast;
   let moduleError;
@@ -589,7 +581,7 @@ async function parseFileMeriyah(filePath, parse) {
     try {
       ast = parse(sourceText, { ...parseOptions, sourceType: 'script' });
     } catch {
-      const err = moduleError instanceof Error ? moduleError : new Error(String(moduleError));
+      let err = moduleError instanceof Error ? moduleError : new Error(String(moduleError));
       throw err;
     }
   }
@@ -603,30 +595,34 @@ async function run(argv) {
     return 0;
   }
 
-  const formatearIndex = argv.indexOf('--formatear');
+  let formatearIndex = argv.indexOf('--formatear');
   if (formatearIndex === -1) {
     printHelp();
     return 2;
   }
 
-  const targets = argv.slice(formatearIndex + 1).filter(isPathLike);
-  if (targets.length === 0) {
+  let inputPaths = argv.slice(formatearIndex + 1).filter(isPathLike);
+  if (inputPaths.length === 0) {
     printHelp();
     return 2;
   }
 
-  const fileSet = new Set();
-  for (const target of targets) {
-    await collectFiles(target, fileSet);
-  }
+  let fileSet = new Set();
+  await Promise.all(
+    inputPaths.map(async function (inputPath) {
+      await collectFiles(inputPath, fileSet);
+    }),
+  );
 
-  const files = [...fileSet].sort((a, b) => a.localeCompare(b));
+  let files = Array.from(fileSet).sort(function (a, b) {
+    return a.localeCompare(b);
+  });
   if (files.length === 0) {
     process.stderr.write('No se encontraron archivos para analizar.\n');
     return 2;
   }
 
-  const forbiddenWords = await loadForbiddenWords();
+  let forbiddenWords = await loadForbiddenWords();
 
   let parseErrorCount = 0;
   let issueCount = 0;
@@ -634,67 +630,71 @@ async function run(argv) {
   let parse;
   let ts;
   try {
-    ({ parse } = await importMeriyah());
+    let meriyahModule = await importMeriyah();
+    parse = meriyahModule.parse;
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    let message = error instanceof Error ? error.message : String(error);
     process.stderr.write(`${message}\n`);
     return 2;
   }
 
-  for (const filePath of files) {
+  function normalize(value) {
+    let str = String(value);
+    return Array.from(str)
+      .filter(function (ch) {
+        let code = ch.charCodeAt(0);
+        return !(code <= 31 || code === 127);
+      })
+      .join('');
+  }
+
+  async function analyzeOne(inputFilePath) {
     try {
-      const ext = path.extname(filePath).toLowerCase();
+      let ext = path.extname(inputFilePath).toLowerCase();
+      let isTsFile = ext === '.ts' || ext === '.tsx' || ext === '.mts' || ext === '.cts';
       let findings;
 
-      if (ext === '.ts' || ext === '.tsx' || ext === '.mts' || ext === '.cts') {
+      if (isTsFile) {
         if (!ts) ts = await importTypescript();
-        const sourceText = await fs.readFile(filePath, 'utf8');
-        const scriptKind =
-          ext === '.tsx'
-            ? ts.ScriptKind.TSX
-            : ext === '.mts'
-              ? ts.ScriptKind.TS
-              : ext === '.cts'
-                ? ts.ScriptKind.TS
-                : ts.ScriptKind.TS;
-        const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
-        findings = collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords, ts);
-      } else {
-        const ast = await parseFileMeriyah(filePath, parse);
-        findings = collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords);
+        let sourceText = await fs.readFile(inputFilePath, 'utf8');
+        let scriptKind = ts.ScriptKind.TS;
+        if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+        let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
+        findings = collectForbiddenFindingsTypescript(sourceFile, inputFilePath, forbiddenWords, ts);
       }
 
-      for (const finding of findings) {
-        issueCount += 1;
-        const normalize = (value) => {
-          const str = String(value);
-          let out = '';
-          for (let i = 0; i < str.length; i += 1) {
-            const code = str.charCodeAt(i);
-            if (code <= 31 || code === 127) continue;
-            out += str[i];
-          }
-          return out;
-        };
-        const filePath = normalize(finding.filePath);
-        const keyword = normalize(finding.keyword);
-        const ruleIdValue =
-          typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown';
-        const ruleId = normalize(ruleIdValue);
-        process.stdout.write(
-          `${filePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`,
-        );
+      if (!isTsFile) {
+        let ast = await parseFileMeriyah(inputFilePath, parse);
+        findings = collectForbiddenFindingsMeriyah(ast, inputFilePath, forbiddenWords);
       }
+
+      findings.forEach(function (finding) {
+        issueCount += 1;
+        let normalizedFilePath = normalize(finding.filePath);
+        let keyword = normalize(finding.keyword);
+        let ruleIdValue =
+          typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown';
+        let ruleId = normalize(ruleIdValue);
+        process.stdout.write(
+          `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`,
+        );
+      });
     } catch (error) {
       parseErrorCount += 1;
-      const message = error instanceof Error ? error.message : String(error);
-      process.stderr.write(`${filePath}  error  ${message}\n`);
+      let message = error instanceof Error ? error.message : String(error);
+      process.stderr.write(`${inputFilePath}  error  ${message}\n`);
     }
   }
+
+  await files.reduce(function (prev, inputFilePath) {
+    return prev.then(function () {
+      return analyzeOne(inputFilePath);
+    });
+  }, Promise.resolve());
 
   if (parseErrorCount > 0) return 2;
   return issueCount > 0 ? 1 : 0;
 }
 
-const exitCode = await run(process.argv.slice(2));
+let exitCode = await run(process.argv.slice(2));
 process.exitCode = exitCode;
