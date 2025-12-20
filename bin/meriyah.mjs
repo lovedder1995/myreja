@@ -242,9 +242,9 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
   function scanFrom(i) {
     if (i >= tokens.length) return spans;
 
-    let t = tokens[i];
+    let token = tokens[i];
 
-    if (!t || t.type !== 'Keyword' || t.text !== 'for') return scanFrom(i + 1);
+    if (!token || token.type !== 'Keyword' || token.text !== 'for') return scanFrom(i + 1);
 
     let j = i + 1;
 
@@ -259,16 +259,16 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
     function scanParen(k, depth) {
       if (k >= tokens.length) return scanFrom(i + 1);
 
-      let tk = tokens[k];
+      let token = tokens[k];
 
       let nextDepth = depth;
 
-      if (tk.type === 'Punctuator' && tk.text === '(') nextDepth += 1;
+      if (token.type === 'Punctuator' && token.text === '(') nextDepth += 1;
 
-      if (tk.type === 'Punctuator' && tk.text === ')') nextDepth -= 1;
+      if (token.type === 'Punctuator' && token.text === ')') nextDepth -= 1;
 
-      if (tk.type === 'Punctuator' && tk.text === ')' && nextDepth === 0) {
-        spans.push({ start, end: tk.end });
+      if (token.type === 'Punctuator' && token.text === ')' && nextDepth === 0) {
+        spans.push({ start, end: token.end });
 
         return scanFrom(k + 1);
       }
@@ -418,6 +418,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
     }
 
     if (nodeType === 'ArrowFunctionExpression') {
+      addFinding(findings, filePath, '=>', node, 'formatear/no-arrow-function');
+
       if (node.async === true && forbiddenWords.has('async'))
         addFinding(findings, filePath, 'async', node, 'formatear/no-async');
     }
@@ -655,6 +657,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
     if (kind === ts.SyntaxKind.FunctionDeclaration || kind === ts.SyntaxKind.FunctionExpression) {
       if (forbiddenWords.has('function')) addKeywordNode('function', node, 'formatear/no-function');
+    }
+
+    if (kind === ts.SyntaxKind.ArrowFunction) {
+      let arrowToken = node.equalsGreaterThanToken;
+
+      let pos = arrowToken ? arrowToken.getStart(sourceFile) : node.getStart(sourceFile);
+
+      createTsFinding(findings, filePath, '=>', 'formatear/no-arrow-function', sourceFile, pos);
     }
 
     if (kind === ts.SyntaxKind.ClassDeclaration || kind === ts.SyntaxKind.ClassExpression) {
