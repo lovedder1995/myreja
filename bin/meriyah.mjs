@@ -418,8 +418,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
     }
 
     if (nodeType === 'ArrowFunctionExpression') {
-      addFinding(findings, filePath, '=>', node, 'formatear/no-arrow-function');
-
       if (node.async === true && forbiddenWords.has('async'))
         addFinding(findings, filePath, 'async', node, 'formatear/no-async');
     }
@@ -659,14 +657,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
       if (forbiddenWords.has('function')) addKeywordNode('function', node, 'formatear/no-function');
     }
 
-    if (kind === ts.SyntaxKind.ArrowFunction) {
-      let arrowToken = node.equalsGreaterThanToken;
-
-      let pos = arrowToken ? arrowToken.getStart(sourceFile) : node.getStart(sourceFile);
-
-      createTsFinding(findings, filePath, '=>', 'formatear/no-arrow-function', sourceFile, pos);
-    }
-
     if (kind === ts.SyntaxKind.ClassDeclaration || kind === ts.SyntaxKind.ClassExpression) {
       if (forbiddenWords.has('class')) addKeywordNode('class', node, 'formatear/no-class');
     }
@@ -879,6 +869,102 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
   return { fixedText, unfixableFindings };
 }
 
+function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
+  let { ast, tokens } = parseSourceMeriyah(parse, sourceText);
+
+  let replacements = [];
+
+  let unfixableFindings = [];
+
+  let arrowTokens = tokens.filter(function (t) {
+    return t.type === 'Punctuator' && t.text === '=>';
+  });
+
+  function convertArrowFunction(node) {
+    if (!node || typeof node !== 'object') return;
+
+    if (node.type !== 'ArrowFunctionExpression') return;
+
+    let arrowToken = arrowTokens.find(function (t) {
+      return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end;
+    });
+
+    if (!arrowToken) {
+      addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function');
+
+      return;
+    }
+
+    let headText = sourceText.slice(node.start, arrowToken.start).trimEnd();
+
+    if (node.async === true) headText = headText.replace(/^\s*async\b\s*/, '');
+
+    let paramsText = headText.trim();
+
+    if (!paramsText.startsWith('(')) paramsText = `(${paramsText})`;
+
+    let functionPrefix = node.async === true ? 'async function ' : 'function ';
+
+    let bodyText;
+
+    if (node.body && node.body.type === 'BlockStatement') {
+      bodyText = sourceText.slice(node.body.start, node.body.end);
+    } else if (node.body && typeof node.body.start === 'number' && typeof node.body.end === 'number') {
+      let expressionText = sourceText.slice(node.body.start, node.body.end);
+
+      bodyText = `{ return ${expressionText} }`;
+    } else {
+      addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function');
+
+      return;
+    }
+
+    replacements.push({
+      start: node.start,
+      end: node.end,
+      text: `${functionPrefix}${paramsText} ${bodyText}`,
+    });
+  }
+
+  function visit(node) {
+    if (!node || typeof node !== 'object') return;
+
+    if (Array.isArray(node)) {
+      node.forEach(function (item) {
+        visit(item);
+      });
+
+      return;
+    }
+
+    if (typeof node.type !== 'string') {
+      Object.values(node).forEach(function (child) {
+        visit(child);
+      });
+
+      return;
+    }
+
+    if (node.type === 'ArrowFunctionExpression') {
+      convertArrowFunction(node);
+    }
+
+    Object.entries(node).forEach(function (pair) {
+      let childKey = pair[0];
+
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+
+      visit(pair[1]);
+    });
+  }
+
+  visit(ast);
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings };
+}
+
 function collectEmptyStatementRangesTypescript(sourceFile, ts) {
   let ranges = [];
 
@@ -1025,6 +1111,85 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
   return { fixedText, unfixableFindings };
 }
 
+function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
+  let scriptKind = ts.ScriptKind.TS;
+
+  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+
+  let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
+
+  let replacements = [];
+
+  let unfixableFindings = [];
+
+  function visit(node) {
+    if (node.kind === ts.SyntaxKind.ArrowFunction) {
+      let start = node.getStart(sourceFile);
+      let end = node.getEnd();
+
+      if (typeof start !== 'number' || typeof end !== 'number' || end < start) return;
+
+      let arrowToken = node.equalsGreaterThanToken;
+
+      let arrowPos = arrowToken ? arrowToken.getStart(sourceFile) : -1;
+
+      if (typeof arrowPos !== 'number' || arrowPos < start) {
+        let lc = sourceFile.getLineAndCharacterOfPosition(start);
+
+        unfixableFindings.push({
+          filePath,
+          line: lc.line + 1,
+          column: lc.character,
+          keyword: '=>',
+          ruleId: 'formatear/no-arrow-function',
+        });
+
+        return;
+      }
+
+      let headText = sourceText.slice(start, arrowPos).trimEnd();
+
+      let isAsync =
+        Array.isArray(node.modifiers) &&
+        node.modifiers.some(function (m) {
+          return m.kind === ts.SyntaxKind.AsyncKeyword;
+        });
+
+      if (isAsync) headText = headText.replace(/^\s*async\b\s*/, '');
+
+      let paramsText = headText.trim();
+
+      if (!paramsText.startsWith('(')) paramsText = `(${paramsText})`;
+
+      let functionPrefix = isAsync ? 'async function ' : 'function ';
+
+      let bodyText;
+
+      if (node.body.kind === ts.SyntaxKind.Block) {
+        bodyText = sourceText.slice(node.body.getStart(sourceFile), node.body.getEnd());
+      } else {
+        let bodyStart = node.body.getStart(sourceFile);
+        let bodyEnd = node.body.getEnd();
+        let exprText = sourceText.slice(bodyStart, bodyEnd);
+
+        bodyText = `{ return ${exprText} }`;
+      }
+
+      replacements.push({ start, end, text: `${functionPrefix}${paramsText} ${bodyText}` });
+
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings };
+}
+
 async function run(argv) {
   if (argv.includes('--help') || argv.includes('-h')) {
     printHelp();
@@ -1131,6 +1296,24 @@ async function run(argv) {
           );
         });
 
+        let arrowFixed = fixArrowFunctionsToFunctionsTypescript(inputFilePath, ts, sourceText, ext);
+
+        if (arrowFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8');
+
+          sourceText = arrowFixed.fixedText;
+        }
+
+        arrowFixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+
+          let normalizedFilePath = normalize(finding.filePath);
+
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
+          );
+        });
+
         let scriptKind = ts.ScriptKind.TS;
 
         if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
@@ -1158,6 +1341,24 @@ async function run(argv) {
 
           process.stdout.write(
             `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
+          );
+        });
+
+        let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(inputFilePath, parse, sourceText);
+
+        if (arrowFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8');
+
+          sourceText = arrowFixed.fixedText;
+        }
+
+        arrowFixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+
+          let normalizedFilePath = normalize(finding.filePath);
+
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
           );
         });
 
