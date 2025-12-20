@@ -114,6 +114,127 @@ function addFinding(findings, filePath, keyword, node, ruleId) {
   });
 }
 
+function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
+  let line = loc?.start?.line ?? 1;
+  let column = loc?.start?.column ?? 0;
+  findings.push({
+    filePath,
+    line,
+    column,
+    keyword,
+    ruleId,
+  });
+}
+
+function applyReplacements(sourceText, replacements) {
+  if (!replacements.length) return sourceText;
+  let sorted = replacements
+    .slice()
+    .sort(function (a, b) {
+      return b.start - a.start;
+    })
+    .filter(function (rep) {
+      return (
+        typeof rep?.start === 'number' &&
+        typeof rep?.end === 'number' &&
+        rep.start >= 0 &&
+        rep.end >= rep.start &&
+        typeof rep?.text === 'string'
+      );
+    });
+
+  let out = sourceText;
+  let lastStart = out.length + 1;
+  for (let i = 0; i < sorted.length; i++) {
+    let rep = sorted[i];
+    if (rep.end > lastStart) continue;
+    out = out.slice(0, rep.start) + rep.text + out.slice(rep.end);
+    lastStart = rep.start;
+  }
+  return out;
+}
+
+function isInsideAnySpan(index, spans) {
+  for (let i = 0; i < spans.length; i++) {
+    let span = spans[i];
+    if (index >= span.start && index < span.end) return true;
+  }
+  return false;
+}
+
+function collectEmptyStatementRangesMeriyah(ast) {
+  let ranges = [];
+
+  function visit(node, parent, key) {
+    if (!node || typeof node !== 'object') return;
+
+    if (Array.isArray(node)) {
+      node.forEach(function (item) {
+        visit(item, parent, key);
+      });
+      return;
+    }
+
+    if (typeof node.type !== 'string') {
+      Object.values(node).forEach(function (child) {
+        visit(child, node, undefined);
+      });
+      return;
+    }
+
+    if (
+      node.type === 'EmptyStatement' &&
+      typeof node.start === 'number' &&
+      typeof node.end === 'number' &&
+      node.end > node.start
+    ) {
+      ranges.push({ start: node.start, end: node.end });
+    }
+
+    Object.entries(node).forEach(function (pair) {
+      let childKey = pair[0];
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      visit(pair[1], node, childKey);
+    });
+  }
+
+  visit(ast, null, undefined);
+
+  return ranges;
+}
+
+function collectForHeaderSpansFromMeriyahTokens(tokens) {
+  let spans = [];
+  for (let i = 0; i < tokens.length; i++) {
+    let t = tokens[i];
+    if (t.type !== 'Keyword' || t.text !== 'for') continue;
+
+    let j = i + 1;
+    if (tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await') j += 1;
+
+    if (!tokens[j] || tokens[j].type !== 'Punctuator' || tokens[j].text !== '(') continue;
+
+    let depth = 0;
+    let { start } = tokens[j];
+    for (let k = j; k < tokens.length; k++) {
+      let tk = tokens[k];
+      if (tk.type === 'Punctuator' && tk.text === '(') {
+        depth += 1;
+        continue;
+      }
+      if (tk.type === 'Punctuator' && tk.text === ')') {
+        depth -= 1;
+        if (depth === 0) {
+          spans.push({ start, end: tk.end });
+          i = k;
+          break;
+        }
+      }
+    }
+  }
+  return spans;
+}
+
 function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
   let findings = [];
 
@@ -565,28 +686,184 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
   return findings;
 }
 
-async function parseFileMeriyah(filePath, parse) {
-  let sourceText = await fs.readFile(filePath, 'utf8');
-  let parseOptions = { loc: true, next: true, jsx: true, webcompat: true };
+function parseSourceMeriyah(parse, sourceText) {
+  let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true };
+  let tokens = [];
+  let onToken = function (type, start, end, loc) {
+    tokens.push({
+      type,
+      start,
+      end,
+      loc,
+      text: sourceText.slice(start, end),
+    });
+  };
 
   let ast;
   let moduleError;
   try {
-    ast = parse(sourceText, { ...parseOptions, sourceType: 'module' });
+    ast = parse(sourceText, { ...parseOptions, sourceType: 'module', onToken });
   } catch (error) {
     moduleError = error;
   }
 
   if (!ast) {
     try {
-      ast = parse(sourceText, { ...parseOptions, sourceType: 'script' });
+      ast = parse(sourceText, { ...parseOptions, sourceType: 'script', onToken });
     } catch {
       let err = moduleError instanceof Error ? moduleError : new Error(String(moduleError));
       throw err;
     }
   }
 
-  return ast;
+  return { ast, tokens };
+}
+
+function fixSemicolonsMeriyah(filePath, parse, sourceText) {
+  let { ast, tokens } = parseSourceMeriyah(parse, sourceText);
+
+  let forHeaderSpans = collectForHeaderSpansFromMeriyahTokens(tokens);
+
+  let emptyStatementRanges = collectEmptyStatementRangesMeriyah(ast);
+  let emptyStartSet = new Set();
+  emptyStatementRanges.forEach(function (r) {
+    emptyStartSet.add(r.start);
+  });
+
+  let replacements = [];
+  emptyStatementRanges.forEach(function (range) {
+    replacements.push({ start: range.start, end: range.end, text: '{}' });
+  });
+
+  let unfixableFindings = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    let t = tokens[i];
+    if (t.text !== ';') continue;
+    if (emptyStartSet.has(t.start)) continue;
+
+    if (isInsideAnySpan(t.start, forHeaderSpans)) {
+      addFindingAtLoc(unfixableFindings, filePath, ';', t.loc, 'formatear/no-semicolon');
+      continue;
+    }
+
+    replacements.push({ start: t.start, end: t.end, text: '\n' });
+  }
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings };
+}
+
+function collectEmptyStatementRangesTypescript(sourceFile, ts) {
+  let ranges = [];
+
+  function visit(node) {
+    if (node.kind === ts.SyntaxKind.EmptyStatement) {
+      let start = node.getStart(sourceFile);
+      let end = node.getEnd();
+      if (typeof start === 'number' && typeof end === 'number' && end > start) {
+        ranges.push({ start, end });
+      }
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return ranges;
+}
+
+function collectForHeaderSpansFromTsTokens(tokens, ts) {
+  let spans = [];
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].kind !== ts.SyntaxKind.ForKeyword) continue;
+
+    let j = i + 1;
+    if (tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword) j += 1;
+
+    if (!tokens[j] || tokens[j].kind !== ts.SyntaxKind.OpenParenToken) continue;
+
+    let depth = 0;
+    let start = tokens[j].pos;
+    for (let k = j; k < tokens.length; k++) {
+      let tk = tokens[k];
+      if (tk.kind === ts.SyntaxKind.OpenParenToken) {
+        depth += 1;
+        continue;
+      }
+      if (tk.kind === ts.SyntaxKind.CloseParenToken) {
+        depth -= 1;
+        if (depth === 0) {
+          spans.push({ start, end: tk.end });
+          i = k;
+          break;
+        }
+      }
+    }
+  }
+  return spans;
+}
+
+function scanTokensTypescript(ts, sourceText, isTsx) {
+  let scanner = ts.createScanner(
+    ts.ScriptTarget.Latest,
+    true,
+    isTsx ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+    sourceText,
+  );
+
+  let tokens = [];
+  for (let kind = scanner.scan(); kind !== ts.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
+    let pos = scanner.getTokenPos();
+    let end = scanner.getTextPos();
+    tokens.push({ kind, pos, end });
+  }
+  return tokens;
+}
+
+function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
+  let scriptKind = ts.ScriptKind.TS;
+  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+  let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
+
+  let tokens = scanTokensTypescript(ts, sourceText, ext === '.tsx');
+  let forHeaderSpans = collectForHeaderSpansFromTsTokens(tokens, ts);
+
+  let emptyStatementRanges = collectEmptyStatementRangesTypescript(sourceFile, ts);
+  let emptyStartSet = new Set();
+  emptyStatementRanges.forEach(function (r) {
+    emptyStartSet.add(r.start);
+  });
+
+  let replacements = [];
+  emptyStatementRanges.forEach(function (range) {
+    replacements.push({ start: range.start, end: range.end, text: '{}' });
+  });
+
+  let unfixableFindings = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    let t = tokens[i];
+    if (t.kind !== ts.SyntaxKind.SemicolonToken) continue;
+    if (emptyStartSet.has(t.pos)) continue;
+
+    if (isInsideAnySpan(t.pos, forHeaderSpans)) {
+      let lc = sourceFile.getLineAndCharacterOfPosition(t.pos);
+      unfixableFindings.push({
+        filePath,
+        line: lc.line + 1,
+        column: lc.character,
+        keyword: ';',
+        ruleId: 'formatear/no-semicolon',
+      });
+      continue;
+    }
+
+    replacements.push({ start: t.pos, end: t.end, text: '\n' });
+  }
+
+  let fixedText = applyReplacements(sourceText, replacements);
+  return { fixedText, unfixableFindings };
 }
 
 async function run(argv) {
@@ -657,6 +934,20 @@ async function run(argv) {
       if (isTsFile) {
         if (!ts) ts = await importTypescript();
         let sourceText = await fs.readFile(inputFilePath, 'utf8');
+        let fixed = fixSemicolonsTypescript(inputFilePath, ts, sourceText, ext);
+        if (fixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8');
+          sourceText = fixed.fixedText;
+        }
+
+        fixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+          let normalizedFilePath = normalize(finding.filePath);
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
+          );
+        });
+
         let scriptKind = ts.ScriptKind.TS;
         if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
         let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
@@ -664,8 +955,23 @@ async function run(argv) {
       }
 
       if (!isTsFile) {
-        let ast = await parseFileMeriyah(inputFilePath, parse);
-        findings = collectForbiddenFindingsMeriyah(ast, inputFilePath, forbiddenWords);
+        let sourceText = await fs.readFile(inputFilePath, 'utf8');
+        let fixed = fixSemicolonsMeriyah(inputFilePath, parse, sourceText);
+        if (fixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8');
+          sourceText = fixed.fixedText;
+        }
+
+        fixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+          let normalizedFilePath = normalize(finding.filePath);
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
+          );
+        });
+
+        let parsed = parseSourceMeriyah(parse, sourceText);
+        findings = collectForbiddenFindingsMeriyah(parsed.ast, inputFilePath, forbiddenWords);
       }
 
       findings.forEach(function (finding) {

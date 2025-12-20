@@ -1,10 +1,8 @@
-import { defineConfig } from 'vitest/config';
-
 const IS_CI = Boolean(process.env.CI);
 const SHOULD_RUN_PRODUCTION_TEST = IS_CI || Boolean(process.env.PRODUCTION_TEST);
 const SHOULD_RUN_TEST262 = IS_CI || Boolean(process.env.SHOULD_RUN_TEST262) || Boolean(process.env.TEST262_FILE);
 
-export default defineConfig({
+export default {
   test: {
     include: ['test/**/*.ts'],
     exclude: [
@@ -24,4 +22,4 @@ export default defineConfig({
       include: ['src/**/*.ts'],
     },
   },
-});
+};
