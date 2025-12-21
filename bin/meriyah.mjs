@@ -965,6 +965,69 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
   return { fixedText, unfixableFindings };
 }
 
+function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
+  let { ast } = parseSourceMeriyah(parse, sourceText);
+
+  let replacements = [];
+
+  let unfixableFindings = [];
+
+  function wrapStatement(stmt) {
+    if (!stmt || typeof stmt !== 'object') return;
+
+    if (stmt.type === 'BlockStatement') return;
+
+    if (typeof stmt.start !== 'number' || typeof stmt.end !== 'number' || stmt.end < stmt.start) {
+      addFinding(unfixableFindings, filePath, '{', stmt, 'formatear/require-braces');
+
+      return;
+    }
+
+    replacements.push({ start: stmt.start, end: stmt.start, text: '{ ' });
+    replacements.push({ start: stmt.end, end: stmt.end, text: ' }' });
+  }
+
+  function visit(node) {
+    if (!node || typeof node !== 'object') return;
+
+    if (Array.isArray(node)) {
+      node.forEach(function (item) {
+        visit(item);
+      });
+
+      return;
+    }
+
+    if (typeof node.type !== 'string') {
+      Object.values(node).forEach(function (child) {
+        visit(child);
+      });
+
+      return;
+    }
+
+    if (node.type === 'IfStatement') {
+      wrapStatement(node.consequent);
+
+      if (node.alternate) wrapStatement(node.alternate);
+    }
+
+    Object.entries(node).forEach(function (pair) {
+      let childKey = pair[0];
+
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+
+      visit(pair[1]);
+    });
+  }
+
+  visit(ast);
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings };
+}
+
 function collectEmptyStatementRangesTypescript(sourceFile, ts) {
   let ranges = [];
 
@@ -1190,6 +1253,61 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
   return { fixedText, unfixableFindings };
 }
 
+function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
+  let scriptKind = ts.ScriptKind.TS;
+
+  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+
+  let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
+
+  let replacements = [];
+
+  let unfixableFindings = [];
+
+  function wrapStatement(stmt) {
+    if (!stmt) return;
+
+    if (stmt.kind === ts.SyntaxKind.Block) return;
+
+    let start = stmt.getStart(sourceFile);
+
+    let end = stmt.getEnd();
+
+    if (typeof start !== 'number' || typeof end !== 'number' || end < start) {
+      let lc = sourceFile.getLineAndCharacterOfPosition(typeof start === 'number' ? start : 0);
+
+      unfixableFindings.push({
+        filePath,
+        line: lc.line + 1,
+        column: lc.character,
+        keyword: '{',
+        ruleId: 'formatear/require-braces',
+      });
+
+      return;
+    }
+
+    replacements.push({ start, end: start, text: '{ ' });
+    replacements.push({ start: end, end, text: ' }' });
+  }
+
+  function visit(node) {
+    if (node.kind === ts.SyntaxKind.IfStatement) {
+      wrapStatement(node.thenStatement);
+
+      if (node.elseStatement) wrapStatement(node.elseStatement);
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings };
+}
+
 async function run(argv) {
   if (argv.includes('--help') || argv.includes('-h')) {
     printHelp();
@@ -1314,6 +1432,24 @@ async function run(argv) {
           );
         });
 
+        let bracesFixed = fixMissingBracesIfTypescript(inputFilePath, ts, sourceText, ext);
+
+        if (bracesFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8');
+
+          sourceText = bracesFixed.fixedText;
+        }
+
+        bracesFixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+
+          let normalizedFilePath = normalize(finding.filePath);
+
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
+          );
+        });
+
         let scriptKind = ts.ScriptKind.TS;
 
         if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
@@ -1359,6 +1495,24 @@ async function run(argv) {
 
           process.stdout.write(
             `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
+          );
+        });
+
+        let bracesFixed = fixMissingBracesIfMeriyah(inputFilePath, parse, sourceText);
+
+        if (bracesFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8');
+
+          sourceText = bracesFixed.fixedText;
+        }
+
+        bracesFixed.unfixableFindings.forEach(function (finding) {
+          issueCount += 1;
+
+          let normalizedFilePath = normalize(finding.filePath);
+
+          process.stdout.write(
+            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
           );
         });
 
