@@ -869,6 +869,26 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
   return { fixedText, unfixableFindings };
 }
 
+function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
+  let { tokens } = parseSourceMeriyah(parse, sourceText);
+
+  let replacements = [];
+
+  tokens.forEach(function (t) {
+    if (t.type !== 'Keyword') return;
+
+    if (t.text !== 'var' && t.text !== 'const') return;
+
+    if (typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start) return;
+
+    replacements.push({ start: t.start, end: t.end, text: 'let' });
+  });
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings: [] };
+}
+
 function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
   let { ast, tokens } = parseSourceMeriyah(parse, sourceText);
 
@@ -1174,6 +1194,24 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
   return { fixedText, unfixableFindings };
 }
 
+function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
+  let tokens = scanTokensTypescript(ts, sourceText, ext === '.tsx');
+
+  let replacements = [];
+
+  tokens.forEach(function (t) {
+    if (t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword) return;
+
+    if (typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos) return;
+
+    replacements.push({ start: t.pos, end: t.end, text: 'let' });
+  });
+
+  let fixedText = applyReplacements(sourceText, replacements);
+
+  return { fixedText, unfixableFindings: [] };
+}
+
 function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
   let scriptKind = ts.ScriptKind.TS;
 
@@ -1414,6 +1452,14 @@ async function run(argv) {
           );
         });
 
+        let varConstFixed = fixVarConstToLetTypescript(inputFilePath, ts, sourceText, ext);
+
+        if (varConstFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8');
+
+          sourceText = varConstFixed.fixedText;
+        }
+
         let arrowFixed = fixArrowFunctionsToFunctionsTypescript(inputFilePath, ts, sourceText, ext);
 
         if (arrowFixed.fixedText !== sourceText) {
@@ -1479,6 +1525,14 @@ async function run(argv) {
             `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
           );
         });
+
+        let varConstFixed = fixVarConstToLetMeriyah(inputFilePath, parse, sourceText);
+
+        if (varConstFixed.fixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8');
+
+          sourceText = varConstFixed.fixedText;
+        }
 
         let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(inputFilePath, parse, sourceText);
 
