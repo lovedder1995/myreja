@@ -24,7 +24,9 @@ async function loadForbiddenWords() {
 
   let scriptPath = process.argv[1];
 
-  if (typeof scriptPath !== 'string' || scriptPath.length === 0) scriptPath = process.cwd();
+  if (typeof scriptPath !== 'string' || scriptPath.length === 0) {
+    scriptPath = process.cwd();
+  }
 
   let tokenFilePath = path.resolve(path.dirname(path.resolve(scriptPath)), '..', 'src', 'token.ts');
 
@@ -44,7 +46,9 @@ async function loadForbiddenWords() {
     forbidden.add(match[1]);
   });
 
-  if (forbidden.size > 0) return forbidden;
+  if (forbidden.size > 0) {
+    return forbidden;
+  }
 
   return fallback;
 }
@@ -63,9 +67,13 @@ async function pathKind(p) {
   try {
     let stats = await fs.stat(p);
 
-    if (stats.isDirectory()) return 'dir';
+    if (stats.isDirectory()) {
+      return 'dir';
+    }
 
-    if (stats.isFile()) return 'file';
+    if (stats.isFile()) {
+      return 'file';
+    }
 
     return 'other';
   } catch {
@@ -81,7 +89,9 @@ async function collectFiles(inputPath, out) {
 
     return;
   }
-  if (kind !== 'dir') return;
+  if (kind !== 'dir') {
+    return;
+  }
 
   let entries = await fs.readdir(inputPath, { withFileTypes: true });
 
@@ -92,16 +102,22 @@ async function collectFiles(inputPath, out) {
       if (entry.isDirectory()) {
         let isSkipped = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage';
 
-        if (isSkipped) return;
+        if (isSkipped) {
+          return;
+        }
 
         await collectFiles(fullPath, out);
 
         return;
       }
 
-      if (!entry.isFile()) return;
+      if (!entry.isFile()) {
+        return;
+      }
 
-      if (!/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)) return;
+      if (!/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)) {
+        return;
+      }
 
       out.add(path.resolve(fullPath));
     }),
@@ -109,17 +125,29 @@ async function collectFiles(inputPath, out) {
 }
 
 function isSkippableIdentifierContext(parent, key) {
-  if (!parent || typeof parent !== 'object') return false;
+  if (!parent || typeof parent !== 'object') {
+    return false;
+  }
 
-  if (parent.type === 'MemberExpression' && key === 'property' && parent.computed === false) return true;
+  if (parent.type === 'MemberExpression' && key === 'property' && parent.computed === false) {
+    return true;
+  }
 
-  if (parent.type === 'Property' && key === 'key' && parent.computed === false) return true;
+  if (parent.type === 'Property' && key === 'key' && parent.computed === false) {
+    return true;
+  }
 
-  if (parent.type === 'MethodDefinition' && key === 'key' && parent.computed === false) return true;
+  if (parent.type === 'MethodDefinition' && key === 'key' && parent.computed === false) {
+    return true;
+  }
 
-  if (parent.type === 'PropertyDefinition' && key === 'key' && parent.computed === false) return true;
+  if (parent.type === 'PropertyDefinition' && key === 'key' && parent.computed === false) {
+    return true;
+  }
 
-  if (parent.type === 'AccessorProperty' && key === 'key' && parent.computed === false) return true;
+  if (parent.type === 'AccessorProperty' && key === 'key' && parent.computed === false) {
+    return true;
+  }
 
   return false;
 }
@@ -153,7 +181,9 @@ function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
 }
 
 function applyReplacements(sourceText, replacements) {
-  if (!replacements.length) return sourceText;
+  if (!replacements.length) {
+    return sourceText;
+  }
 
   let sorted = replacements
     .slice()
@@ -175,7 +205,9 @@ function applyReplacements(sourceText, replacements) {
   let lastStart = out.length + 1;
 
   sorted.forEach(function (rep) {
-    if (rep.end > lastStart) return;
+    if (rep.end > lastStart) {
+      return;
+    }
 
     out = out.slice(0, rep.start) + rep.text + out.slice(rep.end);
 
@@ -195,7 +227,9 @@ function collectEmptyStatementRangesMeriyah(ast) {
   let ranges = [];
 
   function visit(node, parent, key) {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== 'object') {
+      return;
+    }
 
     if (Array.isArray(node)) {
       node.forEach(function (item) {
@@ -225,7 +259,9 @@ function collectEmptyStatementRangesMeriyah(ast) {
     Object.entries(node).forEach(function (pair) {
       let childKey = pair[0];
 
-      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+        return;
+      }
 
       visit(pair[1], node, childKey);
     });
@@ -240,32 +276,46 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
   let spans = [];
 
   function scanFrom(i) {
-    if (i >= tokens.length) return spans;
+    if (i >= tokens.length) {
+      return spans;
+    }
 
     let token = tokens[i];
 
-    if (!token || token.type !== 'Keyword' || token.text !== 'for') return scanFrom(i + 1);
+    if (!token || token.type !== 'Keyword' || token.text !== 'for') {
+      return scanFrom(i + 1);
+    }
 
     let j = i + 1;
 
-    if (tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await') j += 1;
+    if (tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await') {
+      j += 1;
+    }
 
     let openParenToken = tokens[j];
 
-    if (!openParenToken || openParenToken.type !== 'Punctuator' || openParenToken.text !== '(') return scanFrom(i + 1);
+    if (!openParenToken || openParenToken.type !== 'Punctuator' || openParenToken.text !== '(') {
+      return scanFrom(i + 1);
+    }
 
     let { start } = openParenToken;
 
     function scanParen(k, depth) {
-      if (k >= tokens.length) return scanFrom(i + 1);
+      if (k >= tokens.length) {
+        return scanFrom(i + 1);
+      }
 
       let token = tokens[k];
 
       let nextDepth = depth;
 
-      if (token.type === 'Punctuator' && token.text === '(') nextDepth += 1;
+      if (token.type === 'Punctuator' && token.text === '(') {
+        nextDepth += 1;
+      }
 
-      if (token.type === 'Punctuator' && token.text === ')') nextDepth -= 1;
+      if (token.type === 'Punctuator' && token.text === ')') {
+        nextDepth -= 1;
+      }
 
       if (token.type === 'Punctuator' && token.text === ')' && nextDepth === 0) {
         spans.push({ start, end: token.end });
@@ -286,7 +336,9 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
   let findings = [];
 
   function visit(node, parent, key) {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== 'object') {
+      return;
+    }
 
     if (Array.isArray(node)) {
       node.forEach(function (item) {
@@ -307,142 +359,199 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
     let { type: nodeType } = node;
 
     if (nodeType === 'ThisExpression') {
-      if (forbiddenWords.has('this')) addFinding(findings, filePath, 'this', node, 'formatear/no-this');
+      if (forbiddenWords.has('this')) {
+        addFinding(findings, filePath, 'this', node, 'formatear/no-this');
+      }
     }
 
     if (nodeType === 'IfStatement') {
-      if (forbiddenWords.has('if')) addFinding(findings, filePath, 'if', node, 'formatear/no-if');
+      if (forbiddenWords.has('if')) {
+        addFinding(findings, filePath, 'if', node, 'formatear/no-if');
+      }
 
-      if (node.alternate && forbiddenWords.has('else'))
+      if (node.alternate && forbiddenWords.has('else')) {
         addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else');
+      }
     }
 
     if (nodeType === 'ReturnStatement') {
-      if (forbiddenWords.has('return')) addFinding(findings, filePath, 'return', node, 'formatear/no-return');
+      if (forbiddenWords.has('return')) {
+        addFinding(findings, filePath, 'return', node, 'formatear/no-return');
+      }
     }
 
     if (nodeType === 'VariableDeclaration') {
-      if (node.kind === 'var' && forbiddenWords.has('var'))
+      if (node.kind === 'var' && forbiddenWords.has('var')) {
         addFinding(findings, filePath, 'var', node, 'formatear/no-var');
+      }
 
-      if (node.kind === 'let' && forbiddenWords.has('let'))
+      if (node.kind === 'let' && forbiddenWords.has('let')) {
         addFinding(findings, filePath, 'let', node, 'formatear/no-let');
+      }
 
-      if (node.kind === 'const' && forbiddenWords.has('const'))
+      if (node.kind === 'const' && forbiddenWords.has('const')) {
         addFinding(findings, filePath, 'const', node, 'formatear/no-const');
+      }
     }
 
     if (nodeType === 'ForStatement' || nodeType === 'ForInStatement' || nodeType === 'ForOfStatement') {
-      if (forbiddenWords.has('for')) addFinding(findings, filePath, 'for', node, 'formatear/no-for');
+      if (forbiddenWords.has('for')) {
+        addFinding(findings, filePath, 'for', node, 'formatear/no-for');
+      }
 
-      if (nodeType === 'ForInStatement' && forbiddenWords.has('in'))
+      if (nodeType === 'ForInStatement' && forbiddenWords.has('in')) {
         addFinding(findings, filePath, 'in', node, 'formatear/no-in');
+      }
 
-      if (nodeType === 'ForOfStatement' && forbiddenWords.has('of'))
+      if (nodeType === 'ForOfStatement' && forbiddenWords.has('of')) {
         addFinding(findings, filePath, 'of', node, 'formatear/no-of');
+      }
     }
 
     if (nodeType === 'WhileStatement') {
-      if (forbiddenWords.has('while')) addFinding(findings, filePath, 'while', node, 'formatear/no-while');
+      if (forbiddenWords.has('while')) {
+        addFinding(findings, filePath, 'while', node, 'formatear/no-while');
+      }
     }
 
     if (nodeType === 'DoWhileStatement') {
-      if (forbiddenWords.has('do')) addFinding(findings, filePath, 'do', node, 'formatear/no-do');
+      if (forbiddenWords.has('do')) {
+        addFinding(findings, filePath, 'do', node, 'formatear/no-do');
+      }
     }
 
     if (nodeType === 'SwitchStatement') {
-      if (forbiddenWords.has('switch')) addFinding(findings, filePath, 'switch', node, 'formatear/no-switch');
+      if (forbiddenWords.has('switch')) {
+        addFinding(findings, filePath, 'switch', node, 'formatear/no-switch');
+      }
     }
 
     if (nodeType === 'SwitchCase') {
-      if (node.test && forbiddenWords.has('case')) addFinding(findings, filePath, 'case', node, 'formatear/no-case');
+      if (node.test && forbiddenWords.has('case')) {
+        addFinding(findings, filePath, 'case', node, 'formatear/no-case');
+      }
 
-      if (!node.test && forbiddenWords.has('default'))
+      if (!node.test && forbiddenWords.has('default')) {
         addFinding(findings, filePath, 'default', node, 'formatear/no-default');
+      }
     }
 
     if (nodeType === 'BreakStatement') {
-      if (forbiddenWords.has('break')) addFinding(findings, filePath, 'break', node, 'formatear/no-break');
+      if (forbiddenWords.has('break')) {
+        addFinding(findings, filePath, 'break', node, 'formatear/no-break');
+      }
     }
 
     if (nodeType === 'ContinueStatement') {
-      if (forbiddenWords.has('continue')) addFinding(findings, filePath, 'continue', node, 'formatear/no-continue');
+      if (forbiddenWords.has('continue')) {
+        addFinding(findings, filePath, 'continue', node, 'formatear/no-continue');
+      }
     }
 
     if (nodeType === 'TryStatement') {
-      if (forbiddenWords.has('try')) addFinding(findings, filePath, 'try', node, 'formatear/no-try');
+      if (forbiddenWords.has('try')) {
+        addFinding(findings, filePath, 'try', node, 'formatear/no-try');
+      }
 
-      if (node.finalizer && forbiddenWords.has('finally'))
+      if (node.finalizer && forbiddenWords.has('finally')) {
         addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally');
+      }
     }
 
     if (nodeType === 'CatchClause') {
-      if (forbiddenWords.has('catch')) addFinding(findings, filePath, 'catch', node, 'formatear/no-catch');
+      if (forbiddenWords.has('catch')) {
+        addFinding(findings, filePath, 'catch', node, 'formatear/no-catch');
+      }
     }
 
     if (nodeType === 'ThrowStatement') {
-      if (forbiddenWords.has('throw')) addFinding(findings, filePath, 'throw', node, 'formatear/no-throw');
+      if (forbiddenWords.has('throw')) {
+        addFinding(findings, filePath, 'throw', node, 'formatear/no-throw');
+      }
     }
 
     if (nodeType === 'NewExpression') {
-      if (forbiddenWords.has('new')) addFinding(findings, filePath, 'new', node, 'formatear/no-new');
+      if (forbiddenWords.has('new')) {
+        addFinding(findings, filePath, 'new', node, 'formatear/no-new');
+      }
     }
 
     if (nodeType === 'UnaryExpression') {
       let { operator: op } = node;
 
-      if (op === 'typeof' && forbiddenWords.has('typeof'))
+      if (op === 'typeof' && forbiddenWords.has('typeof')) {
         addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof');
+      }
 
-      if (op === 'void' && forbiddenWords.has('void'))
+      if (op === 'void' && forbiddenWords.has('void')) {
         addFinding(findings, filePath, 'void', node, 'formatear/no-void');
+      }
 
-      if (op === 'delete' && forbiddenWords.has('delete'))
+      if (op === 'delete' && forbiddenWords.has('delete')) {
         addFinding(findings, filePath, 'delete', node, 'formatear/no-delete');
+      }
     }
 
     if (nodeType === 'BinaryExpression') {
       let { operator: op } = node;
 
-      if (op === 'in' && forbiddenWords.has('in')) addFinding(findings, filePath, 'in', node, 'formatear/no-in');
+      if (op === 'in' && forbiddenWords.has('in')) {
+        addFinding(findings, filePath, 'in', node, 'formatear/no-in');
+      }
 
-      if (op === 'instanceof' && forbiddenWords.has('instanceof'))
+      if (op === 'instanceof' && forbiddenWords.has('instanceof')) {
         addFinding(findings, filePath, 'instanceof', node, 'formatear/no-instanceof');
+      }
     }
 
     if (nodeType === 'FunctionDeclaration' || nodeType === 'FunctionExpression') {
-      if (forbiddenWords.has('function')) addFinding(findings, filePath, 'function', node, 'formatear/no-function');
+      if (forbiddenWords.has('function')) {
+        addFinding(findings, filePath, 'function', node, 'formatear/no-function');
+      }
 
-      if (node.async === true && forbiddenWords.has('async'))
+      if (node.async === true && forbiddenWords.has('async')) {
         addFinding(findings, filePath, 'async', node, 'formatear/no-async');
+      }
     }
 
     if (nodeType === 'ArrowFunctionExpression') {
-      if (node.async === true && forbiddenWords.has('async'))
+      if (node.async === true && forbiddenWords.has('async')) {
         addFinding(findings, filePath, 'async', node, 'formatear/no-async');
+      }
     }
 
     if (nodeType === 'AwaitExpression') {
-      if (forbiddenWords.has('await')) addFinding(findings, filePath, 'await', node, 'formatear/no-await');
+      if (forbiddenWords.has('await')) {
+        addFinding(findings, filePath, 'await', node, 'formatear/no-await');
+      }
     }
 
     if (nodeType === 'YieldExpression') {
-      if (forbiddenWords.has('yield')) addFinding(findings, filePath, 'yield', node, 'formatear/no-yield');
+      if (forbiddenWords.has('yield')) {
+        addFinding(findings, filePath, 'yield', node, 'formatear/no-yield');
+      }
     }
 
     if (nodeType === 'ClassDeclaration' || nodeType === 'ClassExpression') {
-      if (forbiddenWords.has('class')) addFinding(findings, filePath, 'class', node, 'formatear/no-class');
+      if (forbiddenWords.has('class')) {
+        addFinding(findings, filePath, 'class', node, 'formatear/no-class');
+      }
 
-      if (node.superClass && forbiddenWords.has('extends'))
+      if (node.superClass && forbiddenWords.has('extends')) {
         addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends');
+      }
     }
 
     if (nodeType === 'Super') {
-      if (forbiddenWords.has('super')) addFinding(findings, filePath, 'super', node, 'formatear/no-super');
+      if (forbiddenWords.has('super')) {
+        addFinding(findings, filePath, 'super', node, 'formatear/no-super');
+      }
     }
 
     if (nodeType === 'ImportDeclaration' || nodeType === 'ImportExpression') {
-      if (forbiddenWords.has('import')) addFinding(findings, filePath, 'import', node, 'formatear/no-import');
+      if (forbiddenWords.has('import')) {
+        addFinding(findings, filePath, 'import', node, 'formatear/no-import');
+      }
     }
 
     if (
@@ -450,7 +559,9 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
       nodeType === 'ExportDefaultDeclaration' ||
       nodeType === 'ExportAllDeclaration'
     ) {
-      if (forbiddenWords.has('export')) addFinding(findings, filePath, 'export', node, 'formatear/no-export');
+      if (forbiddenWords.has('export')) {
+        addFinding(findings, filePath, 'export', node, 'formatear/no-export');
+      }
     }
 
     if (nodeType === 'MetaProperty') {
@@ -462,19 +573,25 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
       let propertyName = propertyNode && propertyNode.name;
 
-      if (metaName === 'new' && propertyName === 'target' && forbiddenWords.has('target'))
+      if (metaName === 'new' && propertyName === 'target' && forbiddenWords.has('target')) {
         addFinding(findings, filePath, 'target', node, 'formatear/no-target');
+      }
 
-      if (metaName === 'import' && propertyName === 'meta' && forbiddenWords.has('meta'))
+      if (metaName === 'import' && propertyName === 'meta' && forbiddenWords.has('meta')) {
         addFinding(findings, filePath, 'meta', node, 'formatear/no-meta');
+      }
     }
 
     if (nodeType === 'WithStatement') {
-      if (forbiddenWords.has('with')) addFinding(findings, filePath, 'with', node, 'formatear/no-with');
+      if (forbiddenWords.has('with')) {
+        addFinding(findings, filePath, 'with', node, 'formatear/no-with');
+      }
     }
 
     if (nodeType === 'DebuggerStatement') {
-      if (forbiddenWords.has('debugger')) addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger');
+      if (forbiddenWords.has('debugger')) {
+        addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger');
+      }
     }
 
     if (nodeType === 'Identifier') {
@@ -490,7 +607,9 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
     Object.entries(node).forEach(function (pair) {
       let childKey = pair[0];
 
-      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+        return;
+      }
 
       visit(pair[1], node, childKey);
     });
@@ -514,27 +633,49 @@ function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
 }
 
 function isSkippableTsIdentifierContext(parent, node, ts) {
-  if (!parent) return false;
+  if (!parent) {
+    return false;
+  }
 
-  if (ts.isPropertyAccessExpression(parent) && parent.name === node) return true;
+  if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isPropertyAssignment(parent) && parent.name === node) return true;
+  if (ts.isPropertyAssignment(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isMethodDeclaration(parent) && parent.name === node) return true;
+  if (ts.isMethodDeclaration(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isMethodSignature(parent) && parent.name === node) return true;
+  if (ts.isMethodSignature(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isPropertyDeclaration(parent) && parent.name === node) return true;
+  if (ts.isPropertyDeclaration(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isPropertySignature(parent) && parent.name === node) return true;
+  if (ts.isPropertySignature(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isGetAccessorDeclaration(parent) && parent.name === node) return true;
+  if (ts.isGetAccessorDeclaration(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isSetAccessorDeclaration(parent) && parent.name === node) return true;
+  if (ts.isSetAccessorDeclaration(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isShorthandPropertyAssignment(parent) && parent.name === node) return true;
+  if (ts.isShorthandPropertyAssignment(parent) && parent.name === node) {
+    return true;
+  }
 
-  if (ts.isEnumMember(parent) && parent.name === node) return true;
+  if (ts.isEnumMember(parent) && parent.name === node) {
+    return true;
+  }
 
   return false;
 }
@@ -554,18 +695,25 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
     let { kind } = node;
 
     if (kind === ts.SyntaxKind.ThisKeyword) {
-      if (forbiddenWords.has('this')) addKeywordNode('this', node, 'formatear/no-this');
+      if (forbiddenWords.has('this')) {
+        addKeywordNode('this', node, 'formatear/no-this');
+      }
     }
 
     if (kind === ts.SyntaxKind.IfStatement) {
-      if (forbiddenWords.has('if')) addKeywordNode('if', node, 'formatear/no-if');
+      if (forbiddenWords.has('if')) {
+        addKeywordNode('if', node, 'formatear/no-if');
+      }
 
-      if (node.elseStatement && forbiddenWords.has('else'))
+      if (node.elseStatement && forbiddenWords.has('else')) {
         addKeywordNode('else', node.elseStatement, 'formatear/no-else');
+      }
     }
 
     if (kind === ts.SyntaxKind.ReturnStatement) {
-      if (forbiddenWords.has('return')) addKeywordNode('return', node, 'formatear/no-return');
+      if (forbiddenWords.has('return')) {
+        addKeywordNode('return', node, 'formatear/no-return');
+      }
     }
 
     if (
@@ -573,72 +721,105 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
       kind === ts.SyntaxKind.ForInStatement ||
       kind === ts.SyntaxKind.ForOfStatement
     ) {
-      if (forbiddenWords.has('for')) addKeywordNode('for', node, 'formatear/no-for');
+      if (forbiddenWords.has('for')) {
+        addKeywordNode('for', node, 'formatear/no-for');
+      }
 
-      if (kind === ts.SyntaxKind.ForInStatement && forbiddenWords.has('in'))
+      if (kind === ts.SyntaxKind.ForInStatement && forbiddenWords.has('in')) {
         addKeywordNode('in', node, 'formatear/no-in');
+      }
 
-      if (kind === ts.SyntaxKind.ForOfStatement && forbiddenWords.has('of'))
+      if (kind === ts.SyntaxKind.ForOfStatement && forbiddenWords.has('of')) {
         addKeywordNode('of', node, 'formatear/no-of');
+      }
     }
 
     if (kind === ts.SyntaxKind.WhileStatement) {
-      if (forbiddenWords.has('while')) addKeywordNode('while', node, 'formatear/no-while');
+      if (forbiddenWords.has('while')) {
+        addKeywordNode('while', node, 'formatear/no-while');
+      }
     }
 
     if (kind === ts.SyntaxKind.DoStatement) {
-      if (forbiddenWords.has('do')) addKeywordNode('do', node, 'formatear/no-do');
+      if (forbiddenWords.has('do')) {
+        addKeywordNode('do', node, 'formatear/no-do');
+      }
     }
 
     if (kind === ts.SyntaxKind.SwitchStatement) {
-      if (forbiddenWords.has('switch')) addKeywordNode('switch', node, 'formatear/no-switch');
+      if (forbiddenWords.has('switch')) {
+        addKeywordNode('switch', node, 'formatear/no-switch');
+      }
     }
 
     if (kind === ts.SyntaxKind.CaseClause) {
-      if (forbiddenWords.has('case')) addKeywordNode('case', node, 'formatear/no-case');
+      if (forbiddenWords.has('case')) {
+        addKeywordNode('case', node, 'formatear/no-case');
+      }
     }
 
     if (kind === ts.SyntaxKind.DefaultClause) {
-      if (forbiddenWords.has('default')) addKeywordNode('default', node, 'formatear/no-default');
+      if (forbiddenWords.has('default')) {
+        addKeywordNode('default', node, 'formatear/no-default');
+      }
     }
 
     if (kind === ts.SyntaxKind.BreakStatement) {
-      if (forbiddenWords.has('break')) addKeywordNode('break', node, 'formatear/no-break');
+      if (forbiddenWords.has('break')) {
+        addKeywordNode('break', node, 'formatear/no-break');
+      }
     }
 
     if (kind === ts.SyntaxKind.ContinueStatement) {
-      if (forbiddenWords.has('continue')) addKeywordNode('continue', node, 'formatear/no-continue');
+      if (forbiddenWords.has('continue')) {
+        addKeywordNode('continue', node, 'formatear/no-continue');
+      }
     }
 
     if (kind === ts.SyntaxKind.TryStatement) {
-      if (forbiddenWords.has('try')) addKeywordNode('try', node, 'formatear/no-try');
+      if (forbiddenWords.has('try')) {
+        addKeywordNode('try', node, 'formatear/no-try');
+      }
 
-      if (node.finallyBlock && forbiddenWords.has('finally'))
+      if (node.finallyBlock && forbiddenWords.has('finally')) {
         addKeywordNode('finally', node.finallyBlock, 'formatear/no-finally');
+      }
     }
 
     if (kind === ts.SyntaxKind.CatchClause) {
-      if (forbiddenWords.has('catch')) addKeywordNode('catch', node, 'formatear/no-catch');
+      if (forbiddenWords.has('catch')) {
+        addKeywordNode('catch', node, 'formatear/no-catch');
+      }
     }
 
     if (kind === ts.SyntaxKind.ThrowStatement) {
-      if (forbiddenWords.has('throw')) addKeywordNode('throw', node, 'formatear/no-throw');
+      if (forbiddenWords.has('throw')) {
+        addKeywordNode('throw', node, 'formatear/no-throw');
+      }
     }
 
     if (kind === ts.SyntaxKind.NewExpression) {
-      if (forbiddenWords.has('new')) addKeywordNode('new', node, 'formatear/no-new');
+      if (forbiddenWords.has('new')) {
+        addKeywordNode('new', node, 'formatear/no-new');
+      }
     }
 
     if (kind === ts.SyntaxKind.TypeOfExpression) {
-      if (forbiddenWords.has('typeof')) addKeywordNode('typeof', node, 'formatear/no-typeof');
+      if (forbiddenWords.has('typeof')) {
+        addKeywordNode('typeof', node, 'formatear/no-typeof');
+      }
     }
 
     if (kind === ts.SyntaxKind.VoidExpression) {
-      if (forbiddenWords.has('void')) addKeywordNode('void', node, 'formatear/no-void');
+      if (forbiddenWords.has('void')) {
+        addKeywordNode('void', node, 'formatear/no-void');
+      }
     }
 
     if (kind === ts.SyntaxKind.DeleteExpression) {
-      if (forbiddenWords.has('delete')) addKeywordNode('delete', node, 'formatear/no-delete');
+      if (forbiddenWords.has('delete')) {
+        addKeywordNode('delete', node, 'formatear/no-delete');
+      }
     }
 
     if (kind === ts.SyntaxKind.BinaryExpression) {
@@ -646,39 +827,55 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
       let { kind: operatorKind } = operatorToken || {};
 
-      if (operatorKind === ts.SyntaxKind.InKeyword && forbiddenWords.has('in'))
+      if (operatorKind === ts.SyntaxKind.InKeyword && forbiddenWords.has('in')) {
         addKeywordNode('in', node, 'formatear/no-in');
+      }
 
-      if (operatorKind === ts.SyntaxKind.InstanceOfKeyword && forbiddenWords.has('instanceof'))
+      if (operatorKind === ts.SyntaxKind.InstanceOfKeyword && forbiddenWords.has('instanceof')) {
         addKeywordNode('instanceof', node, 'formatear/no-instanceof');
+      }
     }
 
     if (kind === ts.SyntaxKind.FunctionDeclaration || kind === ts.SyntaxKind.FunctionExpression) {
-      if (forbiddenWords.has('function')) addKeywordNode('function', node, 'formatear/no-function');
+      if (forbiddenWords.has('function')) {
+        addKeywordNode('function', node, 'formatear/no-function');
+      }
     }
 
     if (kind === ts.SyntaxKind.ClassDeclaration || kind === ts.SyntaxKind.ClassExpression) {
-      if (forbiddenWords.has('class')) addKeywordNode('class', node, 'formatear/no-class');
+      if (forbiddenWords.has('class')) {
+        addKeywordNode('class', node, 'formatear/no-class');
+      }
     }
 
     if (kind === ts.SyntaxKind.SuperKeyword) {
-      if (forbiddenWords.has('super')) addKeywordNode('super', node, 'formatear/no-super');
+      if (forbiddenWords.has('super')) {
+        addKeywordNode('super', node, 'formatear/no-super');
+      }
     }
 
     if (kind === ts.SyntaxKind.AwaitExpression) {
-      if (forbiddenWords.has('await')) addKeywordNode('await', node, 'formatear/no-await');
+      if (forbiddenWords.has('await')) {
+        addKeywordNode('await', node, 'formatear/no-await');
+      }
     }
 
     if (kind === ts.SyntaxKind.YieldExpression) {
-      if (forbiddenWords.has('yield')) addKeywordNode('yield', node, 'formatear/no-yield');
+      if (forbiddenWords.has('yield')) {
+        addKeywordNode('yield', node, 'formatear/no-yield');
+      }
     }
 
     if (kind === ts.SyntaxKind.InterfaceDeclaration) {
-      if (forbiddenWords.has('interface')) addKeywordNode('interface', node, 'formatear/no-interface');
+      if (forbiddenWords.has('interface')) {
+        addKeywordNode('interface', node, 'formatear/no-interface');
+      }
     }
 
     if (kind === ts.SyntaxKind.EnumDeclaration) {
-      if (forbiddenWords.has('enum')) addKeywordNode('enum', node, 'formatear/no-enum');
+      if (forbiddenWords.has('enum')) {
+        addKeywordNode('enum', node, 'formatear/no-enum');
+      }
     }
 
     if (kind === ts.SyntaxKind.MetaProperty) {
@@ -686,23 +883,31 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
       let { escapedText: name } = nameNode || {};
 
-      if (keywordToken === ts.SyntaxKind.NewKeyword && name === 'target' && forbiddenWords.has('target'))
+      if (keywordToken === ts.SyntaxKind.NewKeyword && name === 'target' && forbiddenWords.has('target')) {
         addKeywordNode('target', node, 'formatear/no-target');
+      }
 
-      if (keywordToken === ts.SyntaxKind.ImportKeyword && name === 'meta' && forbiddenWords.has('meta'))
+      if (keywordToken === ts.SyntaxKind.ImportKeyword && name === 'meta' && forbiddenWords.has('meta')) {
         addKeywordNode('meta', node, 'formatear/no-meta');
+      }
     }
 
     if (kind === ts.SyntaxKind.AsExpression) {
-      if (forbiddenWords.has('as')) addKeywordNode('as', node, 'formatear/no-as');
+      if (forbiddenWords.has('as')) {
+        addKeywordNode('as', node, 'formatear/no-as');
+      }
     }
 
     if (kind === ts.SyntaxKind.WithStatement) {
-      if (forbiddenWords.has('with')) addKeywordNode('with', node, 'formatear/no-with');
+      if (forbiddenWords.has('with')) {
+        addKeywordNode('with', node, 'formatear/no-with');
+      }
     }
 
     if (kind === ts.SyntaxKind.DebuggerStatement) {
-      if (forbiddenWords.has('debugger')) addKeywordNode('debugger', node, 'formatear/no-debugger');
+      if (forbiddenWords.has('debugger')) {
+        addKeywordNode('debugger', node, 'formatear/no-debugger');
+      }
     }
 
     if (kind === ts.SyntaxKind.VariableStatement) {
@@ -710,18 +915,23 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
       let { flags = 0 } = declList || {};
 
-      if (forbiddenWords.has('const') && (flags & ts.NodeFlags.Const) !== 0)
+      if (forbiddenWords.has('const') && (flags & ts.NodeFlags.Const) !== 0) {
         addKeywordNode('const', node, 'formatear/no-const');
+      }
 
-      if (forbiddenWords.has('let') && (flags & ts.NodeFlags.Let) !== 0)
+      if (forbiddenWords.has('let') && (flags & ts.NodeFlags.Let) !== 0) {
         addKeywordNode('let', node, 'formatear/no-let');
+      }
 
-      if (forbiddenWords.has('var') && (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) === 0)
+      if (forbiddenWords.has('var') && (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) === 0) {
         addKeywordNode('var', node, 'formatear/no-var');
+      }
     }
 
     if (kind === ts.SyntaxKind.Constructor) {
-      if (forbiddenWords.has('constructor')) addKeywordNode('constructor', node, 'formatear/no-constructor');
+      if (forbiddenWords.has('constructor')) {
+        addKeywordNode('constructor', node, 'formatear/no-constructor');
+      }
     }
 
     if (kind === ts.SyntaxKind.Identifier) {
@@ -739,32 +949,44 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let { kind: modifierKind } = modifier;
 
         if (modifierKind === ts.SyntaxKind.PublicKeyword) {
-          if (forbiddenWords.has('public')) addModifier('public', modifier, 'formatear/no-public');
+          if (forbiddenWords.has('public')) {
+            addModifier('public', modifier, 'formatear/no-public');
+          }
 
           return;
         }
         if (modifierKind === ts.SyntaxKind.PrivateKeyword) {
-          if (forbiddenWords.has('private')) addModifier('private', modifier, 'formatear/no-private');
+          if (forbiddenWords.has('private')) {
+            addModifier('private', modifier, 'formatear/no-private');
+          }
 
           return;
         }
         if (modifierKind === ts.SyntaxKind.ProtectedKeyword) {
-          if (forbiddenWords.has('protected')) addModifier('protected', modifier, 'formatear/no-protected');
+          if (forbiddenWords.has('protected')) {
+            addModifier('protected', modifier, 'formatear/no-protected');
+          }
 
           return;
         }
         if (modifierKind === ts.SyntaxKind.StaticKeyword) {
-          if (forbiddenWords.has('static')) addModifier('static', modifier, 'formatear/no-static');
+          if (forbiddenWords.has('static')) {
+            addModifier('static', modifier, 'formatear/no-static');
+          }
 
           return;
         }
         if (modifierKind === ts.SyntaxKind.AsyncKeyword) {
-          if (forbiddenWords.has('async')) addModifier('async', modifier, 'formatear/no-async');
+          if (forbiddenWords.has('async')) {
+            addModifier('async', modifier, 'formatear/no-async');
+          }
 
           return;
         }
         if (modifierKind === ts.SyntaxKind.AccessorKeyword) {
-          if (forbiddenWords.has('accessor')) addModifier('accessor', modifier, 'formatear/no-accessor');
+          if (forbiddenWords.has('accessor')) {
+            addModifier('accessor', modifier, 'formatear/no-accessor');
+          }
         }
       });
     }
@@ -773,11 +995,13 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
     if (heritageClauses && heritageClauses.length) {
       heritageClauses.forEach(function (clause) {
-        if (clause.token === ts.SyntaxKind.ExtendsKeyword && forbiddenWords.has('extends'))
+        if (clause.token === ts.SyntaxKind.ExtendsKeyword && forbiddenWords.has('extends')) {
           addKeywordNode('extends', clause, 'formatear/no-extends');
+        }
 
-        if (clause.token === ts.SyntaxKind.ImplementsKeyword && forbiddenWords.has('implements'))
+        if (clause.token === ts.SyntaxKind.ImplementsKeyword && forbiddenWords.has('implements')) {
           addKeywordNode('implements', clause, 'formatear/no-implements');
+        }
       });
     }
 
@@ -851,9 +1075,13 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
   let unfixableFindings = [];
 
   tokens.forEach(function (t) {
-    if (t.text !== ';') return;
+    if (t.text !== ';') {
+      return;
+    }
 
-    if (emptyStartSet.has(t.start)) return;
+    if (emptyStartSet.has(t.start)) {
+      return;
+    }
 
     if (isInsideAnySpan(t.start, forHeaderSpans)) {
       addFindingAtLoc(unfixableFindings, filePath, ';', t.loc, 'formatear/no-semicolon');
@@ -875,11 +1103,17 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
   let replacements = [];
 
   tokens.forEach(function (t) {
-    if (t.type !== 'Keyword') return;
+    if (t.type !== 'Keyword') {
+      return;
+    }
 
-    if (t.text !== 'var' && t.text !== 'const') return;
+    if (t.text !== 'var' && t.text !== 'const') {
+      return;
+    }
 
-    if (typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start) return;
+    if (typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start) {
+      return;
+    }
 
     replacements.push({ start: t.start, end: t.end, text: 'let' });
   });
@@ -901,9 +1135,13 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
   });
 
   function convertArrowFunction(node) {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== 'object') {
+      return;
+    }
 
-    if (node.type !== 'ArrowFunctionExpression') return;
+    if (node.type !== 'ArrowFunctionExpression') {
+      return;
+    }
 
     let arrowToken = arrowTokens.find(function (t) {
       return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end;
@@ -917,11 +1155,15 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
     let headText = sourceText.slice(node.start, arrowToken.start).trimEnd();
 
-    if (node.async === true) headText = headText.replace(/^\s*async\b\s*/, '');
+    if (node.async === true) {
+      headText = headText.replace(/^\s*async\b\s*/, '');
+    }
 
     let paramsText = headText.trim();
 
-    if (!paramsText.startsWith('(')) paramsText = `(${paramsText})`;
+    if (!paramsText.startsWith('(')) {
+      paramsText = `(${paramsText})`;
+    }
 
     let functionPrefix = node.async === true ? 'async function ' : 'function ';
 
@@ -929,11 +1171,15 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
     if (node.body && node.body.type === 'BlockStatement') {
       bodyText = sourceText.slice(node.body.start, node.body.end);
-    } else if (node.body && typeof node.body.start === 'number' && typeof node.body.end === 'number') {
+    }
+
+    if (!bodyText && node.body && typeof node.body.start === 'number' && typeof node.body.end === 'number') {
       let expressionText = sourceText.slice(node.body.start, node.body.end);
 
       bodyText = `{ return ${expressionText} }`;
-    } else {
+    }
+
+    if (!bodyText) {
       addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function');
 
       return;
@@ -947,7 +1193,9 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
   }
 
   function visit(node) {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== 'object') {
+      return;
+    }
 
     if (Array.isArray(node)) {
       node.forEach(function (item) {
@@ -972,7 +1220,9 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
     Object.entries(node).forEach(function (pair) {
       let childKey = pair[0];
 
-      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+        return;
+      }
 
       visit(pair[1]);
     });
@@ -993,9 +1243,13 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
   let unfixableFindings = [];
 
   function wrapStatement(stmt) {
-    if (!stmt || typeof stmt !== 'object') return;
+    if (!stmt || typeof stmt !== 'object') {
+      return;
+    }
 
-    if (stmt.type === 'BlockStatement') return;
+    if (stmt.type === 'BlockStatement') {
+      return;
+    }
 
     if (typeof stmt.start !== 'number' || typeof stmt.end !== 'number' || stmt.end < stmt.start) {
       addFinding(unfixableFindings, filePath, '{', stmt, 'formatear/require-braces');
@@ -1004,11 +1258,14 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
     }
 
     replacements.push({ start: stmt.start, end: stmt.start, text: '{ ' });
+
     replacements.push({ start: stmt.end, end: stmt.end, text: ' }' });
   }
 
   function visit(node) {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== 'object') {
+      return;
+    }
 
     if (Array.isArray(node)) {
       node.forEach(function (item) {
@@ -1029,13 +1286,17 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
     if (node.type === 'IfStatement') {
       wrapStatement(node.consequent);
 
-      if (node.alternate) wrapStatement(node.alternate);
+      if (node.alternate) {
+        wrapStatement(node.alternate);
+      }
     }
 
     Object.entries(node).forEach(function (pair) {
       let childKey = pair[0];
 
-      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') return;
+      if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+        return;
+      }
 
       visit(pair[1]);
     });
@@ -1073,30 +1334,44 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
   let spans = [];
 
   function scanFrom(i) {
-    if (i >= tokens.length) return spans;
+    if (i >= tokens.length) {
+      return spans;
+    }
 
-    if (tokens[i].kind !== ts.SyntaxKind.ForKeyword) return scanFrom(i + 1);
+    if (tokens[i].kind !== ts.SyntaxKind.ForKeyword) {
+      return scanFrom(i + 1);
+    }
 
     let j = i + 1;
 
-    if (tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword) j += 1;
+    if (tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword) {
+      j += 1;
+    }
 
     let openParenToken = tokens[j];
 
-    if (!openParenToken || openParenToken.kind !== ts.SyntaxKind.OpenParenToken) return scanFrom(i + 1);
+    if (!openParenToken || openParenToken.kind !== ts.SyntaxKind.OpenParenToken) {
+      return scanFrom(i + 1);
+    }
 
     let start = openParenToken.pos;
 
     function scanParen(k, depth) {
-      if (k >= tokens.length) return scanFrom(i + 1);
+      if (k >= tokens.length) {
+        return scanFrom(i + 1);
+      }
 
       let tk = tokens[k];
 
       let nextDepth = depth;
 
-      if (tk.kind === ts.SyntaxKind.OpenParenToken) nextDepth += 1;
+      if (tk.kind === ts.SyntaxKind.OpenParenToken) {
+        nextDepth += 1;
+      }
 
-      if (tk.kind === ts.SyntaxKind.CloseParenToken) nextDepth -= 1;
+      if (tk.kind === ts.SyntaxKind.CloseParenToken) {
+        nextDepth -= 1;
+      }
 
       if (tk.kind === ts.SyntaxKind.CloseParenToken && nextDepth === 0) {
         spans.push({ start, end: tk.end });
@@ -1126,7 +1401,9 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
   function scanNext() {
     let kind = scanner.scan();
 
-    if (kind === ts.SyntaxKind.EndOfFileToken) return tokens;
+    if (kind === ts.SyntaxKind.EndOfFileToken) {
+      return tokens;
+    }
 
     let pos = scanner.getTokenPos();
 
@@ -1143,7 +1420,9 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
 function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
   let scriptKind = ts.ScriptKind.TS;
 
-  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+  if (ext === '.tsx') {
+    scriptKind = ts.ScriptKind.TSX;
+  }
 
   let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
 
@@ -1168,9 +1447,13 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
   let unfixableFindings = [];
 
   tokens.forEach(function (t) {
-    if (t.kind !== ts.SyntaxKind.SemicolonToken) return;
+    if (t.kind !== ts.SyntaxKind.SemicolonToken) {
+      return;
+    }
 
-    if (emptyStartSet.has(t.pos)) return;
+    if (emptyStartSet.has(t.pos)) {
+      return;
+    }
 
     if (isInsideAnySpan(t.pos, forHeaderSpans)) {
       let lc = sourceFile.getLineAndCharacterOfPosition(t.pos);
@@ -1200,9 +1483,13 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
   let replacements = [];
 
   tokens.forEach(function (t) {
-    if (t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword) return;
+    if (t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword) {
+      return;
+    }
 
-    if (typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos) return;
+    if (typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos) {
+      return;
+    }
 
     replacements.push({ start: t.pos, end: t.end, text: 'let' });
   });
@@ -1215,7 +1502,9 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
 function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
   let scriptKind = ts.ScriptKind.TS;
 
-  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+  if (ext === '.tsx') {
+    scriptKind = ts.ScriptKind.TSX;
+  }
 
   let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
 
@@ -1226,9 +1515,12 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
   function visit(node) {
     if (node.kind === ts.SyntaxKind.ArrowFunction) {
       let start = node.getStart(sourceFile);
+
       let end = node.getEnd();
 
-      if (typeof start !== 'number' || typeof end !== 'number' || end < start) return;
+      if (typeof start !== 'number' || typeof end !== 'number' || end < start) {
+        return;
+      }
 
       let arrowToken = node.equalsGreaterThanToken;
 
@@ -1256,11 +1548,15 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
           return m.kind === ts.SyntaxKind.AsyncKeyword;
         });
 
-      if (isAsync) headText = headText.replace(/^\s*async\b\s*/, '');
+      if (isAsync) {
+        headText = headText.replace(/^\s*async\b\s*/, '');
+      }
 
       let paramsText = headText.trim();
 
-      if (!paramsText.startsWith('(')) paramsText = `(${paramsText})`;
+      if (!paramsText.startsWith('(')) {
+        paramsText = `(${paramsText})`;
+      }
 
       let functionPrefix = isAsync ? 'async function ' : 'function ';
 
@@ -1268,9 +1564,13 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
       if (node.body.kind === ts.SyntaxKind.Block) {
         bodyText = sourceText.slice(node.body.getStart(sourceFile), node.body.getEnd());
-      } else {
+      }
+
+      if (!bodyText) {
         let bodyStart = node.body.getStart(sourceFile);
+
         let bodyEnd = node.body.getEnd();
+
         let exprText = sourceText.slice(bodyStart, bodyEnd);
 
         bodyText = `{ return ${exprText} }`;
@@ -1294,7 +1594,9 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
   let scriptKind = ts.ScriptKind.TS;
 
-  if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+  if (ext === '.tsx') {
+    scriptKind = ts.ScriptKind.TSX;
+  }
 
   let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
 
@@ -1303,9 +1605,13 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
   let unfixableFindings = [];
 
   function wrapStatement(stmt) {
-    if (!stmt) return;
+    if (!stmt) {
+      return;
+    }
 
-    if (stmt.kind === ts.SyntaxKind.Block) return;
+    if (stmt.kind === ts.SyntaxKind.Block) {
+      return;
+    }
 
     let start = stmt.getStart(sourceFile);
 
@@ -1326,6 +1632,7 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     }
 
     replacements.push({ start, end: start, text: '{ ' });
+
     replacements.push({ start: end, end, text: ' }' });
   }
 
@@ -1333,7 +1640,9 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     if (node.kind === ts.SyntaxKind.IfStatement) {
       wrapStatement(node.thenStatement);
 
-      if (node.elseStatement) wrapStatement(node.elseStatement);
+      if (node.elseStatement) {
+        wrapStatement(node.elseStatement);
+      }
     }
 
     ts.forEachChild(node, visit);
@@ -1430,7 +1739,9 @@ async function run(argv) {
       let findings;
 
       if (isTsFile) {
-        if (!ts) ts = await importTypescript();
+        if (!ts) {
+          ts = await importTypescript();
+        }
 
         let sourceText = await fs.readFile(inputFilePath, 'utf8');
 
@@ -1498,7 +1809,9 @@ async function run(argv) {
 
         let scriptKind = ts.ScriptKind.TS;
 
-        if (ext === '.tsx') scriptKind = ts.ScriptKind.TSX;
+        if (ext === '.tsx') {
+          scriptKind = ts.ScriptKind.TSX;
+        }
 
         let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
 
@@ -1606,7 +1919,9 @@ async function run(argv) {
     });
   }, Promise.resolve());
 
-  if (parseErrorCount > 0) return 2;
+  if (parseErrorCount > 0) {
+    return 2;
+  }
 
   return issueCount > 0 ? 1 : 0;
 }
