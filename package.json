@@ -124,7 +124,7 @@
     "node": ">=20.0.0"
   },
   "lint-staged": {
-    "*.{ts,mts,cts,js,mjs,cjs}": "eslint --fix",
+    "*.{ts,mts,cts,js,mjs,cjs}": "eslint --fix --ignore-pattern bin/meriyah.mjs --no-warn-ignored",
     "*": "prettier --write --ignore-unknown"
   }
 }
