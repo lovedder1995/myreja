@@ -279,6 +279,20 @@ function applyReplacements(sourceText, replacements) {
 
 }
 
+function stripTrailingWhitespace(sourceText) {
+  if (typeof sourceText !== 'string' || sourceText.length === 0) {
+    return sourceText
+
+  }
+
+  let out = sourceText.replace(/[ \t]+(?=\r?\n)/g, '')
+  out = out.replace(/[ \t]+(?=\r)/g, '')
+  out = out.replace(/[ \t]+$/g, '')
+
+  return out
+
+}
+
 function isInsideAnySpan(index, spans) {
   return spans.some(function (span) {
     return index >= span.start && index < span.end
@@ -2331,6 +2345,17 @@ async function run(argv) {
 
         })
 
+        let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
+
+
+        if (noTrailingWhitespaceText !== sourceText) {
+          await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
+
+
+          sourceText = noTrailingWhitespaceText
+
+        }
+
 
         let scriptKind = ts.ScriptKind.TS
 
@@ -2435,6 +2460,17 @@ async function run(argv) {
           )
 
         })
+
+        let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
+
+
+        if (noTrailingWhitespaceText !== sourceText) {
+          await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
+
+
+          sourceText = noTrailingWhitespaceText
+
+        }
 
 
         let parsed = parseSourceMeriyah(parse, sourceText)
