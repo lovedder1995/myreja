@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises'
-
 import path from 'node:path'
-
 import process from 'node:process'
-
 
 async function importMeriyah() {
   try {
@@ -2504,4 +2501,3 @@ let exitCode = await run(process.argv.slice(2))
 
 
 process.exitCode = exitCode
-
