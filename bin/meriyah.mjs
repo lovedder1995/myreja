@@ -293,6 +293,108 @@ function stripTrailingWhitespace(sourceText) {
 
 }
 
+function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
+  if (typeof sourceText !== 'string' || sourceText.length === 0) {
+    return sourceText
+
+  }
+
+  if (!sourceText.includes('\t')) {
+    return sourceText
+
+  }
+
+  if (!Array.isArray(spans) || spans.length === 0) {
+    return sourceText.replace(/\t/g, '    ')
+
+  }
+
+  let len = sourceText.length
+
+
+  let sorted = spans
+    .slice()
+    .filter(function (span) {
+      return (
+        span &&
+        typeof span.start === 'number' &&
+        typeof span.end === 'number' &&
+        Number.isFinite(span.start) &&
+        Number.isFinite(span.end)
+      )
+
+    })
+    .map(function (span) {
+      let start = Math.max(0, Math.min(len, span.start))
+      let end = Math.max(start, Math.min(len, span.end))
+
+
+      return { start, end }
+
+    })
+    .sort(function (a, b) {
+      return a.start - b.start
+
+    })
+
+
+  let merged = []
+
+
+  sorted.forEach(function (span) {
+    if (merged.length === 0) {
+      merged.push(span)
+
+
+      return
+
+    }
+
+    let last = merged[merged.length - 1]
+
+
+    if (span.start > last.end) {
+      merged.push(span)
+
+
+      return
+
+    }
+
+    if (span.end > last.end) {
+      last.end = span.end
+
+    }
+  })
+
+
+  let out = ''
+
+
+  let cursor = 0
+
+
+  merged.forEach(function (span) {
+    if (span.start > cursor) {
+      out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ')
+
+    }
+
+    out += sourceText.slice(span.start, span.end)
+    cursor = span.end
+
+  })
+
+
+  if (cursor < len) {
+    out += sourceText.slice(cursor).replace(/\t/g, '    ')
+
+  }
+
+  return out
+
+}
+
 function isInsideAnySpan(index, spans) {
   return spans.some(function (span) {
     return index >= span.start && index < span.end
@@ -2259,6 +2361,26 @@ async function run(argv) {
 
         let sourceText = await fs.readFile(inputFilePath, 'utf8')
 
+        let tokensForTabs = scanTokensTypescript(ts, sourceText, ext === '.tsx')
+
+
+        let tabFixedText = convertTabsToFourSpacesOutsideTokens(
+          sourceText,
+          tokensForTabs.map(function (t) {
+            return { start: t.pos, end: t.end }
+
+          }),
+        )
+
+
+        if (tabFixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
+
+
+          sourceText = tabFixedText
+
+        }
+
 
         let fixed = fixSemicolonsTypescript(inputFilePath, ts, sourceText, ext)
 
@@ -2374,6 +2496,26 @@ async function run(argv) {
 
       if (!isTsFile) {
         let sourceText = await fs.readFile(inputFilePath, 'utf8')
+
+        let parsedForTabs = parseSourceMeriyah(parse, sourceText)
+
+
+        let tabFixedText = convertTabsToFourSpacesOutsideTokens(
+          sourceText,
+          parsedForTabs.tokens.map(function (t) {
+            return { start: t.start, end: t.end }
+
+          }),
+        )
+
+
+        if (tabFixedText !== sourceText) {
+          await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
+
+
+          sourceText = tabFixedText
+
+        }
 
 
         let fixed = fixSemicolonsMeriyah(inputFilePath, parse, sourceText)
