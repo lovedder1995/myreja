@@ -115,6 +115,12 @@ export default [
     },
   },
   {
+    files: ['bin/meriyah-cli/**/*.mjs'],
+    rules: {
+      'prefer-const': 0,
+    },
+  },
+  {
     files: ['test/**/*.ts', 'scripts/**/*.mjs', 'vitest.config.ts'],
     languageOptions: { globals: { ...globals.node } },
   },

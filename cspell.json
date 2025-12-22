@@ -22,5 +22,5 @@
     "ZWNJ"
   ],
   "ignoreRegExpList": [],
-  "ignorePaths": ["CHANGELOG.md", "bin/meriyah.mjs", "test/**/*", "test262/whitelist.txt"]
+  "ignorePaths": ["CHANGELOG.md", "bin/meriyah.mjs", "bin/meriyah-cli/**/*", "test/**/*", "test262/whitelist.txt"]
 }
