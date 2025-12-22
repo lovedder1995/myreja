@@ -26,12 +26,9 @@ async function importTypescript() {
 async function loadForbiddenWords() {
     let fallback = new Set(['this'])
 
-
     let scriptPath = process.argv[1]
 
-
     let esScriptPathInvalido = typeof scriptPath !== 'string' || scriptPath.length === 0
-
 
     if (esScriptPathInvalido) {
         scriptPath = process.cwd()
@@ -40,9 +37,7 @@ async function loadForbiddenWords() {
 
     let tokenFilePath = path.resolve(path.dirname(path.resolve(scriptPath)), '..', 'src', 'token.ts')
 
-
     let content
-
 
     try {
         content = await fs.readFile(tokenFilePath, 'utf8')
@@ -54,18 +49,14 @@ async function loadForbiddenWords() {
 
     let forbidden = new Set()
 
-
     let entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm
-
 
     Array.from(content.matchAll(entryRegExp)).forEach(function (match) {
         forbidden.add(match[1])
 
     })
 
-
     let hayPalabrasProhibidas = forbidden.size > 0
-
 
     if (hayPalabrasProhibidas) {
         return forbidden
@@ -92,9 +83,7 @@ async function pathKind(p) {
     try {
         let stats = await fs.stat(p)
 
-
         let esDirectorio = stats.isDirectory()
-
 
         if (esDirectorio) {
             return 'dir'
@@ -102,7 +91,6 @@ async function pathKind(p) {
         }
 
         let esArchivo = stats.isFile()
-
 
         if (esArchivo) {
             return 'file'
@@ -120,19 +108,15 @@ async function pathKind(p) {
 async function collectFiles(inputPath, out) {
     let kind = await pathKind(inputPath)
 
-
     let esArchivo = kind === 'file'
-
 
     if (esArchivo) {
         out.add(path.resolve(inputPath))
-
 
         return
 
     }
     let noEsDirectorio = kind !== 'dir'
-
 
     if (noEsDirectorio) {
         return
@@ -141,18 +125,14 @@ async function collectFiles(inputPath, out) {
 
     let entries = await fs.readdir(inputPath, { withFileTypes: true })
 
-
     await Promise.all(
     entries.map(async function (entry) {
         let fullPath = path.join(inputPath, entry.name)
 
-
         let esDirectorio = entry.isDirectory()
-
 
         if (esDirectorio) {
             let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
-
 
             if (esSaltado) {
                 return
@@ -161,13 +141,11 @@ async function collectFiles(inputPath, out) {
 
             await collectFiles(fullPath, out)
 
-
             return
 
         }
 
         let noEsArchivo = !entry.isFile()
-
 
         if (noEsArchivo) {
             return
@@ -175,7 +153,6 @@ async function collectFiles(inputPath, out) {
         }
 
         let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)
-
 
         if (noEsExtensionSoportada) {
             return
@@ -192,7 +169,6 @@ async function collectFiles(inputPath, out) {
 function isSkippableIdentifierContext(parent, key) {
     let noEsNodoPadre = !parent || typeof parent !== 'object'
 
-
     if (noEsNodoPadre) {
         return false
 
@@ -201,14 +177,12 @@ function isSkippableIdentifierContext(parent, key) {
     let esPropiedadDeMemberExpression =
     parent.type === 'MemberExpression' && key === 'property' && parent.computed === false
 
-
     if (esPropiedadDeMemberExpression) {
         return true
 
     }
 
     let esClaveDeProperty = parent.type === 'Property' && key === 'key' && parent.computed === false
-
 
     if (esClaveDeProperty) {
         return true
@@ -218,7 +192,6 @@ function isSkippableIdentifierContext(parent, key) {
     let esClaveDeMethodDefinition =
     parent.type === 'MethodDefinition' && key === 'key' && parent.computed === false
 
-
     if (esClaveDeMethodDefinition) {
         return true
 
@@ -227,7 +200,6 @@ function isSkippableIdentifierContext(parent, key) {
     let esClaveDePropertyDefinition =
     parent.type === 'PropertyDefinition' && key === 'key' && parent.computed === false
 
-
     if (esClaveDePropertyDefinition) {
         return true
 
@@ -235,7 +207,6 @@ function isSkippableIdentifierContext(parent, key) {
 
     let esClaveDeAccessorProperty =
     parent.type === 'AccessorProperty' && key === 'key' && parent.computed === false
-
 
     if (esClaveDeAccessorProperty) {
         return true
@@ -249,9 +220,7 @@ function isSkippableIdentifierContext(parent, key) {
 function addFinding(findings, filePath, keyword, node, ruleId) {
     let line = node?.loc?.start?.line ?? 1
 
-
     let column = node?.loc?.start?.column ?? 0
-
 
     findings.push({
         filePath,
@@ -266,9 +235,7 @@ function addFinding(findings, filePath, keyword, node, ruleId) {
 function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
     let line = loc?.start?.line ?? 1
 
-
     let column = loc?.start?.column ?? 0
-
 
     findings.push({
         filePath,
@@ -282,7 +249,6 @@ function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
 
 function applyReplacements(sourceText, replacements) {
     let noHayReemplazos = !replacements.length
-
 
     if (noHayReemplazos) {
         return sourceText
@@ -306,16 +272,12 @@ function applyReplacements(sourceText, replacements) {
 
     })
 
-
     let out = sourceText
-
 
     let lastStart = out.length + 1
 
-
     sorted.forEach(function (rep) {
         let solapaConReemplazoPrevio = rep.end > lastStart
-
 
         if (solapaConReemplazoPrevio) {
             return
@@ -324,11 +286,9 @@ function applyReplacements(sourceText, replacements) {
 
         out = out.slice(0, rep.start) + rep.text + out.slice(rep.end)
 
-
         lastStart = rep.start
 
     })
-
 
     return out
 
@@ -336,7 +296,6 @@ function applyReplacements(sourceText, replacements) {
 
 function stripTrailingWhitespace(sourceText) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
-
 
     if (noEsTextoValido) {
         return sourceText
@@ -354,14 +313,12 @@ function stripTrailingWhitespace(sourceText) {
 function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
-
     if (noEsTextoValido) {
         return sourceText
 
     }
 
     let noHayTabs = !sourceText.includes('\t')
-
 
     if (noHayTabs) {
         return sourceText
@@ -370,14 +327,12 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     let noHayTramos = !Array.isArray(spans) || spans.length === 0
 
-
     if (noHayTramos) {
         return sourceText.replace(/\t/g, '    ')
 
     }
 
     let len = sourceText.length
-
 
     let sorted = spans
     .slice()
@@ -395,7 +350,6 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
         let start = Math.max(0, Math.min(len, span.start))
         let end = Math.max(start, Math.min(len, span.end))
 
-
         return { start, end }
 
     })
@@ -404,17 +358,13 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     })
 
-
     let merged = []
-
 
     sorted.forEach(function (span) {
         let noHayTramosAcumulados = merged.length === 0
 
-
         if (noHayTramosAcumulados) {
             merged.push(span)
-
 
             return
 
@@ -422,13 +372,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
         let last = merged[merged.length - 1]
 
-
         let empiezaDespuesDelFinal = span.start > last.end
-
 
         if (empiezaDespuesDelFinal) {
             merged.push(span)
-
 
             return
 
@@ -436,23 +383,18 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
         let extiendeElFinal = span.end > last.end
 
-
         if (extiendeElFinal) {
             last.end = span.end
 
         }
     })
 
-
     let out = ''
-
 
     let cursor = 0
 
-
     merged.forEach(function (span) {
         let hayTextoAntesDelTramo = span.start > cursor
-
 
         if (hayTextoAntesDelTramo) {
             out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ')
@@ -464,9 +406,7 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     })
 
-
     let quedaTextoPorProcesar = cursor < len
-
 
     if (quedaTextoPorProcesar) {
         out += sourceText.slice(cursor).replace(/\t/g, '    ')
@@ -479,7 +419,6 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
 function mergeSpans(spans, len) {
     let noHayTramos = !Array.isArray(spans) || spans.length === 0
-
 
     if (noHayTramos) {
         return []
@@ -502,7 +441,6 @@ function mergeSpans(spans, len) {
         let start = Math.max(0, Math.min(len, span.start))
         let end = Math.max(start, Math.min(len, span.end))
 
-
         return { start, end }
 
     })
@@ -513,14 +451,11 @@ function mergeSpans(spans, len) {
 
     let merged = []
 
-
     sorted.forEach(function (span) {
         let noHayTramosAcumulados = merged.length === 0
 
-
         if (noHayTramosAcumulados) {
             merged.push(span)
-
 
             return
 
@@ -528,20 +463,16 @@ function mergeSpans(spans, len) {
 
         let last = merged[merged.length - 1]
 
-
         let empiezaDespuesDelFinal = span.start > last.end
-
 
         if (empiezaDespuesDelFinal) {
             merged.push(span)
-
 
             return
 
         }
 
         let extiendeElFinal = span.end > last.end
-
 
         if (extiendeElFinal) {
             last.end = span.end
@@ -557,7 +488,6 @@ function isInsideMergedSpans(index, merged) {
     function search(lo, hi) {
         let rangoVacio = lo > hi
 
-
         if (rangoVacio) {
             return false
 
@@ -566,9 +496,7 @@ function isInsideMergedSpans(index, merged) {
         let mid = (lo + hi) >> 1
         let span = merged[mid]
 
-
         let estaAntesDelTramo = index < span.start
-
 
         if (estaAntesDelTramo) {
             return search(lo, mid - 1)
@@ -576,7 +504,6 @@ function isInsideMergedSpans(index, merged) {
         }
 
         let estaDespuesDelTramo = index >= span.end
-
 
         if (estaDespuesDelTramo) {
             return search(mid + 1, hi)
@@ -594,7 +521,6 @@ function isInsideMergedSpans(index, merged) {
 function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
-
     if (noEsTextoValido) {
         return sourceText
 
@@ -602,9 +528,7 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
     let len = sourceText.length
 
-
     let mergedTokenSpans = mergeSpans(tokenSpans, len)
-
 
     let events = Array.isArray(braceEvents)
     ? braceEvents
@@ -616,7 +540,6 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     .map(function (e) {
         let pos = Math.max(0, Math.min(len, e.pos))
 
-
         return { pos, delta: e.delta }
 
     })
@@ -626,23 +549,18 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     })
     : []
 
-
     let out = ''
 
     let eventPos = []
     let eventPrefix = []
 
-
     events.forEach(function (e, index) {
         eventPos.push(e.pos)
 
-
         let esPrimerEvento = index === 0
-
 
         if (esPrimerEvento) {
             eventPrefix.push(e.delta)
-
 
             return
 
@@ -656,7 +574,6 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         function search(lo, hi) {
             let rangoVacio = lo > hi
 
-
             if (rangoVacio) {
                 return lo
 
@@ -664,9 +581,7 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
             let mid = (lo + hi) >> 1
 
-
             let estaPorDebajoDelValor = arr[mid] < value
-
 
             if (estaPorDebajoDelValor) {
                 return search(mid + 1, hi)
@@ -684,7 +599,6 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     function depthAtPos(pos) {
         let noHayEventos = eventPos.length === 0
 
-
         if (noHayEventos) {
             return 0
 
@@ -692,9 +606,7 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
         let idx = upperBound(eventPos, pos)
 
-
         let noHayEventoAnterior = idx <= 0
-
 
         if (noHayEventoAnterior) {
             return 0
@@ -703,9 +615,7 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
         let depth = eventPrefix[idx - 1]
 
-
         let profundidadNegativa = depth < 0
-
 
         if (profundidadNegativa) {
             return 0
@@ -719,7 +629,6 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     function splitLineSegment(segment) {
         let terminaConCrLf = segment.endsWith('\r\n')
 
-
         if (terminaConCrLf) {
             return { lineText: segment.slice(0, -2), lineBreak: '\r\n' }
 
@@ -727,14 +636,12 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
         let terminaConLf = segment.endsWith('\n')
 
-
         if (terminaConLf) {
             return { lineText: segment.slice(0, -1), lineBreak: '\n' }
 
         }
 
         let terminaConCr = segment.endsWith('\r')
-
 
         if (terminaConCr) {
             return { lineText: segment.slice(0, -1), lineBreak: '\r' }
@@ -747,13 +654,11 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
     let segments = sourceText.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) || []
 
-
     let cursor = 0
-
+    let previousWasBlankLineOutsideTokens = false
 
     segments.forEach(function (segment) {
         let noHaySegmento = !segment
-
 
         if (noHaySegmento) {
             return
@@ -763,28 +668,36 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let parts = splitLineSegment(segment)
         let { lineText, lineBreak } = parts
 
-
         let lineStart = cursor
         cursor += segment.length
 
-
+        let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans)
         let esLineaVacia = lineText.trim().length === 0
 
-
         if (esLineaVacia) {
-            out += lineBreak
+            if (estaDentroDeTramosToken) {
+                out += lineText + lineBreak
+                previousWasBlankLineOutsideTokens = false
 
+                return
+
+            }
+
+            if (previousWasBlankLineOutsideTokens) {
+                return
+
+            }
+
+            out += lineBreak
+            previousWasBlankLineOutsideTokens = true
 
             return
 
         }
 
-        let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans)
-
-
         if (estaDentroDeTramosToken) {
             out += lineText + lineBreak
-
+            previousWasBlankLineOutsideTokens = false
 
             return
 
@@ -792,13 +705,11 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
         let content = lineText.replace(/^[ \t]+/, '')
 
-
         let noHayContenido = content.length === 0
-
 
         if (noHayContenido) {
             out += lineBreak
-
+            previousWasBlankLineOutsideTokens = false
 
             return
 
@@ -808,12 +719,9 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let closeMatch = content.match(/^}+/)
         let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
 
-
         let indentLevel = depth - leadingCloseCount
 
-
         let nivelDeSangriaNegativo = indentLevel < 0
-
 
         if (nivelDeSangriaNegativo) {
             indentLevel = 0
@@ -821,6 +729,7 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         }
 
         out += ' '.repeat(indentLevel * 4) + content + lineBreak
+        previousWasBlankLineOutsideTokens = false
 
     })
 
@@ -839,10 +748,8 @@ function isInsideAnySpan(index, spans) {
 function collectEmptyStatementRangesMeriyah(ast) {
     let ranges = []
 
-
     function visit(node, parent, key) {
         let noEsNodo = !node || typeof node !== 'object'
-
 
         if (noEsNodo) {
             return
@@ -851,13 +758,11 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
         let esListaDeNodos = Array.isArray(node)
 
-
         if (esListaDeNodos) {
             node.forEach(function (item) {
                 visit(item, parent, key)
 
             })
-
 
             return
 
@@ -865,13 +770,11 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
         let noTieneTipoValido = typeof node.type !== 'string'
 
-
         if (noTieneTipoValido) {
             Object.values(node).forEach(function (child) {
                 visit(child, node, undefined)
 
             })
-
 
             return
 
@@ -883,7 +786,6 @@ function collectEmptyStatementRangesMeriyah(ast) {
         typeof node.end === 'number' &&
         node.end > node.start
 
-
         if (esEmptyStatementConRango) {
             ranges.push({ start: node.start, end: node.end })
 
@@ -892,9 +794,7 @@ function collectEmptyStatementRangesMeriyah(ast) {
         Object.entries(node).forEach(function (pair) {
             let childKey = pair[0]
 
-
             let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
 
             if (esClaveIgnorable) {
                 return
@@ -909,7 +809,6 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
     visit(ast, null, undefined)
 
-
     return ranges
 
 }
@@ -917,10 +816,8 @@ function collectEmptyStatementRangesMeriyah(ast) {
 function collectForHeaderSpansFromMeriyahTokens(tokens) {
     let spans = []
 
-
     function scanFrom(i) {
         let excedeLongitudDeTokens = i >= tokens.length
-
 
         if (excedeLongitudDeTokens) {
             return spans
@@ -929,9 +826,7 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
         let token = tokens[i]
 
-
         let noEsFor = !token || token.type !== 'Keyword' || token.text !== 'for'
-
 
         if (noEsFor) {
             return scanFrom(i + 1)
@@ -940,10 +835,8 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
         let j = i + 1
 
-
         let hayAwait =
         tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await'
-
 
         if (hayAwait) {
             j += 1
@@ -952,10 +845,8 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
         let openParenToken = tokens[j]
 
-
         let noHayParentesisDeApertura =
         !openParenToken || openParenToken.type !== 'Punctuator' || openParenToken.text !== '('
-
 
         if (noHayParentesisDeApertura) {
             return scanFrom(i + 1)
@@ -964,10 +855,8 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
         let { start } = openParenToken
 
-
         function scanParen(k, depth) {
             let excedeLongitudDeTokens = k >= tokens.length
-
 
             if (excedeLongitudDeTokens) {
                 return scanFrom(i + 1)
@@ -976,12 +865,9 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
             let token = tokens[k]
 
-
             let nextDepth = depth
 
-
             let abreParentesis = token.type === 'Punctuator' && token.text === '('
-
 
             if (abreParentesis) {
                 nextDepth += 1
@@ -990,7 +876,6 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
             let cierraParentesis = token.type === 'Punctuator' && token.text === ')'
 
-
             if (cierraParentesis) {
                 nextDepth -= 1
 
@@ -998,10 +883,8 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
             let terminaElEncabezado = token.type === 'Punctuator' && token.text === ')' && nextDepth === 0
 
-
             if (terminaElEncabezado) {
                 spans.push({ start, end: token.end })
-
 
                 return scanFrom(k + 1)
 
@@ -1022,10 +905,8 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
     let findings = []
 
-
     function visit(node, parent, key) {
         let noEsNodo = !node || typeof node !== 'object'
-
 
         if (noEsNodo) {
             return
@@ -1034,13 +915,11 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esListaDeNodos = Array.isArray(node)
 
-
         if (esListaDeNodos) {
             node.forEach(function (item) {
                 visit(item, parent, key)
 
             })
-
 
             return
 
@@ -1048,13 +927,11 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let noTieneTipoValido = typeof node.type !== 'string'
 
-
         if (noTieneTipoValido) {
             Object.values(node).forEach(function (child) {
                 visit(child, node, undefined)
 
             })
-
 
             return
 
@@ -1062,13 +939,10 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let { type: nodeType } = node
 
-
         let esThisExpression = nodeType === 'ThisExpression'
-
 
         if (esThisExpression) {
             let estaThisProhibido = forbiddenWords.has('this')
-
 
             if (estaThisProhibido) {
                 addFinding(findings, filePath, 'this', node, 'formatear/no-this')
@@ -1078,10 +952,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esIfStatement = nodeType === 'IfStatement'
 
-
         if (esIfStatement) {
             let estaIfProhibido = forbiddenWords.has('if')
-
 
             if (estaIfProhibido) {
                 addFinding(findings, filePath, 'if', node, 'formatear/no-if')
@@ -1092,7 +964,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaElseProhibido = forbiddenWords.has('else')
             let debeMarcarElse = tieneAlternate && estaElseProhibido
 
-
             if (debeMarcarElse) {
                 addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else')
 
@@ -1101,10 +972,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esReturnStatement = nodeType === 'ReturnStatement'
 
-
         if (esReturnStatement) {
             let estaReturnProhibido = forbiddenWords.has('return')
-
 
             if (estaReturnProhibido) {
                 addFinding(findings, filePath, 'return', node, 'formatear/no-return')
@@ -1113,7 +982,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         }
 
         let esVariableDeclaration = nodeType === 'VariableDeclaration'
-
 
         if (esVariableDeclaration) {
             let esVar = node.kind === 'var'
@@ -1125,7 +993,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let debeMarcarVar = esVar && estaVarProhibido
             let debeMarcarLet = esLet && estaLetProhibido
             let debeMarcarConst = esConst && estaConstProhibido
-
 
             if (debeMarcarVar) {
                 addFinding(findings, filePath, 'var', node, 'formatear/no-var')
@@ -1148,10 +1015,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let esForOfStatement = nodeType === 'ForOfStatement'
         let esAlgunFor = esForStatement || esForInStatement || esForOfStatement
 
-
         if (esAlgunFor) {
             let estaForProhibido = forbiddenWords.has('for')
-
 
             if (estaForProhibido) {
                 addFinding(findings, filePath, 'for', node, 'formatear/no-for')
@@ -1162,7 +1027,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaOfProhibido = forbiddenWords.has('of')
             let debeMarcarIn = esForInStatement && estaInProhibido
             let debeMarcarOf = esForOfStatement && estaOfProhibido
-
 
             if (debeMarcarIn) {
                 addFinding(findings, filePath, 'in', node, 'formatear/no-in')
@@ -1177,10 +1041,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esWhileStatement = nodeType === 'WhileStatement'
 
-
         if (esWhileStatement) {
             let estaWhileProhibido = forbiddenWords.has('while')
-
 
             if (estaWhileProhibido) {
                 addFinding(findings, filePath, 'while', node, 'formatear/no-while')
@@ -1190,10 +1052,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esDoWhileStatement = nodeType === 'DoWhileStatement'
 
-
         if (esDoWhileStatement) {
             let estaDoProhibido = forbiddenWords.has('do')
-
 
             if (estaDoProhibido) {
                 addFinding(findings, filePath, 'do', node, 'formatear/no-do')
@@ -1203,10 +1063,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esSwitchStatement = nodeType === 'SwitchStatement'
 
-
         if (esSwitchStatement) {
             let estaSwitchProhibido = forbiddenWords.has('switch')
-
 
             if (estaSwitchProhibido) {
                 addFinding(findings, filePath, 'switch', node, 'formatear/no-switch')
@@ -1216,14 +1074,12 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esSwitchCase = nodeType === 'SwitchCase'
 
-
         if (esSwitchCase) {
             let tieneTest = Boolean(node.test)
             let estaCaseProhibido = forbiddenWords.has('case')
             let estaDefaultProhibido = forbiddenWords.has('default')
             let debeMarcarCase = tieneTest && estaCaseProhibido
             let debeMarcarDefault = !tieneTest && estaDefaultProhibido
-
 
             if (debeMarcarCase) {
                 addFinding(findings, filePath, 'case', node, 'formatear/no-case')
@@ -1238,10 +1094,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esBreakStatement = nodeType === 'BreakStatement'
 
-
         if (esBreakStatement) {
             let estaBreakProhibido = forbiddenWords.has('break')
-
 
             if (estaBreakProhibido) {
                 addFinding(findings, filePath, 'break', node, 'formatear/no-break')
@@ -1251,10 +1105,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esContinueStatement = nodeType === 'ContinueStatement'
 
-
         if (esContinueStatement) {
             let estaContinueProhibido = forbiddenWords.has('continue')
-
 
             if (estaContinueProhibido) {
                 addFinding(findings, filePath, 'continue', node, 'formatear/no-continue')
@@ -1264,10 +1116,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esTryStatement = nodeType === 'TryStatement'
 
-
         if (esTryStatement) {
             let estaTryProhibido = forbiddenWords.has('try')
-
 
             if (estaTryProhibido) {
                 addFinding(findings, filePath, 'try', node, 'formatear/no-try')
@@ -1278,7 +1128,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaFinallyProhibido = forbiddenWords.has('finally')
             let debeMarcarFinally = tieneFinalizer && estaFinallyProhibido
 
-
             if (debeMarcarFinally) {
                 addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally')
 
@@ -1287,10 +1136,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esCatchClause = nodeType === 'CatchClause'
 
-
         if (esCatchClause) {
             let estaCatchProhibido = forbiddenWords.has('catch')
-
 
             if (estaCatchProhibido) {
                 addFinding(findings, filePath, 'catch', node, 'formatear/no-catch')
@@ -1300,10 +1147,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esThrowStatement = nodeType === 'ThrowStatement'
 
-
         if (esThrowStatement) {
             let estaThrowProhibido = forbiddenWords.has('throw')
-
 
             if (estaThrowProhibido) {
                 addFinding(findings, filePath, 'throw', node, 'formatear/no-throw')
@@ -1313,10 +1158,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esNewExpression = nodeType === 'NewExpression'
 
-
         if (esNewExpression) {
             let estaNewProhibido = forbiddenWords.has('new')
-
 
             if (estaNewProhibido) {
                 addFinding(findings, filePath, 'new', node, 'formatear/no-new')
@@ -1326,10 +1169,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esUnaryExpression = nodeType === 'UnaryExpression'
 
-
         if (esUnaryExpression) {
             let { operator: op } = node
-
 
             let esTypeof = op === 'typeof'
             let esVoid = op === 'void'
@@ -1340,7 +1181,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let debeMarcarTypeof = esTypeof && estaTypeofProhibido
             let debeMarcarVoid = esVoid && estaVoidProhibido
             let debeMarcarDelete = esDelete && estaDeleteProhibido
-
 
             if (debeMarcarTypeof) {
                 addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof')
@@ -1360,10 +1200,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esBinaryExpression = nodeType === 'BinaryExpression'
 
-
         if (esBinaryExpression) {
             let { operator: op } = node
-
 
             let esIn = op === 'in'
             let esInstanceof = op === 'instanceof'
@@ -1371,7 +1209,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaInstanceofProhibido = forbiddenWords.has('instanceof')
             let debeMarcarIn = esIn && estaInProhibido
             let debeMarcarInstanceof = esInstanceof && estaInstanceofProhibido
-
 
             if (debeMarcarIn) {
                 addFinding(findings, filePath, 'in', node, 'formatear/no-in')
@@ -1388,10 +1225,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let esFunctionExpression = nodeType === 'FunctionExpression'
         let esAlgunFunction = esFunctionDeclaration || esFunctionExpression
 
-
         if (esAlgunFunction) {
             let estaFunctionProhibido = forbiddenWords.has('function')
-
 
             if (estaFunctionProhibido) {
                 addFinding(findings, filePath, 'function', node, 'formatear/no-function')
@@ -1402,7 +1237,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaAsyncProhibido = forbiddenWords.has('async')
             let debeMarcarAsync = esAsync && estaAsyncProhibido
 
-
             if (debeMarcarAsync) {
                 addFinding(findings, filePath, 'async', node, 'formatear/no-async')
 
@@ -1411,12 +1245,10 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esArrowFunctionExpression = nodeType === 'ArrowFunctionExpression'
 
-
         if (esArrowFunctionExpression) {
             let esAsync = node.async === true
             let estaAsyncProhibido = forbiddenWords.has('async')
             let debeMarcarAsync = esAsync && estaAsyncProhibido
-
 
             if (debeMarcarAsync) {
                 addFinding(findings, filePath, 'async', node, 'formatear/no-async')
@@ -1426,10 +1258,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esAwaitExpression = nodeType === 'AwaitExpression'
 
-
         if (esAwaitExpression) {
             let estaAwaitProhibido = forbiddenWords.has('await')
-
 
             if (estaAwaitProhibido) {
                 addFinding(findings, filePath, 'await', node, 'formatear/no-await')
@@ -1439,10 +1269,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esYieldExpression = nodeType === 'YieldExpression'
 
-
         if (esYieldExpression) {
             let estaYieldProhibido = forbiddenWords.has('yield')
-
 
             if (estaYieldProhibido) {
                 addFinding(findings, filePath, 'yield', node, 'formatear/no-yield')
@@ -1454,10 +1282,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let esClassExpression = nodeType === 'ClassExpression'
         let esAlgunaClase = esClassDeclaration || esClassExpression
 
-
         if (esAlgunaClase) {
             let estaClassProhibido = forbiddenWords.has('class')
-
 
             if (estaClassProhibido) {
                 addFinding(findings, filePath, 'class', node, 'formatear/no-class')
@@ -1468,7 +1294,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaExtendsProhibido = forbiddenWords.has('extends')
             let debeMarcarExtends = tieneSuperClase && estaExtendsProhibido
 
-
             if (debeMarcarExtends) {
                 addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends')
 
@@ -1477,10 +1302,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esSuper = nodeType === 'Super'
 
-
         if (esSuper) {
             let estaSuperProhibido = forbiddenWords.has('super')
-
 
             if (estaSuperProhibido) {
                 addFinding(findings, filePath, 'super', node, 'formatear/no-super')
@@ -1492,10 +1315,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let esImportExpression = nodeType === 'ImportExpression'
         let esAlgunImport = esImportDeclaration || esImportExpression
 
-
         if (esAlgunImport) {
             let estaImportProhibido = forbiddenWords.has('import')
-
 
             if (estaImportProhibido) {
                 addFinding(findings, filePath, 'import', node, 'formatear/no-import')
@@ -1508,10 +1329,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let esExportAllDeclaration = nodeType === 'ExportAllDeclaration'
         let esAlgunExport = esExportNamedDeclaration || esExportDefaultDeclaration || esExportAllDeclaration
 
-
         if (esAlgunExport) {
             let estaExportProhibido = forbiddenWords.has('export')
-
 
             if (estaExportProhibido) {
                 addFinding(findings, filePath, 'export', node, 'formatear/no-export')
@@ -1521,24 +1340,18 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esMetaProperty = nodeType === 'MetaProperty'
 
-
         if (esMetaProperty) {
             let metaNode = node['meta']
 
-
             let propertyNode = node['property']
-
 
             let metaName = metaNode && metaNode.name
 
-
             let propertyName = propertyNode && propertyNode.name
-
 
             let esNewTarget = metaName === 'new' && propertyName === 'target'
             let estaTargetProhibido = forbiddenWords.has('target')
             let debeMarcarTarget = esNewTarget && estaTargetProhibido
-
 
             if (debeMarcarTarget) {
                 addFinding(findings, filePath, 'target', node, 'formatear/no-target')
@@ -1549,7 +1362,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let estaMetaProhibido = forbiddenWords.has('meta')
             let debeMarcarMeta = esImportMeta && estaMetaProhibido
 
-
             if (debeMarcarMeta) {
                 addFinding(findings, filePath, 'meta', node, 'formatear/no-meta')
 
@@ -1558,10 +1370,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esWithStatement = nodeType === 'WithStatement'
 
-
         if (esWithStatement) {
             let estaWithProhibido = forbiddenWords.has('with')
-
 
             if (estaWithProhibido) {
                 addFinding(findings, filePath, 'with', node, 'formatear/no-with')
@@ -1571,10 +1381,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esDebuggerStatement = nodeType === 'DebuggerStatement'
 
-
         if (esDebuggerStatement) {
             let estaDebuggerProhibido = forbiddenWords.has('debugger')
-
 
             if (estaDebuggerProhibido) {
                 addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger')
@@ -1584,14 +1392,12 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         let esIdentifier = nodeType === 'Identifier'
 
-
         if (esIdentifier) {
             let nombreIdentificador = node.name
             let esNombreString = typeof nombreIdentificador === 'string'
             let esNombreProhibido = esNombreString && forbiddenWords.has(nombreIdentificador)
             let esContextoOmitible = isSkippableIdentifierContext(parent, key)
             let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible
-
 
             if (debeMarcarIdentificador) {
                 addFinding(
@@ -1608,9 +1414,7 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         Object.entries(node).forEach(function (pair) {
             let childKey = pair[0]
 
-
             let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
 
             if (esClaveIgnorable) {
                 return
@@ -1625,7 +1429,6 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
     visit(ast, null, undefined)
 
-
     return findings
 
 }
@@ -1633,10 +1436,8 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
     let findings = []
 
-
     function checkTest(node) {
         let noEsNodo = !node || typeof node !== 'object'
-
 
         if (noEsNodo) {
             return
@@ -1645,9 +1446,7 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         let { test } = node
 
-
         let noEsTestValido = !test || typeof test !== 'object'
-
 
         if (noEsTestValido) {
             return
@@ -1655,7 +1454,6 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
         }
 
         let esIdentificador = test.type === 'Identifier'
-
 
         if (esIdentificador) {
             return
@@ -1669,7 +1467,6 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
     function visit(node) {
         let noEsNodo = !node || typeof node !== 'object'
 
-
         if (noEsNodo) {
             return
 
@@ -1677,10 +1474,8 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         let esListaDeNodos = Array.isArray(node)
 
-
         if (esListaDeNodos) {
             node.forEach(visit)
-
 
             return
 
@@ -1688,17 +1483,14 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         let tieneTipoString = typeof node.type === 'string'
 
-
         if (tieneTipoString) {
             let { type } = node
-
 
             let esNodoConCondicion =
             type === 'IfStatement' ||
             type === 'WhileStatement' ||
             type === 'DoWhileStatement' ||
             type === 'ForStatement'
-
 
             if (esNodoConCondicion) {
                 checkTest(node)
@@ -1709,9 +1501,7 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
         Object.entries(node).forEach(function (pair) {
             let key = pair[0]
 
-
             let esClaveIgnorable = key === 'loc' || key === 'range' || key === 'start' || key === 'end'
-
 
             if (esClaveIgnorable) {
                 return
@@ -1726,14 +1516,12 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
     visit(ast)
 
-
     return findings
 
 }
 
 function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
     let lc = sourceFile.getLineAndCharacterOfPosition(pos)
-
 
     findings.push({
         filePath,
@@ -1748,7 +1536,6 @@ function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
 function isSkippableTsIdentifierContext(parent, node, ts) {
     let noHayNodoPadre = !parent
 
-
     if (noHayNodoPadre) {
         return false
 
@@ -1756,7 +1543,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
     let esPropertyAccessExpression = ts.isPropertyAccessExpression(parent)
     let esNombreDePropertyAccessExpression = esPropertyAccessExpression && parent.name === node
-
 
     if (esNombreDePropertyAccessExpression) {
         return true
@@ -1766,7 +1552,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
     let esPropertyAssignment = ts.isPropertyAssignment(parent)
     let esNombreDePropertyAssignment = esPropertyAssignment && parent.name === node
 
-
     if (esNombreDePropertyAssignment) {
         return true
 
@@ -1774,7 +1559,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
     let esMethodDeclaration = ts.isMethodDeclaration(parent)
     let esNombreDeMethodDeclaration = esMethodDeclaration && parent.name === node
-
 
     if (esNombreDeMethodDeclaration) {
         return true
@@ -1784,7 +1568,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
     let esMethodSignature = ts.isMethodSignature(parent)
     let esNombreDeMethodSignature = esMethodSignature && parent.name === node
 
-
     if (esNombreDeMethodSignature) {
         return true
 
@@ -1792,7 +1575,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
     let esPropertyDeclaration = ts.isPropertyDeclaration(parent)
     let esNombreDePropertyDeclaration = esPropertyDeclaration && parent.name === node
-
 
     if (esNombreDePropertyDeclaration) {
         return true
@@ -1802,7 +1584,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
     let esPropertySignature = ts.isPropertySignature(parent)
     let esNombreDePropertySignature = esPropertySignature && parent.name === node
 
-
     if (esNombreDePropertySignature) {
         return true
 
@@ -1810,7 +1591,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
     let esGetAccessorDeclaration = ts.isGetAccessorDeclaration(parent)
     let esNombreDeGetAccessorDeclaration = esGetAccessorDeclaration && parent.name === node
-
 
     if (esNombreDeGetAccessorDeclaration) {
         return true
@@ -1820,7 +1600,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
     let esSetAccessorDeclaration = ts.isSetAccessorDeclaration(parent)
     let esNombreDeSetAccessorDeclaration = esSetAccessorDeclaration && parent.name === node
 
-
     if (esNombreDeSetAccessorDeclaration) {
         return true
 
@@ -1829,7 +1608,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
     let esShorthandPropertyAssignment = ts.isShorthandPropertyAssignment(parent)
     let esNombreDeShorthandPropertyAssignment = esShorthandPropertyAssignment && parent.name === node
 
-
     if (esNombreDeShorthandPropertyAssignment) {
         return true
 
@@ -1837,7 +1615,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
     let esEnumMember = ts.isEnumMember(parent)
     let esNombreDeEnumMember = esEnumMember && parent.name === node
-
 
     if (esNombreDeEnumMember) {
         return true
@@ -1850,7 +1627,6 @@ function isSkippableTsIdentifierContext(parent, node, ts) {
 
 function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords, ts) {
     let findings = []
-
 
     function addKeywordNode(keyword, node, ruleId) {
         createTsFinding(findings, filePath, keyword, ruleId, sourceFile, node.getStart(sourceFile))
@@ -1865,13 +1641,10 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
     function visit(node, parent) {
         let { kind } = node
 
-
         let esThisKeyword = kind === ts.SyntaxKind.ThisKeyword
-
 
         if (esThisKeyword) {
             let estaThisProhibido = forbiddenWords.has('this')
-
 
             if (estaThisProhibido) {
                 addKeywordNode('this', node, 'formatear/no-this')
@@ -1881,10 +1654,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esIfStatement = kind === ts.SyntaxKind.IfStatement
 
-
         if (esIfStatement) {
             let estaIfProhibido = forbiddenWords.has('if')
-
 
             if (estaIfProhibido) {
                 addKeywordNode('if', node, 'formatear/no-if')
@@ -1895,7 +1666,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let estaElseProhibido = forbiddenWords.has('else')
             let debeMarcarElse = hayElseStatement && estaElseProhibido
 
-
             if (debeMarcarElse) {
                 addKeywordNode('else', node.elseStatement, 'formatear/no-else')
 
@@ -1904,10 +1674,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esReturnStatement = kind === ts.SyntaxKind.ReturnStatement
 
-
         if (esReturnStatement) {
             let estaReturnProhibido = forbiddenWords.has('return')
-
 
             if (estaReturnProhibido) {
                 addKeywordNode('return', node, 'formatear/no-return')
@@ -1920,10 +1688,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let esForOfStatement = kind === ts.SyntaxKind.ForOfStatement
         let esAlgunFor = esForStatement || esForInStatement || esForOfStatement
 
-
         if (esAlgunFor) {
             let estaForProhibido = forbiddenWords.has('for')
-
 
             if (estaForProhibido) {
                 addKeywordNode('for', node, 'formatear/no-for')
@@ -1933,7 +1699,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let estaInProhibido = forbiddenWords.has('in')
             let debeMarcarIn = esForInStatement && estaInProhibido
 
-
             if (debeMarcarIn) {
                 addKeywordNode('in', node, 'formatear/no-in')
 
@@ -1941,7 +1706,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
             let estaOfProhibido = forbiddenWords.has('of')
             let debeMarcarOf = esForOfStatement && estaOfProhibido
-
 
             if (debeMarcarOf) {
                 addKeywordNode('of', node, 'formatear/no-of')
@@ -1951,10 +1715,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esWhileStatement = kind === ts.SyntaxKind.WhileStatement
 
-
         if (esWhileStatement) {
             let estaWhileProhibido = forbiddenWords.has('while')
-
 
             if (estaWhileProhibido) {
                 addKeywordNode('while', node, 'formatear/no-while')
@@ -1964,10 +1726,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esDoStatement = kind === ts.SyntaxKind.DoStatement
 
-
         if (esDoStatement) {
             let estaDoProhibido = forbiddenWords.has('do')
-
 
             if (estaDoProhibido) {
                 addKeywordNode('do', node, 'formatear/no-do')
@@ -1977,10 +1737,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esSwitchStatement = kind === ts.SyntaxKind.SwitchStatement
 
-
         if (esSwitchStatement) {
             let estaSwitchProhibido = forbiddenWords.has('switch')
-
 
             if (estaSwitchProhibido) {
                 addKeywordNode('switch', node, 'formatear/no-switch')
@@ -1990,10 +1748,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esCaseClause = kind === ts.SyntaxKind.CaseClause
 
-
         if (esCaseClause) {
             let estaCaseProhibido = forbiddenWords.has('case')
-
 
             if (estaCaseProhibido) {
                 addKeywordNode('case', node, 'formatear/no-case')
@@ -2003,10 +1759,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esDefaultClause = kind === ts.SyntaxKind.DefaultClause
 
-
         if (esDefaultClause) {
             let estaDefaultProhibido = forbiddenWords.has('default')
-
 
             if (estaDefaultProhibido) {
                 addKeywordNode('default', node, 'formatear/no-default')
@@ -2016,10 +1770,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esBreakStatement = kind === ts.SyntaxKind.BreakStatement
 
-
         if (esBreakStatement) {
             let estaBreakProhibido = forbiddenWords.has('break')
-
 
             if (estaBreakProhibido) {
                 addKeywordNode('break', node, 'formatear/no-break')
@@ -2029,10 +1781,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esContinueStatement = kind === ts.SyntaxKind.ContinueStatement
 
-
         if (esContinueStatement) {
             let estaContinueProhibido = forbiddenWords.has('continue')
-
 
             if (estaContinueProhibido) {
                 addKeywordNode('continue', node, 'formatear/no-continue')
@@ -2042,10 +1792,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esTryStatement = kind === ts.SyntaxKind.TryStatement
 
-
         if (esTryStatement) {
             let estaTryProhibido = forbiddenWords.has('try')
-
 
             if (estaTryProhibido) {
                 addKeywordNode('try', node, 'formatear/no-try')
@@ -2056,7 +1804,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let estaFinallyProhibido = forbiddenWords.has('finally')
             let debeMarcarFinally = hayFinallyBlock && estaFinallyProhibido
 
-
             if (debeMarcarFinally) {
                 addKeywordNode('finally', node.finallyBlock, 'formatear/no-finally')
 
@@ -2065,10 +1812,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esCatchClause = kind === ts.SyntaxKind.CatchClause
 
-
         if (esCatchClause) {
             let estaCatchProhibido = forbiddenWords.has('catch')
-
 
             if (estaCatchProhibido) {
                 addKeywordNode('catch', node, 'formatear/no-catch')
@@ -2078,10 +1823,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esThrowStatement = kind === ts.SyntaxKind.ThrowStatement
 
-
         if (esThrowStatement) {
             let estaThrowProhibido = forbiddenWords.has('throw')
-
 
             if (estaThrowProhibido) {
                 addKeywordNode('throw', node, 'formatear/no-throw')
@@ -2091,10 +1834,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esNewExpression = kind === ts.SyntaxKind.NewExpression
 
-
         if (esNewExpression) {
             let estaNewProhibido = forbiddenWords.has('new')
-
 
             if (estaNewProhibido) {
                 addKeywordNode('new', node, 'formatear/no-new')
@@ -2104,10 +1845,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esTypeOfExpression = kind === ts.SyntaxKind.TypeOfExpression
 
-
         if (esTypeOfExpression) {
             let estaTypeofProhibido = forbiddenWords.has('typeof')
-
 
             if (estaTypeofProhibido) {
                 addKeywordNode('typeof', node, 'formatear/no-typeof')
@@ -2117,10 +1856,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esVoidExpression = kind === ts.SyntaxKind.VoidExpression
 
-
         if (esVoidExpression) {
             let estaVoidProhibido = forbiddenWords.has('void')
-
 
             if (estaVoidProhibido) {
                 addKeywordNode('void', node, 'formatear/no-void')
@@ -2130,10 +1867,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esDeleteExpression = kind === ts.SyntaxKind.DeleteExpression
 
-
         if (esDeleteExpression) {
             let estaDeleteProhibido = forbiddenWords.has('delete')
-
 
             if (estaDeleteProhibido) {
                 addKeywordNode('delete', node, 'formatear/no-delete')
@@ -2143,18 +1878,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esBinaryExpression = kind === ts.SyntaxKind.BinaryExpression
 
-
         if (esBinaryExpression) {
             let { operatorToken } = node
 
-
             let { kind: operatorKind } = operatorToken || {}
-
 
             let esInKeyword = operatorKind === ts.SyntaxKind.InKeyword
             let estaInProhibido = forbiddenWords.has('in')
             let debeMarcarIn = esInKeyword && estaInProhibido
-
 
             if (debeMarcarIn) {
                 addKeywordNode('in', node, 'formatear/no-in')
@@ -2164,7 +1895,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let esInstanceOfKeyword = operatorKind === ts.SyntaxKind.InstanceOfKeyword
             let estaInstanceofProhibido = forbiddenWords.has('instanceof')
             let debeMarcarInstanceof = esInstanceOfKeyword && estaInstanceofProhibido
-
 
             if (debeMarcarInstanceof) {
                 addKeywordNode('instanceof', node, 'formatear/no-instanceof')
@@ -2176,10 +1906,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let esFunctionExpression = kind === ts.SyntaxKind.FunctionExpression
         let esAlgunaFuncion = esFunctionDeclaration || esFunctionExpression
 
-
         if (esAlgunaFuncion) {
             let estaFunctionProhibido = forbiddenWords.has('function')
-
 
             if (estaFunctionProhibido) {
                 addKeywordNode('function', node, 'formatear/no-function')
@@ -2191,10 +1919,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let esClassExpression = kind === ts.SyntaxKind.ClassExpression
         let esAlgunaClase = esClassDeclaration || esClassExpression
 
-
         if (esAlgunaClase) {
             let estaClassProhibido = forbiddenWords.has('class')
-
 
             if (estaClassProhibido) {
                 addKeywordNode('class', node, 'formatear/no-class')
@@ -2204,10 +1930,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esSuperKeyword = kind === ts.SyntaxKind.SuperKeyword
 
-
         if (esSuperKeyword) {
             let estaSuperProhibido = forbiddenWords.has('super')
-
 
             if (estaSuperProhibido) {
                 addKeywordNode('super', node, 'formatear/no-super')
@@ -2217,10 +1941,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esAwaitExpression = kind === ts.SyntaxKind.AwaitExpression
 
-
         if (esAwaitExpression) {
             let estaAwaitProhibido = forbiddenWords.has('await')
-
 
             if (estaAwaitProhibido) {
                 addKeywordNode('await', node, 'formatear/no-await')
@@ -2230,10 +1952,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esYieldExpression = kind === ts.SyntaxKind.YieldExpression
 
-
         if (esYieldExpression) {
             let estaYieldProhibido = forbiddenWords.has('yield')
-
 
             if (estaYieldProhibido) {
                 addKeywordNode('yield', node, 'formatear/no-yield')
@@ -2243,10 +1963,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esInterfaceDeclaration = kind === ts.SyntaxKind.InterfaceDeclaration
 
-
         if (esInterfaceDeclaration) {
             let estaInterfaceProhibido = forbiddenWords.has('interface')
-
 
             if (estaInterfaceProhibido) {
                 addKeywordNode('interface', node, 'formatear/no-interface')
@@ -2256,10 +1974,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esEnumDeclaration = kind === ts.SyntaxKind.EnumDeclaration
 
-
         if (esEnumDeclaration) {
             let estaEnumProhibido = forbiddenWords.has('enum')
-
 
             if (estaEnumProhibido) {
                 addKeywordNode('enum', node, 'formatear/no-enum')
@@ -2269,19 +1985,15 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esMetaProperty = kind === ts.SyntaxKind.MetaProperty
 
-
         if (esMetaProperty) {
             let { keywordToken, name: nameNode } = node
 
-
             let { escapedText: name } = nameNode || {}
-
 
             let esNewKeyword = keywordToken === ts.SyntaxKind.NewKeyword
             let esNombreTarget = name === 'target'
             let estaTargetProhibido = forbiddenWords.has('target')
             let debeMarcarTarget = esNewKeyword && esNombreTarget && estaTargetProhibido
-
 
             if (debeMarcarTarget) {
                 addKeywordNode('target', node, 'formatear/no-target')
@@ -2293,7 +2005,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let estaMetaProhibido = forbiddenWords.has('meta')
             let debeMarcarMeta = esImportKeyword && esNombreMeta && estaMetaProhibido
 
-
             if (debeMarcarMeta) {
                 addKeywordNode('meta', node, 'formatear/no-meta')
 
@@ -2302,10 +2013,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esAsExpression = kind === ts.SyntaxKind.AsExpression
 
-
         if (esAsExpression) {
             let estaAsProhibido = forbiddenWords.has('as')
-
 
             if (estaAsProhibido) {
                 addKeywordNode('as', node, 'formatear/no-as')
@@ -2315,10 +2024,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esWithStatement = kind === ts.SyntaxKind.WithStatement
 
-
         if (esWithStatement) {
             let estaWithProhibido = forbiddenWords.has('with')
-
 
             if (estaWithProhibido) {
                 addKeywordNode('with', node, 'formatear/no-with')
@@ -2328,10 +2035,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esDebuggerStatement = kind === ts.SyntaxKind.DebuggerStatement
 
-
         if (esDebuggerStatement) {
             let estaDebuggerProhibido = forbiddenWords.has('debugger')
-
 
             if (estaDebuggerProhibido) {
                 addKeywordNode('debugger', node, 'formatear/no-debugger')
@@ -2341,18 +2046,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esVariableStatement = kind === ts.SyntaxKind.VariableStatement
 
-
         if (esVariableStatement) {
             let { declarationList: declList } = node
 
-
             let { flags = 0 } = declList || {}
-
 
             let estaConstProhibido = forbiddenWords.has('const')
             let tieneFlagConst = (flags & ts.NodeFlags.Const) !== 0
             let debeMarcarConst = estaConstProhibido && tieneFlagConst
-
 
             if (debeMarcarConst) {
                 addKeywordNode('const', node, 'formatear/no-const')
@@ -2363,7 +2064,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let tieneFlagLet = (flags & ts.NodeFlags.Let) !== 0
             let debeMarcarLet = estaLetProhibido && tieneFlagLet
 
-
             if (debeMarcarLet) {
                 addKeywordNode('let', node, 'formatear/no-let')
 
@@ -2373,7 +2073,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
             let tieneFlagConstOLet = (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) !== 0
             let debeMarcarVar = estaVarProhibido && !tieneFlagConstOLet
 
-
             if (debeMarcarVar) {
                 addKeywordNode('var', node, 'formatear/no-var')
 
@@ -2382,10 +2081,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esConstructor = kind === ts.SyntaxKind.Constructor
 
-
         if (esConstructor) {
             let estaConstructorProhibido = forbiddenWords.has('constructor')
-
 
             if (estaConstructorProhibido) {
                 addKeywordNode('constructor', node, 'formatear/no-constructor')
@@ -2395,16 +2092,13 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let esIdentifier = kind === ts.SyntaxKind.Identifier
 
-
         if (esIdentifier) {
             let { escapedText: name } = node
-
 
             let esNombreString = typeof name === 'string'
             let esNombreProhibido = esNombreString && forbiddenWords.has(name)
             let esContextoOmitible = isSkippableTsIdentifierContext(parent, node, ts)
             let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible
-
 
             if (debeMarcarIdentificador) {
                 addKeywordNode(name, node, `formatear/no-${name}`)
@@ -2414,21 +2108,16 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let { modifiers } = node
 
-
         let hayModificadores = Boolean(modifiers && modifiers.length)
-
 
         if (hayModificadores) {
             modifiers.forEach(function (modifier) {
                 let { kind: modifierKind } = modifier
 
-
                 let esPublicKeyword = modifierKind === ts.SyntaxKind.PublicKeyword
-
 
                 if (esPublicKeyword) {
                     let estaPublicProhibido = forbiddenWords.has('public')
-
 
                     if (estaPublicProhibido) {
                         addModifier('public', modifier, 'formatear/no-public')
@@ -2440,10 +2129,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 }
                 let esPrivateKeyword = modifierKind === ts.SyntaxKind.PrivateKeyword
 
-
                 if (esPrivateKeyword) {
                     let estaPrivateProhibido = forbiddenWords.has('private')
-
 
                     if (estaPrivateProhibido) {
                         addModifier('private', modifier, 'formatear/no-private')
@@ -2455,10 +2142,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 }
                 let esProtectedKeyword = modifierKind === ts.SyntaxKind.ProtectedKeyword
 
-
                 if (esProtectedKeyword) {
                     let estaProtectedProhibido = forbiddenWords.has('protected')
-
 
                     if (estaProtectedProhibido) {
                         addModifier('protected', modifier, 'formatear/no-protected')
@@ -2470,10 +2155,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 }
                 let esStaticKeyword = modifierKind === ts.SyntaxKind.StaticKeyword
 
-
                 if (esStaticKeyword) {
                     let estaStaticProhibido = forbiddenWords.has('static')
-
 
                     if (estaStaticProhibido) {
                         addModifier('static', modifier, 'formatear/no-static')
@@ -2485,10 +2168,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 }
                 let esAsyncKeyword = modifierKind === ts.SyntaxKind.AsyncKeyword
 
-
                 if (esAsyncKeyword) {
                     let estaAsyncProhibido = forbiddenWords.has('async')
-
 
                     if (estaAsyncProhibido) {
                         addModifier('async', modifier, 'formatear/no-async')
@@ -2500,10 +2181,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 }
                 let esAccessorKeyword = modifierKind === ts.SyntaxKind.AccessorKeyword
 
-
                 if (esAccessorKeyword) {
                     let estaAccessorProhibido = forbiddenWords.has('accessor')
-
 
                     if (estaAccessorProhibido) {
                         addModifier('accessor', modifier, 'formatear/no-accessor')
@@ -2516,16 +2195,13 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
         let { heritageClauses } = node
 
-
         let hayHeritageClauses = Boolean(heritageClauses && heritageClauses.length)
-
 
         if (hayHeritageClauses) {
             heritageClauses.forEach(function (clause) {
                 let esExtendsKeyword = clause.token === ts.SyntaxKind.ExtendsKeyword
                 let estaExtendsProhibido = forbiddenWords.has('extends')
                 let debeMarcarExtends = esExtendsKeyword && estaExtendsProhibido
-
 
                 if (debeMarcarExtends) {
                     addKeywordNode('extends', clause, 'formatear/no-extends')
@@ -2535,7 +2211,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                 let esImplementsKeyword = clause.token === ts.SyntaxKind.ImplementsKeyword
                 let estaImplementsProhibido = forbiddenWords.has('implements')
                 let debeMarcarImplements = esImplementsKeyword && estaImplementsProhibido
-
 
                 if (debeMarcarImplements) {
                     addKeywordNode('implements', clause, 'formatear/no-implements')
@@ -2554,7 +2229,6 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 
     visit(sourceFile, null)
 
-
     return findings
 
 }
@@ -2562,10 +2236,8 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
 function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, ts) {
     let findings = []
 
-
     function addExpressionFinding(expr) {
         let noEsExpresion = !expr || typeof expr !== 'object'
-
 
         if (noEsExpresion) {
             return
@@ -2573,7 +2245,6 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
         }
 
         let esIdentificador = expr.kind === ts.SyntaxKind.Identifier
-
 
         if (esIdentificador) {
             return
@@ -2594,9 +2265,7 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
     function visit(node) {
         let { kind } = node
 
-
         let esIfStatement = kind === ts.SyntaxKind.IfStatement
-
 
         if (esIfStatement) {
             addExpressionFinding(node.expression)
@@ -2605,14 +2274,12 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
 
         let esWhileStatement = kind === ts.SyntaxKind.WhileStatement
 
-
         if (esWhileStatement) {
             addExpressionFinding(node.expression)
 
         }
 
         let esDoStatement = kind === ts.SyntaxKind.DoStatement
-
 
         if (esDoStatement) {
             addExpressionFinding(node.expression)
@@ -2621,10 +2288,8 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
 
         let esForStatement = kind === ts.SyntaxKind.ForStatement
 
-
         if (esForStatement) {
             let hayCondicion = Boolean(node.condition)
-
 
             if (hayCondicion) {
                 addExpressionFinding(node.condition)
@@ -2638,7 +2303,6 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
 
     visit(sourceFile)
 
-
     return findings
 
 }
@@ -2646,9 +2310,7 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
 function parseSourceMeriyah(parse, sourceText) {
     let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true }
 
-
     let tokens = []
-
 
     let onToken = function (type, start, end, loc) {
         tokens.push({
@@ -2661,12 +2323,9 @@ function parseSourceMeriyah(parse, sourceText) {
 
     }
 
-
     let ast
 
-
     let moduleError
-
 
     try {
         ast = parse(sourceText, { ...parseOptions, sourceType: 'module', onToken })
@@ -2678,14 +2337,12 @@ function parseSourceMeriyah(parse, sourceText) {
 
     let noHayAst = !ast
 
-
     if (noHayAst) {
         try {
             ast = parse(sourceText, { ...parseOptions, sourceType: 'script', onToken })
 
         } catch {
             let err = moduleError instanceof Error ? moduleError : new Error(String(moduleError))
-
 
             throw err
 
@@ -2699,37 +2356,28 @@ function parseSourceMeriyah(parse, sourceText) {
 function fixSemicolonsMeriyah(filePath, parse, sourceText) {
     let { ast, tokens } = parseSourceMeriyah(parse, sourceText)
 
-
     let forHeaderSpans = collectForHeaderSpansFromMeriyahTokens(tokens)
-
 
     let emptyStatementRanges = collectEmptyStatementRangesMeriyah(ast)
 
-
     let emptyStartSet = new Set()
-
 
     emptyStatementRanges.forEach(function (r) {
         emptyStartSet.add(r.start)
 
     })
 
-
     let replacements = []
-
 
     emptyStatementRanges.forEach(function (range) {
         replacements.push({ start: range.start, end: range.end, text: '{}' })
 
     })
 
-
     let unfixableFindings = []
-
 
     tokens.forEach(function (t) {
         let noEsPuntoYComa = t.text !== ';'
-
 
         if (noEsPuntoYComa) {
             return
@@ -2738,7 +2386,6 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
         let esVacioDeSentencia = emptyStartSet.has(t.start)
 
-
         if (esVacioDeSentencia) {
             return
 
@@ -2746,10 +2393,8 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
         let estaEnCabeceraDeFor = isInsideAnySpan(t.start, forHeaderSpans)
 
-
         if (estaEnCabeceraDeFor) {
             addFindingAtLoc(unfixableFindings, filePath, ';', t.loc, 'formatear/no-semicolon')
-
 
             return
 
@@ -2759,9 +2404,7 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
     })
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -2770,13 +2413,10 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
     let { tokens } = parseSourceMeriyah(parse, sourceText)
 
-
     let replacements = []
-
 
     tokens.forEach(function (t) {
         let noEsKeyword = t.type !== 'Keyword'
-
 
         if (noEsKeyword) {
             return
@@ -2787,14 +2427,12 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
         let esConst = t.text === 'const'
         let noEsVarNiConst = !esVar && !esConst
 
-
         if (noEsVarNiConst) {
             return
 
         }
 
         let rangoInvalido = typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start
-
 
         if (rangoInvalido) {
             return
@@ -2805,9 +2443,7 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
 
     })
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings: [] }
 
@@ -2816,22 +2452,17 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
 function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
     let { ast, tokens } = parseSourceMeriyah(parse, sourceText)
 
-
     let replacements = []
 
-
     let unfixableFindings = []
-
 
     let arrowTokens = tokens.filter(function (t) {
         return t.type === 'Punctuator' && t.text === '=>'
 
     })
 
-
     function convertArrowFunction(node) {
         let noEsNodo = !node || typeof node !== 'object'
-
 
         if (noEsNodo) {
             return
@@ -2839,7 +2470,6 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         }
 
         let noEsArrowFunctionExpression = node.type !== 'ArrowFunctionExpression'
-
 
         if (noEsArrowFunctionExpression) {
             return
@@ -2851,13 +2481,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         })
 
-
         let noHayArrowToken = !arrowToken
-
 
         if (noHayArrowToken) {
             addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
-
 
             return
 
@@ -2865,9 +2492,7 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let headText = sourceText.slice(node.start, arrowToken.start).trimEnd()
 
-
         let esAsync = node.async === true
-
 
         if (esAsync) {
             headText = headText.replace(/^\s*async\b\s*/, '')
@@ -2876,9 +2501,7 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let paramsText = headText.trim()
 
-
         let paramsNoTieneParentesis = !paramsText.startsWith('(')
-
 
         if (paramsNoTieneParentesis) {
             paramsText = `(${paramsText})`
@@ -2887,13 +2510,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let functionPrefix = node.async === true ? 'async function ' : 'function '
 
-
         let bodyText
-
 
         let tieneBody = Boolean(node.body)
         let esBlockStatement = tieneBody && node.body.type === 'BlockStatement'
-
 
         if (esBlockStatement) {
             bodyText = sourceText.slice(node.body.start, node.body.end)
@@ -2904,10 +2524,8 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         let tieneRangoBody = tieneBody && typeof node.body.start === 'number' && typeof node.body.end === 'number'
         let debeGenerarBodyReturn = noHayBodyText && tieneRangoBody
 
-
         if (debeGenerarBodyReturn) {
             let expressionText = sourceText.slice(node.body.start, node.body.end)
-
 
             bodyText = `{ return ${expressionText} }`
 
@@ -2915,10 +2533,8 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let sigueSinBodyText = !bodyText
 
-
         if (sigueSinBodyText) {
             addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
-
 
             return
 
@@ -2935,7 +2551,6 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
     function visit(node) {
         let noEsNodo = !node || typeof node !== 'object'
 
-
         if (noEsNodo) {
             return
 
@@ -2943,13 +2558,11 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let esArreglo = Array.isArray(node)
 
-
         if (esArreglo) {
             node.forEach(function (item) {
                 visit(item)
 
             })
-
 
             return
 
@@ -2957,20 +2570,17 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let noTieneTipo = typeof node.type !== 'string'
 
-
         if (noTieneTipo) {
             Object.values(node).forEach(function (child) {
                 visit(child)
 
             })
 
-
             return
 
         }
 
         let esArrowFunctionExpression = node.type === 'ArrowFunctionExpression'
-
 
         if (esArrowFunctionExpression) {
             convertArrowFunction(node)
@@ -2980,9 +2590,7 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         Object.entries(node).forEach(function (pair) {
             let childKey = pair[0]
 
-
             let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
 
             if (esClaveDeUbicacion) {
                 return
@@ -2997,9 +2605,7 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
     visit(ast)
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -3008,16 +2614,12 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
     let { ast } = parseSourceMeriyah(parse, sourceText)
 
-
     let replacements = []
-
 
     let unfixableFindings = []
 
-
     function wrapStatement(stmt) {
         let noEsStmtValido = !stmt || typeof stmt !== 'object'
-
 
         if (noEsStmtValido) {
             return
@@ -3026,7 +2628,6 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         let esBloque = stmt.type === 'BlockStatement'
 
-
         if (esBloque) {
             return
 
@@ -3034,17 +2635,14 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         let rangoInvalido = typeof stmt.start !== 'number' || typeof stmt.end !== 'number' || stmt.end < stmt.start
 
-
         if (rangoInvalido) {
             addFinding(unfixableFindings, filePath, '{', stmt, 'formatear/require-braces')
-
 
             return
 
         }
 
         replacements.push({ start: stmt.start, end: stmt.start, text: '{ ' })
-
 
         replacements.push({ start: stmt.end, end: stmt.end, text: ' }' })
 
@@ -3053,7 +2651,6 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
     function visit(node) {
         let noEsNodo = !node || typeof node !== 'object'
 
-
         if (noEsNodo) {
             return
 
@@ -3061,13 +2658,11 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         let esArreglo = Array.isArray(node)
 
-
         if (esArreglo) {
             node.forEach(function (item) {
                 visit(item)
 
             })
-
 
             return
 
@@ -3075,13 +2670,11 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         let noTieneTipo = typeof node.type !== 'string'
 
-
         if (noTieneTipo) {
             Object.values(node).forEach(function (child) {
                 visit(child)
 
             })
-
 
             return
 
@@ -3089,13 +2682,10 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         let esIfStatement = node.type === 'IfStatement'
 
-
         if (esIfStatement) {
             wrapStatement(node.consequent)
 
-
             let tieneAlternativa = Boolean(node.alternate)
-
 
             if (tieneAlternativa) {
                 wrapStatement(node.alternate)
@@ -3106,9 +2696,7 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
         Object.entries(node).forEach(function (pair) {
             let childKey = pair[0]
 
-
             let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
 
             if (esClaveDeUbicacion) {
                 return
@@ -3123,9 +2711,7 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
     visit(ast)
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -3134,20 +2720,15 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 function collectEmptyStatementRangesTypescript(sourceFile, ts) {
     let ranges = []
 
-
     function visit(node) {
         let esEmptyStatement = node.kind === ts.SyntaxKind.EmptyStatement
-
 
         if (esEmptyStatement) {
             let start = node.getStart(sourceFile)
 
-
             let end = node.getEnd()
 
-
             let rangoValido = typeof start === 'number' && typeof end === 'number' && end > start
-
 
             if (rangoValido) {
                 ranges.push({ start, end })
@@ -3160,7 +2741,6 @@ function collectEmptyStatementRangesTypescript(sourceFile, ts) {
 
     visit(sourceFile)
 
-
     return ranges
 
 }
@@ -3168,10 +2748,8 @@ function collectEmptyStatementRangesTypescript(sourceFile, ts) {
 function collectForHeaderSpansFromTsTokens(tokens, ts) {
     let spans = []
 
-
     function scanFrom(i) {
         let excedeLongitudDeTokens = i >= tokens.length
-
 
         if (excedeLongitudDeTokens) {
             return spans
@@ -3180,7 +2758,6 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
         let noEsFor = tokens[i].kind !== ts.SyntaxKind.ForKeyword
 
-
         if (noEsFor) {
             return scanFrom(i + 1)
 
@@ -3188,9 +2765,7 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
         let j = i + 1
 
-
         let hayAwait = tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword
-
 
         if (hayAwait) {
             j += 1
@@ -3199,10 +2774,8 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
         let openParenToken = tokens[j]
 
-
         let noHayParentesisDeApertura =
         !openParenToken || openParenToken.kind !== ts.SyntaxKind.OpenParenToken
-
 
         if (noHayParentesisDeApertura) {
             return scanFrom(i + 1)
@@ -3211,10 +2784,8 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
         let start = openParenToken.pos
 
-
         function scanParen(k, depth) {
             let excedeLongitudDeTokens = k >= tokens.length
-
 
             if (excedeLongitudDeTokens) {
                 return scanFrom(i + 1)
@@ -3223,12 +2794,9 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
             let tk = tokens[k]
 
-
             let nextDepth = depth
 
-
             let abreParentesis = tk.kind === ts.SyntaxKind.OpenParenToken
-
 
             if (abreParentesis) {
                 nextDepth += 1
@@ -3237,7 +2805,6 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
             let cierraParentesis = tk.kind === ts.SyntaxKind.CloseParenToken
 
-
             if (cierraParentesis) {
                 nextDepth -= 1
 
@@ -3245,10 +2812,8 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
             let terminaElEncabezado = tk.kind === ts.SyntaxKind.CloseParenToken && nextDepth === 0
 
-
             if (terminaElEncabezado) {
                 spans.push({ start, end: tk.end })
-
 
                 return scanFrom(k + 1)
 
@@ -3274,16 +2839,12 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
     sourceText,
     )
 
-
     let tokens = []
-
 
     function scanNext() {
         let kind = scanner.scan()
 
-
         let finDeArchivo = kind === ts.SyntaxKind.EndOfFileToken
-
 
         if (finDeArchivo) {
             return tokens
@@ -3292,12 +2853,9 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
 
         let pos = scanner.getTokenPos()
 
-
         let end = scanner.getTextPos()
 
-
         tokens.push({ kind, pos, end, text: sourceText.slice(pos, end) })
-
 
         return scanNext()
 
@@ -3310,9 +2868,7 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
 function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
-
     let esTsx = ext === '.tsx'
-
 
     if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
@@ -3321,40 +2877,30 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 
     let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
 
-
     let tokens = scanTokensTypescript(ts, sourceText, ext === '.tsx')
-
 
     let forHeaderSpans = collectForHeaderSpansFromTsTokens(tokens, ts)
 
-
     let emptyStatementRanges = collectEmptyStatementRangesTypescript(sourceFile, ts)
 
-
     let emptyStartSet = new Set()
-
 
     emptyStatementRanges.forEach(function (r) {
         emptyStartSet.add(r.start)
 
     })
 
-
     let replacements = []
-
 
     emptyStatementRanges.forEach(function (range) {
         replacements.push({ start: range.start, end: range.end, text: '{}' })
 
     })
 
-
     let unfixableFindings = []
-
 
     tokens.forEach(function (t) {
         let noEsPuntoYComa = t.kind !== ts.SyntaxKind.SemicolonToken
-
 
         if (noEsPuntoYComa) {
             return
@@ -3363,7 +2909,6 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 
         let esEmptyStatement = emptyStartSet.has(t.pos)
 
-
         if (esEmptyStatement) {
             return
 
@@ -3371,10 +2916,8 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 
         let estaDentroDeEncabezadoDeFor = isInsideAnySpan(t.pos, forHeaderSpans)
 
-
         if (estaDentroDeEncabezadoDeFor) {
             let lc = sourceFile.getLineAndCharacterOfPosition(t.pos)
-
 
             unfixableFindings.push({
                 filePath,
@@ -3384,7 +2927,6 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
                 ruleId: 'formatear/no-semicolon',
             })
 
-
             return
 
         }
@@ -3393,9 +2935,7 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 
     })
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -3404,13 +2944,10 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
     let tokens = scanTokensTypescript(ts, sourceText, ext === '.tsx')
 
-
     let replacements = []
-
 
     tokens.forEach(function (t) {
         let noEsVarNiConst = t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword
-
 
         if (noEsVarNiConst) {
             return
@@ -3418,7 +2955,6 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
         }
 
         let rangoInvalido = typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos
-
 
         if (rangoInvalido) {
             return
@@ -3429,9 +2965,7 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
 
     })
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings: [] }
 
@@ -3440,9 +2974,7 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
 function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
-
     let esTsx = ext === '.tsx'
-
 
     if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
@@ -3451,26 +2983,19 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
     let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
 
-
     let replacements = []
 
-
     let unfixableFindings = []
-
 
     function visit(node) {
         let esArrowFunction = node.kind === ts.SyntaxKind.ArrowFunction
 
-
         if (esArrowFunction) {
             let start = node.getStart(sourceFile)
 
-
             let end = node.getEnd()
 
-
             let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
-
 
             if (rangoInvalido) {
                 return
@@ -3479,16 +3004,12 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
             let arrowToken = node.equalsGreaterThanToken
 
-
             let arrowPos = arrowToken ? arrowToken.getStart(sourceFile) : -1
-
 
             let posicionDeFlechaInvalida = typeof arrowPos !== 'number' || arrowPos < start
 
-
             if (posicionDeFlechaInvalida) {
                 let lc = sourceFile.getLineAndCharacterOfPosition(start)
-
 
                 unfixableFindings.push({
                     filePath,
@@ -3498,13 +3019,11 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
                     ruleId: 'formatear/no-arrow-function',
                 })
 
-
                 return
 
             }
 
             let headText = sourceText.slice(start, arrowPos).trimEnd()
-
 
             let isAsync =
             Array.isArray(node.modifiers) &&
@@ -3513,7 +3032,6 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
             })
 
-
             if (isAsync) {
                 headText = headText.replace(/^\s*async\b\s*/, '')
 
@@ -3521,9 +3039,7 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
             let paramsText = headText.trim()
 
-
             let faltanParentesisEnParametros = !paramsText.startsWith('(')
-
 
             if (faltanParentesisEnParametros) {
                 paramsText = `(${paramsText})`
@@ -3532,12 +3048,9 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
             let functionPrefix = isAsync ? 'async function ' : 'function '
 
-
             let bodyText
 
-
             let esBloque = node.body.kind === ts.SyntaxKind.Block
-
 
             if (esBloque) {
                 bodyText = sourceText.slice(node.body.getStart(sourceFile), node.body.getEnd())
@@ -3546,23 +3059,18 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
             let faltaCuerpo = !bodyText
 
-
             if (faltaCuerpo) {
                 let bodyStart = node.body.getStart(sourceFile)
 
-
                 let bodyEnd = node.body.getEnd()
 
-
                 let exprText = sourceText.slice(bodyStart, bodyEnd)
-
 
                 bodyText = `{ return ${exprText} }`
 
             }
 
             replacements.push({ start, end, text: `${functionPrefix}${paramsText} ${bodyText}` })
-
 
             return
 
@@ -3574,9 +3082,7 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
     visit(sourceFile)
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -3585,9 +3091,7 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
-
     let esTsx = ext === '.tsx'
-
 
     if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
@@ -3596,16 +3100,12 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 
     let sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
 
-
     let replacements = []
-
 
     let unfixableFindings = []
 
-
     function wrapStatement(stmt) {
         let noHaySentencia = !stmt
-
 
         if (noHaySentencia) {
             return
@@ -3614,7 +3114,6 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 
         let yaTieneBloque = stmt.kind === ts.SyntaxKind.Block
 
-
         if (yaTieneBloque) {
             return
 
@@ -3622,16 +3121,12 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 
         let start = stmt.getStart(sourceFile)
 
-
         let end = stmt.getEnd()
-
 
         let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
 
-
         if (rangoInvalido) {
             let lc = sourceFile.getLineAndCharacterOfPosition(typeof start === 'number' ? start : 0)
-
 
             unfixableFindings.push({
                 filePath,
@@ -3641,13 +3136,11 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
                 ruleId: 'formatear/require-braces',
             })
 
-
             return
 
         }
 
         replacements.push({ start, end: start, text: '{ ' })
-
 
         replacements.push({ start: end, end, text: ' }' })
 
@@ -3656,13 +3149,10 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     function visit(node) {
         let esIfStatement = node.kind === ts.SyntaxKind.IfStatement
 
-
         if (esIfStatement) {
             wrapStatement(node.thenStatement)
 
-
             let tieneElseStatement = Boolean(node.elseStatement)
-
 
             if (tieneElseStatement) {
                 wrapStatement(node.elseStatement)
@@ -3676,9 +3166,7 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 
     visit(sourceFile)
 
-
     let fixedText = applyReplacements(sourceText, replacements)
-
 
     return { fixedText, unfixableFindings }
 
@@ -3687,10 +3175,8 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 async function run(argv) {
     let pidioAyuda = argv.includes('--help') || argv.includes('-h')
 
-
     if (pidioAyuda) {
         printHelp()
-
 
         return 0
 
@@ -3698,13 +3184,10 @@ async function run(argv) {
 
     let formatearIndex = argv.indexOf('--formatear')
 
-
     let faltaFlagFormatear = formatearIndex === -1
-
 
     if (faltaFlagFormatear) {
         printHelp()
-
 
         return 2
 
@@ -3712,20 +3195,16 @@ async function run(argv) {
 
     let inputPaths = argv.slice(formatearIndex + 1).filter(isPathLike)
 
-
     let noHayRutasDeEntrada = inputPaths.length === 0
-
 
     if (noHayRutasDeEntrada) {
         printHelp()
-
 
         return 2
 
     }
 
     let fileSet = new Set()
-
 
     await Promise.all(
     inputPaths.map(async function (inputPath) {
@@ -3734,19 +3213,15 @@ async function run(argv) {
     }),
     )
 
-
     let files = Array.from(fileSet).sort(function (a, b) {
         return a.localeCompare(b)
 
     })
 
-
     let noHayArchivos = files.length === 0
-
 
     if (noHayArchivos) {
         process.stderr.write('No se encontraron archivos para analizar.\n')
-
 
         return 2
 
@@ -3754,31 +3229,23 @@ async function run(argv) {
 
     let forbiddenWords = await loadForbiddenWords()
 
-
     let parseErrorCount = 0
-
 
     let issueCount = 0
 
-
     let parse
-
 
     let ts
 
-
     try {
         let meriyahModule = await importMeriyah()
-
 
         parse = meriyahModule.parse
 
     } catch (error) {
         let message = error instanceof Error ? error.message : String(error)
 
-
         process.stderr.write(`${message}\n`)
-
 
         return 2
 
@@ -3787,11 +3254,9 @@ async function run(argv) {
     function normalize(value) {
         let str = String(value)
 
-
         return Array.from(str)
         .filter(function (ch) {
             let code = ch.charCodeAt(0)
-
 
             return !(code <= 31 || code === 127)
 
@@ -3804,17 +3269,13 @@ async function run(argv) {
         try {
             let ext = path.extname(inputFilePath).toLowerCase()
 
-
             let isTsFile = ext === '.ts' || ext === '.tsx' || ext === '.mts' || ext === '.cts'
-
 
             let findings
             let conditionFindings = []
 
-
             if (isTsFile) {
                 let noHayTypescript = !ts
-
 
                 if (noHayTypescript) {
                     ts = await importTypescript()
@@ -3825,7 +3286,6 @@ async function run(argv) {
 
                 let tokensForTabs = scanTokensTypescript(ts, sourceText, ext === '.tsx')
 
-
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                 sourceText,
                 tokensForTabs.map(function (t) {
@@ -3834,28 +3294,21 @@ async function run(argv) {
                 }),
                 )
 
-
                 let huboCambiosDeTabs = tabFixedText !== sourceText
-
 
                 if (huboCambiosDeTabs) {
                     await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
-
 
                     sourceText = tabFixedText
 
                 }
 
-
                 let fixed = fixSemicolonsTypescript(inputFilePath, ts, sourceText, ext)
-
 
                 let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
 
-
                 if (huboCambiosDePuntoYComa) {
                     await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
-
 
                     sourceText = fixed.fixedText
 
@@ -3864,9 +3317,7 @@ async function run(argv) {
                 fixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
@@ -3874,16 +3325,12 @@ async function run(argv) {
 
                 })
 
-
                 let varConstFixed = fixVarConstToLetTypescript(inputFilePath, ts, sourceText, ext)
-
 
                 let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
 
-
                 if (huboCambiosVarConst) {
                     await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
-
 
                     sourceText = varConstFixed.fixedText
 
@@ -3891,13 +3338,10 @@ async function run(argv) {
 
                 let arrowFixed = fixArrowFunctionsToFunctionsTypescript(inputFilePath, ts, sourceText, ext)
 
-
                 let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
-
 
                 if (huboCambiosDeArrows) {
                     await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
-
 
                     sourceText = arrowFixed.fixedText
 
@@ -3906,9 +3350,7 @@ async function run(argv) {
                 arrowFixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
@@ -3916,16 +3358,12 @@ async function run(argv) {
 
                 })
 
-
                 let bracesFixed = fixMissingBracesIfTypescript(inputFilePath, ts, sourceText, ext)
-
 
                 let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
 
-
                 if (huboCambiosDeLlaves) {
                     await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
-
 
                     sourceText = bracesFixed.fixedText
 
@@ -3934,9 +3372,7 @@ async function run(argv) {
                 bracesFixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
@@ -3945,7 +3381,6 @@ async function run(argv) {
                 })
 
                 let tokensForIndent = scanTokensTypescript(ts, sourceText, ext === '.tsx')
-
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                 sourceText,
@@ -3964,13 +3399,10 @@ async function run(argv) {
                 }),
                 )
 
-
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
-
 
                 if (huboCambiosDeIndentacion) {
                     await fs.writeFile(inputFilePath, reindentedText, 'utf8')
-
 
                     sourceText = reindentedText
 
@@ -3978,24 +3410,18 @@ async function run(argv) {
 
                 let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
 
-
                 let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
-
 
                 if (huboCambiosDeEspaciosFinales) {
                     await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
-
 
                     sourceText = noTrailingWhitespaceText
 
                 }
 
-
                 let scriptKind = ts.ScriptKind.TS
 
-
                 let esTsx = ext === '.tsx'
-
 
                 if (esTsx) {
                     scriptKind = ts.ScriptKind.TSX
@@ -4004,9 +3430,7 @@ async function run(argv) {
 
                 let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
 
-
                 conditionFindings = collectConditionSingleVariableFindingsTypescript(sourceFile, inputFilePath, ts)
-
 
                 findings = collectForbiddenFindingsTypescript(sourceFile, inputFilePath, forbiddenWords, ts)
 
@@ -4014,12 +3438,10 @@ async function run(argv) {
 
             let noEsTsFile = !isTsFile
 
-
             if (noEsTsFile) {
                 let sourceText = await fs.readFile(inputFilePath, 'utf8')
 
                 let parsedForTabs = parseSourceMeriyah(parse, sourceText)
-
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                 sourceText,
@@ -4029,28 +3451,21 @@ async function run(argv) {
                 }),
                 )
 
-
                 let huboCambiosDeTabs = tabFixedText !== sourceText
-
 
                 if (huboCambiosDeTabs) {
                     await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
-
 
                     sourceText = tabFixedText
 
                 }
 
-
                 let fixed = fixSemicolonsMeriyah(inputFilePath, parse, sourceText)
-
 
                 let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
 
-
                 if (huboCambiosDePuntoYComa) {
                     await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
-
 
                     sourceText = fixed.fixedText
 
@@ -4059,9 +3474,7 @@ async function run(argv) {
                 fixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
@@ -4069,16 +3482,12 @@ async function run(argv) {
 
                 })
 
-
                 let varConstFixed = fixVarConstToLetMeriyah(inputFilePath, parse, sourceText)
-
 
                 let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
 
-
                 if (huboCambiosVarConst) {
                     await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
-
 
                     sourceText = varConstFixed.fixedText
 
@@ -4086,13 +3495,10 @@ async function run(argv) {
 
                 let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(inputFilePath, parse, sourceText)
 
-
                 let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
-
 
                 if (huboCambiosDeArrows) {
                     await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
-
 
                     sourceText = arrowFixed.fixedText
 
@@ -4101,9 +3507,7 @@ async function run(argv) {
                 arrowFixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
@@ -4111,16 +3515,12 @@ async function run(argv) {
 
                 })
 
-
                 let bracesFixed = fixMissingBracesIfMeriyah(inputFilePath, parse, sourceText)
-
 
                 let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
 
-
                 if (huboCambiosDeLlaves) {
                     await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
-
 
                     sourceText = bracesFixed.fixedText
 
@@ -4129,9 +3529,7 @@ async function run(argv) {
                 bracesFixed.unfixableFindings.forEach(function (finding) {
                     issueCount += 1
 
-
                     let normalizedFilePath = normalize(finding.filePath)
-
 
                     process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
@@ -4140,7 +3538,6 @@ async function run(argv) {
                 })
 
                 let parsedForIndent = parseSourceMeriyah(parse, sourceText)
-
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                 sourceText,
@@ -4159,13 +3556,10 @@ async function run(argv) {
                 }),
                 )
 
-
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
-
 
                 if (huboCambiosDeIndentacion) {
                     await fs.writeFile(inputFilePath, reindentedText, 'utf8')
-
 
                     sourceText = reindentedText
 
@@ -4173,24 +3567,18 @@ async function run(argv) {
 
                 let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
 
-
                 let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
-
 
                 if (huboCambiosDeEspaciosFinales) {
                     await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
-
 
                     sourceText = noTrailingWhitespaceText
 
                 }
 
-
                 let parsed = parseSourceMeriyah(parse, sourceText)
 
-
                 conditionFindings = collectConditionSingleVariableFindingsMeriyah(parsed.ast, inputFilePath)
-
 
                 findings = collectForbiddenFindingsMeriyah(parsed.ast, inputFilePath, forbiddenWords)
 
@@ -4199,19 +3587,14 @@ async function run(argv) {
             findings.forEach(function (finding) {
                 issueCount += 1
 
-
                 let normalizedFilePath = normalize(finding.filePath)
 
-
                 let keyword = normalize(finding.keyword)
-
 
                 let ruleIdValue =
                 typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
 
-
                 let ruleId = normalize(ruleIdValue)
-
 
                 process.stdout.write(
                 `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`,
@@ -4222,9 +3605,7 @@ async function run(argv) {
             conditionFindings.forEach(function (finding) {
                 issueCount += 1
 
-
                 let normalizedFilePath = normalize(finding.filePath)
-
 
                 process.stdout.write(
                 `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`,
@@ -4235,9 +3616,7 @@ async function run(argv) {
         } catch (error) {
             parseErrorCount += 1
 
-
             let message = error instanceof Error ? error.message : String(error)
-
 
             process.stderr.write(`${inputFilePath}  error  ${message}\n`)
 
@@ -4252,9 +3631,7 @@ async function run(argv) {
 
     }, Promise.resolve())
 
-
     let huboErroresDeParseo = parseErrorCount > 0
-
 
     if (huboErroresDeParseo) {
         return 2
@@ -4266,6 +3643,5 @@ async function run(argv) {
 }
 
 let exitCode = await run(process.argv.slice(2))
-
 
 process.exitCode = exitCode
