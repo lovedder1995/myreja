@@ -58,7 +58,7 @@
   },
   "scripts": {
     "build": "bun scripts/build.mjs",
-    "git:consolidar": "node -e \"const cp=require('node:child_process');const now=new Date(Date.now()-21600000);const y=now.getUTCFullYear();const m=String(now.getUTCMonth()+1).padStart(2,'0');const d=String(now.getUTCDate()).padStart(2,'0');const prefix=String(y)+'.'+m+'.'+d;let subjects='';try{subjects=cp.execFileSync('git',['log','--format=%s'],{encoding:'utf8'});}catch{}const escapedPrefix=prefix.replace(/\\./g,'\\\\.');const re=new RegExp('^'+escapedPrefix+'\\\\.(\\\\d+)$');let max=0;for(const line of subjects.split(/\\r?\\n/)){const match=re.exec(line.trim());if(match){const n=Number(match[1]);if(Number.isFinite(n)&&n>max){max=n;}}}const msg=prefix+'.'+String(max+1);cp.execFileSync('git',['commit','-m',msg],{stdio:'inherit'});\"",
+    "git:consolidar": "node -e \"const cp=require('node:child_process');const now=new Date(Date.now()-21600000);const y=now.getUTCFullYear();const m=String(now.getUTCMonth()+1).padStart(2,'0');const d=String(now.getUTCDate()).padStart(2,'0');const prefix=String(y)+'.'+m+'.'+d;let subjects='';try{subjects=cp.execFileSync('git',['log','--format=%s'],{encoding:'utf8'});}catch{}const escapedPrefix=prefix.replace(/\\./g,'\\\\.');const re=new RegExp('^'+escapedPrefix+'\\\\.(\\\\d+)\\\\r?$','gm');let max=0;for(const match of subjects.matchAll(re)){const n=Number(match[1]);if(Number.isFinite(n)&&n>max){max=n;}}const msg=prefix+'.'+String(max+1);cp.execFileSync('git',['commit','-m',msg],{stdio:'inherit'});\"",
     "lint": "bun run lint:eslint && bun run lint:types && bun run lint:prettier && bun run lint:cspell && bun run lint:knip",
     "lint:eslint": "eslint",
     "lint:prettier": "prettier . --check",
