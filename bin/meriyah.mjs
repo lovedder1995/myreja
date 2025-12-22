@@ -30,7 +30,10 @@ async function loadForbiddenWords() {
     let scriptPath = process.argv[1]
 
 
-    if (typeof scriptPath !== 'string' || scriptPath.length === 0) {
+    let esScriptPathInvalido = typeof scriptPath !== 'string' || scriptPath.length === 0
+
+
+    if (esScriptPathInvalido) {
         scriptPath = process.cwd()
 
     }
@@ -61,7 +64,10 @@ async function loadForbiddenWords() {
     })
 
 
-    if (forbidden.size > 0) {
+    let hayPalabrasProhibidas = forbidden.size > 0
+
+
+    if (hayPalabrasProhibidas) {
         return forbidden
 
     }
@@ -87,12 +93,18 @@ async function pathKind(p) {
         let stats = await fs.stat(p)
 
 
-        if (stats.isDirectory()) {
+        let esDirectorio = stats.isDirectory()
+
+
+        if (esDirectorio) {
             return 'dir'
 
         }
 
-        if (stats.isFile()) {
+        let esArchivo = stats.isFile()
+
+
+        if (esArchivo) {
             return 'file'
 
         }
@@ -109,14 +121,20 @@ async function collectFiles(inputPath, out) {
     let kind = await pathKind(inputPath)
 
 
-    if (kind === 'file') {
+    let esArchivo = kind === 'file'
+
+
+    if (esArchivo) {
         out.add(path.resolve(inputPath))
 
 
         return
 
     }
-    if (kind !== 'dir') {
+    let noEsDirectorio = kind !== 'dir'
+
+
+    if (noEsDirectorio) {
         return
 
     }
@@ -129,11 +147,14 @@ async function collectFiles(inputPath, out) {
         let fullPath = path.join(inputPath, entry.name)
 
 
-        if (entry.isDirectory()) {
-            let isSkipped = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+        let esDirectorio = entry.isDirectory()
 
 
-            if (isSkipped) {
+        if (esDirectorio) {
+            let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+
+
+            if (esSaltado) {
                 return
 
             }
@@ -145,12 +166,18 @@ async function collectFiles(inputPath, out) {
 
         }
 
-        if (!entry.isFile()) {
+        let noEsArchivo = !entry.isFile()
+
+
+        if (noEsArchivo) {
             return
 
         }
 
-        if (!/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)) {
+        let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)
+
+
+        if (noEsExtensionSoportada) {
             return
 
         }
@@ -163,32 +190,54 @@ async function collectFiles(inputPath, out) {
 }
 
 function isSkippableIdentifierContext(parent, key) {
-    if (!parent || typeof parent !== 'object') {
+    let noEsNodoPadre = !parent || typeof parent !== 'object'
+
+
+    if (noEsNodoPadre) {
         return false
 
     }
 
-    if (parent.type === 'MemberExpression' && key === 'property' && parent.computed === false) {
+    let esPropiedadDeMemberExpression =
+    parent.type === 'MemberExpression' && key === 'property' && parent.computed === false
+
+
+    if (esPropiedadDeMemberExpression) {
         return true
 
     }
 
-    if (parent.type === 'Property' && key === 'key' && parent.computed === false) {
+    let esClaveDeProperty = parent.type === 'Property' && key === 'key' && parent.computed === false
+
+
+    if (esClaveDeProperty) {
         return true
 
     }
 
-    if (parent.type === 'MethodDefinition' && key === 'key' && parent.computed === false) {
+    let esClaveDeMethodDefinition =
+    parent.type === 'MethodDefinition' && key === 'key' && parent.computed === false
+
+
+    if (esClaveDeMethodDefinition) {
         return true
 
     }
 
-    if (parent.type === 'PropertyDefinition' && key === 'key' && parent.computed === false) {
+    let esClaveDePropertyDefinition =
+    parent.type === 'PropertyDefinition' && key === 'key' && parent.computed === false
+
+
+    if (esClaveDePropertyDefinition) {
         return true
 
     }
 
-    if (parent.type === 'AccessorProperty' && key === 'key' && parent.computed === false) {
+    let esClaveDeAccessorProperty =
+    parent.type === 'AccessorProperty' && key === 'key' && parent.computed === false
+
+
+    if (esClaveDeAccessorProperty) {
         return true
 
     }
@@ -232,7 +281,10 @@ function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
 }
 
 function applyReplacements(sourceText, replacements) {
-    if (!replacements.length) {
+    let noHayReemplazos = !replacements.length
+
+
+    if (noHayReemplazos) {
         return sourceText
 
     }
@@ -262,7 +314,10 @@ function applyReplacements(sourceText, replacements) {
 
 
     sorted.forEach(function (rep) {
-        if (rep.end > lastStart) {
+        let solapaConReemplazoPrevio = rep.end > lastStart
+
+
+        if (solapaConReemplazoPrevio) {
             return
 
         }
@@ -280,7 +335,10 @@ function applyReplacements(sourceText, replacements) {
 }
 
 function stripTrailingWhitespace(sourceText) {
-    if (typeof sourceText !== 'string' || sourceText.length === 0) {
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
+
+
+    if (noEsTextoValido) {
         return sourceText
 
     }
@@ -294,17 +352,26 @@ function stripTrailingWhitespace(sourceText) {
 }
 
 function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
-    if (typeof sourceText !== 'string' || sourceText.length === 0) {
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
+
+
+    if (noEsTextoValido) {
         return sourceText
 
     }
 
-    if (!sourceText.includes('\t')) {
+    let noHayTabs = !sourceText.includes('\t')
+
+
+    if (noHayTabs) {
         return sourceText
 
     }
 
-    if (!Array.isArray(spans) || spans.length === 0) {
+    let noHayTramos = !Array.isArray(spans) || spans.length === 0
+
+
+    if (noHayTramos) {
         return sourceText.replace(/\t/g, '    ')
 
     }
@@ -342,7 +409,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
 
     sorted.forEach(function (span) {
-        if (merged.length === 0) {
+        let noHayTramosAcumulados = merged.length === 0
+
+
+        if (noHayTramosAcumulados) {
             merged.push(span)
 
 
@@ -353,7 +423,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
         let last = merged[merged.length - 1]
 
 
-        if (span.start > last.end) {
+        let empiezaDespuesDelFinal = span.start > last.end
+
+
+        if (empiezaDespuesDelFinal) {
             merged.push(span)
 
 
@@ -361,7 +434,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
         }
 
-        if (span.end > last.end) {
+        let extiendeElFinal = span.end > last.end
+
+
+        if (extiendeElFinal) {
             last.end = span.end
 
         }
@@ -375,7 +451,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
 
     merged.forEach(function (span) {
-        if (span.start > cursor) {
+        let hayTextoAntesDelTramo = span.start > cursor
+
+
+        if (hayTextoAntesDelTramo) {
             out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ')
 
         }
@@ -386,7 +465,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
     })
 
 
-    if (cursor < len) {
+    let quedaTextoPorProcesar = cursor < len
+
+
+    if (quedaTextoPorProcesar) {
         out += sourceText.slice(cursor).replace(/\t/g, '    ')
 
     }
@@ -396,7 +478,10 @@ function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 }
 
 function mergeSpans(spans, len) {
-    if (!Array.isArray(spans) || spans.length === 0) {
+    let noHayTramos = !Array.isArray(spans) || spans.length === 0
+
+
+    if (noHayTramos) {
         return []
 
     }
@@ -430,7 +515,10 @@ function mergeSpans(spans, len) {
 
 
     sorted.forEach(function (span) {
-        if (merged.length === 0) {
+        let noHayTramosAcumulados = merged.length === 0
+
+
+        if (noHayTramosAcumulados) {
             merged.push(span)
 
 
@@ -441,7 +529,10 @@ function mergeSpans(spans, len) {
         let last = merged[merged.length - 1]
 
 
-        if (span.start > last.end) {
+        let empiezaDespuesDelFinal = span.start > last.end
+
+
+        if (empiezaDespuesDelFinal) {
             merged.push(span)
 
 
@@ -449,7 +540,10 @@ function mergeSpans(spans, len) {
 
         }
 
-        if (span.end > last.end) {
+        let extiendeElFinal = span.end > last.end
+
+
+        if (extiendeElFinal) {
             last.end = span.end
 
         }
@@ -461,7 +555,10 @@ function mergeSpans(spans, len) {
 
 function isInsideMergedSpans(index, merged) {
     function search(lo, hi) {
-        if (lo > hi) {
+        let rangoVacio = lo > hi
+
+
+        if (rangoVacio) {
             return false
 
         }
@@ -470,12 +567,18 @@ function isInsideMergedSpans(index, merged) {
         let span = merged[mid]
 
 
-        if (index < span.start) {
+        let estaAntesDelTramo = index < span.start
+
+
+        if (estaAntesDelTramo) {
             return search(lo, mid - 1)
 
         }
 
-        if (index >= span.end) {
+        let estaDespuesDelTramo = index >= span.end
+
+
+        if (estaDespuesDelTramo) {
             return search(mid + 1, hi)
 
         }
@@ -489,7 +592,10 @@ function isInsideMergedSpans(index, merged) {
 }
 
 function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
-    if (typeof sourceText !== 'string' || sourceText.length === 0) {
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
+
+
+    if (noEsTextoValido) {
         return sourceText
 
     }
@@ -531,7 +637,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         eventPos.push(e.pos)
 
 
-        if (index === 0) {
+        let esPrimerEvento = index === 0
+
+
+        if (esPrimerEvento) {
             eventPrefix.push(e.delta)
 
 
@@ -545,7 +654,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
     function upperBound(arr, value) {
         function search(lo, hi) {
-            if (lo > hi) {
+            let rangoVacio = lo > hi
+
+
+            if (rangoVacio) {
                 return lo
 
             }
@@ -553,7 +665,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
             let mid = (lo + hi) >> 1
 
 
-            if (arr[mid] < value) {
+            let estaPorDebajoDelValor = arr[mid] < value
+
+
+            if (estaPorDebajoDelValor) {
                 return search(mid + 1, hi)
 
             }
@@ -567,7 +682,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     }
 
     function depthAtPos(pos) {
-        if (eventPos.length === 0) {
+        let noHayEventos = eventPos.length === 0
+
+
+        if (noHayEventos) {
             return 0
 
         }
@@ -575,7 +693,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let idx = upperBound(eventPos, pos)
 
 
-        if (idx <= 0) {
+        let noHayEventoAnterior = idx <= 0
+
+
+        if (noHayEventoAnterior) {
             return 0
 
         }
@@ -583,7 +704,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let depth = eventPrefix[idx - 1]
 
 
-        if (depth < 0) {
+        let profundidadNegativa = depth < 0
+
+
+        if (profundidadNegativa) {
             return 0
 
         }
@@ -593,17 +717,26 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
     }
 
     function splitLineSegment(segment) {
-        if (segment.endsWith('\r\n')) {
+        let terminaConCrLf = segment.endsWith('\r\n')
+
+
+        if (terminaConCrLf) {
             return { lineText: segment.slice(0, -2), lineBreak: '\r\n' }
 
         }
 
-        if (segment.endsWith('\n')) {
+        let terminaConLf = segment.endsWith('\n')
+
+
+        if (terminaConLf) {
             return { lineText: segment.slice(0, -1), lineBreak: '\n' }
 
         }
 
-        if (segment.endsWith('\r')) {
+        let terminaConCr = segment.endsWith('\r')
+
+
+        if (terminaConCr) {
             return { lineText: segment.slice(0, -1), lineBreak: '\r' }
 
         }
@@ -619,7 +752,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
 
     segments.forEach(function (segment) {
-        if (!segment) {
+        let noHaySegmento = !segment
+
+
+        if (noHaySegmento) {
             return
 
         }
@@ -632,7 +768,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         cursor += segment.length
 
 
-        if (lineText.trim().length === 0) {
+        let esLineaVacia = lineText.trim().length === 0
+
+
+        if (esLineaVacia) {
             out += lineBreak
 
 
@@ -640,7 +779,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
 
         }
 
-        if (isInsideMergedSpans(lineStart, mergedTokenSpans)) {
+        let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans)
+
+
+        if (estaDentroDeTramosToken) {
             out += lineText + lineBreak
 
 
@@ -651,7 +793,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let content = lineText.replace(/^[ \t]+/, '')
 
 
-        if (content.length === 0) {
+        let noHayContenido = content.length === 0
+
+
+        if (noHayContenido) {
             out += lineBreak
 
 
@@ -667,7 +812,10 @@ function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
         let indentLevel = depth - leadingCloseCount
 
 
-        if (indentLevel < 0) {
+        let nivelDeSangriaNegativo = indentLevel < 0
+
+
+        if (nivelDeSangriaNegativo) {
             indentLevel = 0
 
         }
@@ -693,12 +841,18 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
 
     function visit(node, parent, key) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (Array.isArray(node)) {
+        let esListaDeNodos = Array.isArray(node)
+
+
+        if (esListaDeNodos) {
             node.forEach(function (item) {
                 visit(item, parent, key)
 
@@ -709,7 +863,10 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
         }
 
-        if (typeof node.type !== 'string') {
+        let noTieneTipoValido = typeof node.type !== 'string'
+
+
+        if (noTieneTipoValido) {
             Object.values(node).forEach(function (child) {
                 visit(child, node, undefined)
 
@@ -720,12 +877,14 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
         }
 
-        if (
+        let esEmptyStatementConRango =
         node.type === 'EmptyStatement' &&
         typeof node.start === 'number' &&
         typeof node.end === 'number' &&
         node.end > node.start
-        ) {
+
+
+        if (esEmptyStatementConRango) {
             ranges.push({ start: node.start, end: node.end })
 
         }
@@ -734,7 +893,10 @@ function collectEmptyStatementRangesMeriyah(ast) {
             let childKey = pair[0]
 
 
-            if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+
+            if (esClaveIgnorable) {
                 return
 
             }
@@ -757,7 +919,10 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
 
     function scanFrom(i) {
-        if (i >= tokens.length) {
+        let excedeLongitudDeTokens = i >= tokens.length
+
+
+        if (excedeLongitudDeTokens) {
             return spans
 
         }
@@ -765,7 +930,10 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
         let token = tokens[i]
 
 
-        if (!token || token.type !== 'Keyword' || token.text !== 'for') {
+        let noEsFor = !token || token.type !== 'Keyword' || token.text !== 'for'
+
+
+        if (noEsFor) {
             return scanFrom(i + 1)
 
         }
@@ -773,7 +941,11 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
         let j = i + 1
 
 
-        if (tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await') {
+        let hayAwait =
+        tokens[j] && tokens[j].type === 'Keyword' && tokens[j].text === 'await'
+
+
+        if (hayAwait) {
             j += 1
 
         }
@@ -781,7 +953,11 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
         let openParenToken = tokens[j]
 
 
-        if (!openParenToken || openParenToken.type !== 'Punctuator' || openParenToken.text !== '(') {
+        let noHayParentesisDeApertura =
+        !openParenToken || openParenToken.type !== 'Punctuator' || openParenToken.text !== '('
+
+
+        if (noHayParentesisDeApertura) {
             return scanFrom(i + 1)
 
         }
@@ -790,7 +966,10 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
 
 
         function scanParen(k, depth) {
-            if (k >= tokens.length) {
+            let excedeLongitudDeTokens = k >= tokens.length
+
+
+            if (excedeLongitudDeTokens) {
                 return scanFrom(i + 1)
 
             }
@@ -801,17 +980,26 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
             let nextDepth = depth
 
 
-            if (token.type === 'Punctuator' && token.text === '(') {
+            let abreParentesis = token.type === 'Punctuator' && token.text === '('
+
+
+            if (abreParentesis) {
                 nextDepth += 1
 
             }
 
-            if (token.type === 'Punctuator' && token.text === ')') {
+            let cierraParentesis = token.type === 'Punctuator' && token.text === ')'
+
+
+            if (cierraParentesis) {
                 nextDepth -= 1
 
             }
 
-            if (token.type === 'Punctuator' && token.text === ')' && nextDepth === 0) {
+            let terminaElEncabezado = token.type === 'Punctuator' && token.text === ')' && nextDepth === 0
+
+
+            if (terminaElEncabezado) {
                 spans.push({ start, end: token.end })
 
 
@@ -836,12 +1024,18 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
 
     function visit(node, parent, key) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (Array.isArray(node)) {
+        let esListaDeNodos = Array.isArray(node)
+
+
+        if (esListaDeNodos) {
             node.forEach(function (item) {
                 visit(item, parent, key)
 
@@ -852,7 +1046,10 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         }
 
-        if (typeof node.type !== 'string') {
+        let noTieneTipoValido = typeof node.type !== 'string'
+
+
+        if (noTieneTipoValido) {
             Object.values(node).forEach(function (child) {
                 visit(child, node, undefined)
 
@@ -866,252 +1063,466 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         let { type: nodeType } = node
 
 
-        if (nodeType === 'ThisExpression') {
-            if (forbiddenWords.has('this')) {
+        let esThisExpression = nodeType === 'ThisExpression'
+
+
+        if (esThisExpression) {
+            let estaThisProhibido = forbiddenWords.has('this')
+
+
+            if (estaThisProhibido) {
                 addFinding(findings, filePath, 'this', node, 'formatear/no-this')
 
             }
         }
 
-        if (nodeType === 'IfStatement') {
-            if (forbiddenWords.has('if')) {
+        let esIfStatement = nodeType === 'IfStatement'
+
+
+        if (esIfStatement) {
+            let estaIfProhibido = forbiddenWords.has('if')
+
+
+            if (estaIfProhibido) {
                 addFinding(findings, filePath, 'if', node, 'formatear/no-if')
 
             }
 
-            if (node.alternate && forbiddenWords.has('else')) {
+            let tieneAlternate = Boolean(node.alternate)
+            let estaElseProhibido = forbiddenWords.has('else')
+            let debeMarcarElse = tieneAlternate && estaElseProhibido
+
+
+            if (debeMarcarElse) {
                 addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else')
 
             }
         }
 
-        if (nodeType === 'ReturnStatement') {
-            if (forbiddenWords.has('return')) {
+        let esReturnStatement = nodeType === 'ReturnStatement'
+
+
+        if (esReturnStatement) {
+            let estaReturnProhibido = forbiddenWords.has('return')
+
+
+            if (estaReturnProhibido) {
                 addFinding(findings, filePath, 'return', node, 'formatear/no-return')
 
             }
         }
 
-        if (nodeType === 'VariableDeclaration') {
-            if (node.kind === 'var' && forbiddenWords.has('var')) {
+        let esVariableDeclaration = nodeType === 'VariableDeclaration'
+
+
+        if (esVariableDeclaration) {
+            let esVar = node.kind === 'var'
+            let esLet = node.kind === 'let'
+            let esConst = node.kind === 'const'
+            let estaVarProhibido = forbiddenWords.has('var')
+            let estaLetProhibido = forbiddenWords.has('let')
+            let estaConstProhibido = forbiddenWords.has('const')
+            let debeMarcarVar = esVar && estaVarProhibido
+            let debeMarcarLet = esLet && estaLetProhibido
+            let debeMarcarConst = esConst && estaConstProhibido
+
+
+            if (debeMarcarVar) {
                 addFinding(findings, filePath, 'var', node, 'formatear/no-var')
 
             }
 
-            if (node.kind === 'let' && forbiddenWords.has('let')) {
+            if (debeMarcarLet) {
                 addFinding(findings, filePath, 'let', node, 'formatear/no-let')
 
             }
 
-            if (node.kind === 'const' && forbiddenWords.has('const')) {
+            if (debeMarcarConst) {
                 addFinding(findings, filePath, 'const', node, 'formatear/no-const')
 
             }
         }
 
-        if (nodeType === 'ForStatement' || nodeType === 'ForInStatement' || nodeType === 'ForOfStatement') {
-            if (forbiddenWords.has('for')) {
+        let esForStatement = nodeType === 'ForStatement'
+        let esForInStatement = nodeType === 'ForInStatement'
+        let esForOfStatement = nodeType === 'ForOfStatement'
+        let esAlgunFor = esForStatement || esForInStatement || esForOfStatement
+
+
+        if (esAlgunFor) {
+            let estaForProhibido = forbiddenWords.has('for')
+
+
+            if (estaForProhibido) {
                 addFinding(findings, filePath, 'for', node, 'formatear/no-for')
 
             }
 
-            if (nodeType === 'ForInStatement' && forbiddenWords.has('in')) {
+            let estaInProhibido = forbiddenWords.has('in')
+            let estaOfProhibido = forbiddenWords.has('of')
+            let debeMarcarIn = esForInStatement && estaInProhibido
+            let debeMarcarOf = esForOfStatement && estaOfProhibido
+
+
+            if (debeMarcarIn) {
                 addFinding(findings, filePath, 'in', node, 'formatear/no-in')
 
             }
 
-            if (nodeType === 'ForOfStatement' && forbiddenWords.has('of')) {
+            if (debeMarcarOf) {
                 addFinding(findings, filePath, 'of', node, 'formatear/no-of')
 
             }
         }
 
-        if (nodeType === 'WhileStatement') {
-            if (forbiddenWords.has('while')) {
+        let esWhileStatement = nodeType === 'WhileStatement'
+
+
+        if (esWhileStatement) {
+            let estaWhileProhibido = forbiddenWords.has('while')
+
+
+            if (estaWhileProhibido) {
                 addFinding(findings, filePath, 'while', node, 'formatear/no-while')
 
             }
         }
 
-        if (nodeType === 'DoWhileStatement') {
-            if (forbiddenWords.has('do')) {
+        let esDoWhileStatement = nodeType === 'DoWhileStatement'
+
+
+        if (esDoWhileStatement) {
+            let estaDoProhibido = forbiddenWords.has('do')
+
+
+            if (estaDoProhibido) {
                 addFinding(findings, filePath, 'do', node, 'formatear/no-do')
 
             }
         }
 
-        if (nodeType === 'SwitchStatement') {
-            if (forbiddenWords.has('switch')) {
+        let esSwitchStatement = nodeType === 'SwitchStatement'
+
+
+        if (esSwitchStatement) {
+            let estaSwitchProhibido = forbiddenWords.has('switch')
+
+
+            if (estaSwitchProhibido) {
                 addFinding(findings, filePath, 'switch', node, 'formatear/no-switch')
 
             }
         }
 
-        if (nodeType === 'SwitchCase') {
-            if (node.test && forbiddenWords.has('case')) {
+        let esSwitchCase = nodeType === 'SwitchCase'
+
+
+        if (esSwitchCase) {
+            let tieneTest = Boolean(node.test)
+            let estaCaseProhibido = forbiddenWords.has('case')
+            let estaDefaultProhibido = forbiddenWords.has('default')
+            let debeMarcarCase = tieneTest && estaCaseProhibido
+            let debeMarcarDefault = !tieneTest && estaDefaultProhibido
+
+
+            if (debeMarcarCase) {
                 addFinding(findings, filePath, 'case', node, 'formatear/no-case')
 
             }
 
-            if (!node.test && forbiddenWords.has('default')) {
+            if (debeMarcarDefault) {
                 addFinding(findings, filePath, 'default', node, 'formatear/no-default')
 
             }
         }
 
-        if (nodeType === 'BreakStatement') {
-            if (forbiddenWords.has('break')) {
+        let esBreakStatement = nodeType === 'BreakStatement'
+
+
+        if (esBreakStatement) {
+            let estaBreakProhibido = forbiddenWords.has('break')
+
+
+            if (estaBreakProhibido) {
                 addFinding(findings, filePath, 'break', node, 'formatear/no-break')
 
             }
         }
 
-        if (nodeType === 'ContinueStatement') {
-            if (forbiddenWords.has('continue')) {
+        let esContinueStatement = nodeType === 'ContinueStatement'
+
+
+        if (esContinueStatement) {
+            let estaContinueProhibido = forbiddenWords.has('continue')
+
+
+            if (estaContinueProhibido) {
                 addFinding(findings, filePath, 'continue', node, 'formatear/no-continue')
 
             }
         }
 
-        if (nodeType === 'TryStatement') {
-            if (forbiddenWords.has('try')) {
+        let esTryStatement = nodeType === 'TryStatement'
+
+
+        if (esTryStatement) {
+            let estaTryProhibido = forbiddenWords.has('try')
+
+
+            if (estaTryProhibido) {
                 addFinding(findings, filePath, 'try', node, 'formatear/no-try')
 
             }
 
-            if (node.finalizer && forbiddenWords.has('finally')) {
+            let tieneFinalizer = Boolean(node.finalizer)
+            let estaFinallyProhibido = forbiddenWords.has('finally')
+            let debeMarcarFinally = tieneFinalizer && estaFinallyProhibido
+
+
+            if (debeMarcarFinally) {
                 addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally')
 
             }
         }
 
-        if (nodeType === 'CatchClause') {
-            if (forbiddenWords.has('catch')) {
+        let esCatchClause = nodeType === 'CatchClause'
+
+
+        if (esCatchClause) {
+            let estaCatchProhibido = forbiddenWords.has('catch')
+
+
+            if (estaCatchProhibido) {
                 addFinding(findings, filePath, 'catch', node, 'formatear/no-catch')
 
             }
         }
 
-        if (nodeType === 'ThrowStatement') {
-            if (forbiddenWords.has('throw')) {
+        let esThrowStatement = nodeType === 'ThrowStatement'
+
+
+        if (esThrowStatement) {
+            let estaThrowProhibido = forbiddenWords.has('throw')
+
+
+            if (estaThrowProhibido) {
                 addFinding(findings, filePath, 'throw', node, 'formatear/no-throw')
 
             }
         }
 
-        if (nodeType === 'NewExpression') {
-            if (forbiddenWords.has('new')) {
+        let esNewExpression = nodeType === 'NewExpression'
+
+
+        if (esNewExpression) {
+            let estaNewProhibido = forbiddenWords.has('new')
+
+
+            if (estaNewProhibido) {
                 addFinding(findings, filePath, 'new', node, 'formatear/no-new')
 
             }
         }
 
-        if (nodeType === 'UnaryExpression') {
+        let esUnaryExpression = nodeType === 'UnaryExpression'
+
+
+        if (esUnaryExpression) {
             let { operator: op } = node
 
 
-            if (op === 'typeof' && forbiddenWords.has('typeof')) {
+            let esTypeof = op === 'typeof'
+            let esVoid = op === 'void'
+            let esDelete = op === 'delete'
+            let estaTypeofProhibido = forbiddenWords.has('typeof')
+            let estaVoidProhibido = forbiddenWords.has('void')
+            let estaDeleteProhibido = forbiddenWords.has('delete')
+            let debeMarcarTypeof = esTypeof && estaTypeofProhibido
+            let debeMarcarVoid = esVoid && estaVoidProhibido
+            let debeMarcarDelete = esDelete && estaDeleteProhibido
+
+
+            if (debeMarcarTypeof) {
                 addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof')
 
             }
 
-            if (op === 'void' && forbiddenWords.has('void')) {
+            if (debeMarcarVoid) {
                 addFinding(findings, filePath, 'void', node, 'formatear/no-void')
 
             }
 
-            if (op === 'delete' && forbiddenWords.has('delete')) {
+            if (debeMarcarDelete) {
                 addFinding(findings, filePath, 'delete', node, 'formatear/no-delete')
 
             }
         }
 
-        if (nodeType === 'BinaryExpression') {
+        let esBinaryExpression = nodeType === 'BinaryExpression'
+
+
+        if (esBinaryExpression) {
             let { operator: op } = node
 
 
-            if (op === 'in' && forbiddenWords.has('in')) {
+            let esIn = op === 'in'
+            let esInstanceof = op === 'instanceof'
+            let estaInProhibido = forbiddenWords.has('in')
+            let estaInstanceofProhibido = forbiddenWords.has('instanceof')
+            let debeMarcarIn = esIn && estaInProhibido
+            let debeMarcarInstanceof = esInstanceof && estaInstanceofProhibido
+
+
+            if (debeMarcarIn) {
                 addFinding(findings, filePath, 'in', node, 'formatear/no-in')
 
             }
 
-            if (op === 'instanceof' && forbiddenWords.has('instanceof')) {
+            if (debeMarcarInstanceof) {
                 addFinding(findings, filePath, 'instanceof', node, 'formatear/no-instanceof')
 
             }
         }
 
-        if (nodeType === 'FunctionDeclaration' || nodeType === 'FunctionExpression') {
-            if (forbiddenWords.has('function')) {
+        let esFunctionDeclaration = nodeType === 'FunctionDeclaration'
+        let esFunctionExpression = nodeType === 'FunctionExpression'
+        let esAlgunFunction = esFunctionDeclaration || esFunctionExpression
+
+
+        if (esAlgunFunction) {
+            let estaFunctionProhibido = forbiddenWords.has('function')
+
+
+            if (estaFunctionProhibido) {
                 addFinding(findings, filePath, 'function', node, 'formatear/no-function')
 
             }
 
-            if (node.async === true && forbiddenWords.has('async')) {
+            let esAsync = node.async === true
+            let estaAsyncProhibido = forbiddenWords.has('async')
+            let debeMarcarAsync = esAsync && estaAsyncProhibido
+
+
+            if (debeMarcarAsync) {
                 addFinding(findings, filePath, 'async', node, 'formatear/no-async')
 
             }
         }
 
-        if (nodeType === 'ArrowFunctionExpression') {
-            if (node.async === true && forbiddenWords.has('async')) {
+        let esArrowFunctionExpression = nodeType === 'ArrowFunctionExpression'
+
+
+        if (esArrowFunctionExpression) {
+            let esAsync = node.async === true
+            let estaAsyncProhibido = forbiddenWords.has('async')
+            let debeMarcarAsync = esAsync && estaAsyncProhibido
+
+
+            if (debeMarcarAsync) {
                 addFinding(findings, filePath, 'async', node, 'formatear/no-async')
 
             }
         }
 
-        if (nodeType === 'AwaitExpression') {
-            if (forbiddenWords.has('await')) {
+        let esAwaitExpression = nodeType === 'AwaitExpression'
+
+
+        if (esAwaitExpression) {
+            let estaAwaitProhibido = forbiddenWords.has('await')
+
+
+            if (estaAwaitProhibido) {
                 addFinding(findings, filePath, 'await', node, 'formatear/no-await')
 
             }
         }
 
-        if (nodeType === 'YieldExpression') {
-            if (forbiddenWords.has('yield')) {
+        let esYieldExpression = nodeType === 'YieldExpression'
+
+
+        if (esYieldExpression) {
+            let estaYieldProhibido = forbiddenWords.has('yield')
+
+
+            if (estaYieldProhibido) {
                 addFinding(findings, filePath, 'yield', node, 'formatear/no-yield')
 
             }
         }
 
-        if (nodeType === 'ClassDeclaration' || nodeType === 'ClassExpression') {
-            if (forbiddenWords.has('class')) {
+        let esClassDeclaration = nodeType === 'ClassDeclaration'
+        let esClassExpression = nodeType === 'ClassExpression'
+        let esAlgunaClase = esClassDeclaration || esClassExpression
+
+
+        if (esAlgunaClase) {
+            let estaClassProhibido = forbiddenWords.has('class')
+
+
+            if (estaClassProhibido) {
                 addFinding(findings, filePath, 'class', node, 'formatear/no-class')
 
             }
 
-            if (node.superClass && forbiddenWords.has('extends')) {
+            let tieneSuperClase = Boolean(node.superClass)
+            let estaExtendsProhibido = forbiddenWords.has('extends')
+            let debeMarcarExtends = tieneSuperClase && estaExtendsProhibido
+
+
+            if (debeMarcarExtends) {
                 addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends')
 
             }
         }
 
-        if (nodeType === 'Super') {
-            if (forbiddenWords.has('super')) {
+        let esSuper = nodeType === 'Super'
+
+
+        if (esSuper) {
+            let estaSuperProhibido = forbiddenWords.has('super')
+
+
+            if (estaSuperProhibido) {
                 addFinding(findings, filePath, 'super', node, 'formatear/no-super')
 
             }
         }
 
-        if (nodeType === 'ImportDeclaration' || nodeType === 'ImportExpression') {
-            if (forbiddenWords.has('import')) {
+        let esImportDeclaration = nodeType === 'ImportDeclaration'
+        let esImportExpression = nodeType === 'ImportExpression'
+        let esAlgunImport = esImportDeclaration || esImportExpression
+
+
+        if (esAlgunImport) {
+            let estaImportProhibido = forbiddenWords.has('import')
+
+
+            if (estaImportProhibido) {
                 addFinding(findings, filePath, 'import', node, 'formatear/no-import')
 
             }
         }
 
-        if (
-        nodeType === 'ExportNamedDeclaration' ||
-        nodeType === 'ExportDefaultDeclaration' ||
-        nodeType === 'ExportAllDeclaration'
-        ) {
-            if (forbiddenWords.has('export')) {
+        let esExportNamedDeclaration = nodeType === 'ExportNamedDeclaration'
+        let esExportDefaultDeclaration = nodeType === 'ExportDefaultDeclaration'
+        let esExportAllDeclaration = nodeType === 'ExportAllDeclaration'
+        let esAlgunExport = esExportNamedDeclaration || esExportDefaultDeclaration || esExportAllDeclaration
+
+
+        if (esAlgunExport) {
+            let estaExportProhibido = forbiddenWords.has('export')
+
+
+            if (estaExportProhibido) {
                 addFinding(findings, filePath, 'export', node, 'formatear/no-export')
 
             }
         }
 
-        if (nodeType === 'MetaProperty') {
+        let esMetaProperty = nodeType === 'MetaProperty'
+
+
+        if (esMetaProperty) {
             let metaNode = node['meta']
 
 
@@ -1124,38 +1535,72 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let propertyName = propertyNode && propertyNode.name
 
 
-            if (metaName === 'new' && propertyName === 'target' && forbiddenWords.has('target')) {
+            let esNewTarget = metaName === 'new' && propertyName === 'target'
+            let estaTargetProhibido = forbiddenWords.has('target')
+            let debeMarcarTarget = esNewTarget && estaTargetProhibido
+
+
+            if (debeMarcarTarget) {
                 addFinding(findings, filePath, 'target', node, 'formatear/no-target')
 
             }
 
-            if (metaName === 'import' && propertyName === 'meta' && forbiddenWords.has('meta')) {
+            let esImportMeta = metaName === 'import' && propertyName === 'meta'
+            let estaMetaProhibido = forbiddenWords.has('meta')
+            let debeMarcarMeta = esImportMeta && estaMetaProhibido
+
+
+            if (debeMarcarMeta) {
                 addFinding(findings, filePath, 'meta', node, 'formatear/no-meta')
 
             }
         }
 
-        if (nodeType === 'WithStatement') {
-            if (forbiddenWords.has('with')) {
+        let esWithStatement = nodeType === 'WithStatement'
+
+
+        if (esWithStatement) {
+            let estaWithProhibido = forbiddenWords.has('with')
+
+
+            if (estaWithProhibido) {
                 addFinding(findings, filePath, 'with', node, 'formatear/no-with')
 
             }
         }
 
-        if (nodeType === 'DebuggerStatement') {
-            if (forbiddenWords.has('debugger')) {
+        let esDebuggerStatement = nodeType === 'DebuggerStatement'
+
+
+        if (esDebuggerStatement) {
+            let estaDebuggerProhibido = forbiddenWords.has('debugger')
+
+
+            if (estaDebuggerProhibido) {
                 addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger')
 
             }
         }
 
-        if (nodeType === 'Identifier') {
-            if (
-            typeof node.name === 'string' &&
-            forbiddenWords.has(node.name) &&
-            !isSkippableIdentifierContext(parent, key)
-            ) {
-                addFinding(findings, filePath, node.name, node, `formatear/no-${node.name}`)
+        let esIdentifier = nodeType === 'Identifier'
+
+
+        if (esIdentifier) {
+            let nombreIdentificador = node.name
+            let esNombreString = typeof nombreIdentificador === 'string'
+            let esNombreProhibido = esNombreString && forbiddenWords.has(nombreIdentificador)
+            let esContextoOmitible = isSkippableIdentifierContext(parent, key)
+            let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible
+
+
+            if (debeMarcarIdentificador) {
+                addFinding(
+                findings,
+                filePath,
+                nombreIdentificador,
+                node,
+                `formatear/no-${nombreIdentificador}`,
+                )
 
             }
         }
@@ -1164,7 +1609,10 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let childKey = pair[0]
 
 
-            if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+
+            if (esClaveIgnorable) {
                 return
 
             }
@@ -1187,7 +1635,10 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
 
     function checkTest(node) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
@@ -1195,12 +1646,18 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
         let { test } = node
 
 
-        if (!test || typeof test !== 'object') {
+        let noEsTestValido = !test || typeof test !== 'object'
+
+
+        if (noEsTestValido) {
             return
 
         }
 
-        if (test.type === 'Identifier') {
+        let esIdentificador = test.type === 'Identifier'
+
+
+        if (esIdentificador) {
             return
 
         }
@@ -1210,12 +1667,18 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
     }
 
     function visit(node) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (Array.isArray(node)) {
+        let esListaDeNodos = Array.isArray(node)
+
+
+        if (esListaDeNodos) {
             node.forEach(visit)
 
 
@@ -1223,16 +1686,21 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         }
 
-        if (typeof node.type === 'string') {
+        let tieneTipoString = typeof node.type === 'string'
+
+
+        if (tieneTipoString) {
             let { type } = node
 
 
-            if (
+            let esNodoConCondicion =
             type === 'IfStatement' ||
             type === 'WhileStatement' ||
             type === 'DoWhileStatement' ||
             type === 'ForStatement'
-            ) {
+
+
+            if (esNodoConCondicion) {
                 checkTest(node)
 
             }
@@ -1242,7 +1710,10 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
             let key = pair[0]
 
 
-            if (key === 'loc' || key === 'range' || key === 'start' || key === 'end') {
+            let esClaveIgnorable = key === 'loc' || key === 'range' || key === 'start' || key === 'end'
+
+
+            if (esClaveIgnorable) {
                 return
 
             }
@@ -1275,57 +1746,100 @@ function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
 }
 
 function isSkippableTsIdentifierContext(parent, node, ts) {
-    if (!parent) {
+    let noHayNodoPadre = !parent
+
+
+    if (noHayNodoPadre) {
         return false
 
     }
 
-    if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
+    let esPropertyAccessExpression = ts.isPropertyAccessExpression(parent)
+    let esNombreDePropertyAccessExpression = esPropertyAccessExpression && parent.name === node
+
+
+    if (esNombreDePropertyAccessExpression) {
         return true
 
     }
 
-    if (ts.isPropertyAssignment(parent) && parent.name === node) {
+    let esPropertyAssignment = ts.isPropertyAssignment(parent)
+    let esNombreDePropertyAssignment = esPropertyAssignment && parent.name === node
+
+
+    if (esNombreDePropertyAssignment) {
         return true
 
     }
 
-    if (ts.isMethodDeclaration(parent) && parent.name === node) {
+    let esMethodDeclaration = ts.isMethodDeclaration(parent)
+    let esNombreDeMethodDeclaration = esMethodDeclaration && parent.name === node
+
+
+    if (esNombreDeMethodDeclaration) {
         return true
 
     }
 
-    if (ts.isMethodSignature(parent) && parent.name === node) {
+    let esMethodSignature = ts.isMethodSignature(parent)
+    let esNombreDeMethodSignature = esMethodSignature && parent.name === node
+
+
+    if (esNombreDeMethodSignature) {
         return true
 
     }
 
-    if (ts.isPropertyDeclaration(parent) && parent.name === node) {
+    let esPropertyDeclaration = ts.isPropertyDeclaration(parent)
+    let esNombreDePropertyDeclaration = esPropertyDeclaration && parent.name === node
+
+
+    if (esNombreDePropertyDeclaration) {
         return true
 
     }
 
-    if (ts.isPropertySignature(parent) && parent.name === node) {
+    let esPropertySignature = ts.isPropertySignature(parent)
+    let esNombreDePropertySignature = esPropertySignature && parent.name === node
+
+
+    if (esNombreDePropertySignature) {
         return true
 
     }
 
-    if (ts.isGetAccessorDeclaration(parent) && parent.name === node) {
+    let esGetAccessorDeclaration = ts.isGetAccessorDeclaration(parent)
+    let esNombreDeGetAccessorDeclaration = esGetAccessorDeclaration && parent.name === node
+
+
+    if (esNombreDeGetAccessorDeclaration) {
         return true
 
     }
 
-    if (ts.isSetAccessorDeclaration(parent) && parent.name === node) {
+    let esSetAccessorDeclaration = ts.isSetAccessorDeclaration(parent)
+    let esNombreDeSetAccessorDeclaration = esSetAccessorDeclaration && parent.name === node
+
+
+    if (esNombreDeSetAccessorDeclaration) {
         return true
 
     }
 
-    if (ts.isShorthandPropertyAssignment(parent) && parent.name === node) {
+    let esShorthandPropertyAssignment = ts.isShorthandPropertyAssignment(parent)
+    let esNombreDeShorthandPropertyAssignment = esShorthandPropertyAssignment && parent.name === node
+
+
+    if (esNombreDeShorthandPropertyAssignment) {
         return true
 
     }
 
-    if (ts.isEnumMember(parent) && parent.name === node) {
+    let esEnumMember = ts.isEnumMember(parent)
+    let esNombreDeEnumMember = esEnumMember && parent.name === node
+
+
+    if (esNombreDeEnumMember) {
         return true
 
     }
@@ -1352,297 +1866,547 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let { kind } = node
 
 
-        if (kind === ts.SyntaxKind.ThisKeyword) {
-            if (forbiddenWords.has('this')) {
+        let esThisKeyword = kind === ts.SyntaxKind.ThisKeyword
+
+
+        if (esThisKeyword) {
+            let estaThisProhibido = forbiddenWords.has('this')
+
+
+            if (estaThisProhibido) {
                 addKeywordNode('this', node, 'formatear/no-this')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.IfStatement) {
-            if (forbiddenWords.has('if')) {
+        let esIfStatement = kind === ts.SyntaxKind.IfStatement
+
+
+        if (esIfStatement) {
+            let estaIfProhibido = forbiddenWords.has('if')
+
+
+            if (estaIfProhibido) {
                 addKeywordNode('if', node, 'formatear/no-if')
 
             }
 
-            if (node.elseStatement && forbiddenWords.has('else')) {
+            let hayElseStatement = Boolean(node.elseStatement)
+            let estaElseProhibido = forbiddenWords.has('else')
+            let debeMarcarElse = hayElseStatement && estaElseProhibido
+
+
+            if (debeMarcarElse) {
                 addKeywordNode('else', node.elseStatement, 'formatear/no-else')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.ReturnStatement) {
-            if (forbiddenWords.has('return')) {
+        let esReturnStatement = kind === ts.SyntaxKind.ReturnStatement
+
+
+        if (esReturnStatement) {
+            let estaReturnProhibido = forbiddenWords.has('return')
+
+
+            if (estaReturnProhibido) {
                 addKeywordNode('return', node, 'formatear/no-return')
 
             }
         }
 
-        if (
-        kind === ts.SyntaxKind.ForStatement ||
-        kind === ts.SyntaxKind.ForInStatement ||
-        kind === ts.SyntaxKind.ForOfStatement
-        ) {
-            if (forbiddenWords.has('for')) {
+        let esForStatement = kind === ts.SyntaxKind.ForStatement
+        let esForInStatement = kind === ts.SyntaxKind.ForInStatement
+        let esForOfStatement = kind === ts.SyntaxKind.ForOfStatement
+        let esAlgunFor = esForStatement || esForInStatement || esForOfStatement
+
+
+        if (esAlgunFor) {
+            let estaForProhibido = forbiddenWords.has('for')
+
+
+            if (estaForProhibido) {
                 addKeywordNode('for', node, 'formatear/no-for')
 
             }
 
-            if (kind === ts.SyntaxKind.ForInStatement && forbiddenWords.has('in')) {
+            let estaInProhibido = forbiddenWords.has('in')
+            let debeMarcarIn = esForInStatement && estaInProhibido
+
+
+            if (debeMarcarIn) {
                 addKeywordNode('in', node, 'formatear/no-in')
 
             }
 
-            if (kind === ts.SyntaxKind.ForOfStatement && forbiddenWords.has('of')) {
+            let estaOfProhibido = forbiddenWords.has('of')
+            let debeMarcarOf = esForOfStatement && estaOfProhibido
+
+
+            if (debeMarcarOf) {
                 addKeywordNode('of', node, 'formatear/no-of')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.WhileStatement) {
-            if (forbiddenWords.has('while')) {
+        let esWhileStatement = kind === ts.SyntaxKind.WhileStatement
+
+
+        if (esWhileStatement) {
+            let estaWhileProhibido = forbiddenWords.has('while')
+
+
+            if (estaWhileProhibido) {
                 addKeywordNode('while', node, 'formatear/no-while')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.DoStatement) {
-            if (forbiddenWords.has('do')) {
+        let esDoStatement = kind === ts.SyntaxKind.DoStatement
+
+
+        if (esDoStatement) {
+            let estaDoProhibido = forbiddenWords.has('do')
+
+
+            if (estaDoProhibido) {
                 addKeywordNode('do', node, 'formatear/no-do')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.SwitchStatement) {
-            if (forbiddenWords.has('switch')) {
+        let esSwitchStatement = kind === ts.SyntaxKind.SwitchStatement
+
+
+        if (esSwitchStatement) {
+            let estaSwitchProhibido = forbiddenWords.has('switch')
+
+
+            if (estaSwitchProhibido) {
                 addKeywordNode('switch', node, 'formatear/no-switch')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.CaseClause) {
-            if (forbiddenWords.has('case')) {
+        let esCaseClause = kind === ts.SyntaxKind.CaseClause
+
+
+        if (esCaseClause) {
+            let estaCaseProhibido = forbiddenWords.has('case')
+
+
+            if (estaCaseProhibido) {
                 addKeywordNode('case', node, 'formatear/no-case')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.DefaultClause) {
-            if (forbiddenWords.has('default')) {
+        let esDefaultClause = kind === ts.SyntaxKind.DefaultClause
+
+
+        if (esDefaultClause) {
+            let estaDefaultProhibido = forbiddenWords.has('default')
+
+
+            if (estaDefaultProhibido) {
                 addKeywordNode('default', node, 'formatear/no-default')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.BreakStatement) {
-            if (forbiddenWords.has('break')) {
+        let esBreakStatement = kind === ts.SyntaxKind.BreakStatement
+
+
+        if (esBreakStatement) {
+            let estaBreakProhibido = forbiddenWords.has('break')
+
+
+            if (estaBreakProhibido) {
                 addKeywordNode('break', node, 'formatear/no-break')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.ContinueStatement) {
-            if (forbiddenWords.has('continue')) {
+        let esContinueStatement = kind === ts.SyntaxKind.ContinueStatement
+
+
+        if (esContinueStatement) {
+            let estaContinueProhibido = forbiddenWords.has('continue')
+
+
+            if (estaContinueProhibido) {
                 addKeywordNode('continue', node, 'formatear/no-continue')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.TryStatement) {
-            if (forbiddenWords.has('try')) {
+        let esTryStatement = kind === ts.SyntaxKind.TryStatement
+
+
+        if (esTryStatement) {
+            let estaTryProhibido = forbiddenWords.has('try')
+
+
+            if (estaTryProhibido) {
                 addKeywordNode('try', node, 'formatear/no-try')
 
             }
 
-            if (node.finallyBlock && forbiddenWords.has('finally')) {
+            let hayFinallyBlock = Boolean(node.finallyBlock)
+            let estaFinallyProhibido = forbiddenWords.has('finally')
+            let debeMarcarFinally = hayFinallyBlock && estaFinallyProhibido
+
+
+            if (debeMarcarFinally) {
                 addKeywordNode('finally', node.finallyBlock, 'formatear/no-finally')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.CatchClause) {
-            if (forbiddenWords.has('catch')) {
+        let esCatchClause = kind === ts.SyntaxKind.CatchClause
+
+
+        if (esCatchClause) {
+            let estaCatchProhibido = forbiddenWords.has('catch')
+
+
+            if (estaCatchProhibido) {
                 addKeywordNode('catch', node, 'formatear/no-catch')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.ThrowStatement) {
-            if (forbiddenWords.has('throw')) {
+        let esThrowStatement = kind === ts.SyntaxKind.ThrowStatement
+
+
+        if (esThrowStatement) {
+            let estaThrowProhibido = forbiddenWords.has('throw')
+
+
+            if (estaThrowProhibido) {
                 addKeywordNode('throw', node, 'formatear/no-throw')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.NewExpression) {
-            if (forbiddenWords.has('new')) {
+        let esNewExpression = kind === ts.SyntaxKind.NewExpression
+
+
+        if (esNewExpression) {
+            let estaNewProhibido = forbiddenWords.has('new')
+
+
+            if (estaNewProhibido) {
                 addKeywordNode('new', node, 'formatear/no-new')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.TypeOfExpression) {
-            if (forbiddenWords.has('typeof')) {
+        let esTypeOfExpression = kind === ts.SyntaxKind.TypeOfExpression
+
+
+        if (esTypeOfExpression) {
+            let estaTypeofProhibido = forbiddenWords.has('typeof')
+
+
+            if (estaTypeofProhibido) {
                 addKeywordNode('typeof', node, 'formatear/no-typeof')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.VoidExpression) {
-            if (forbiddenWords.has('void')) {
+        let esVoidExpression = kind === ts.SyntaxKind.VoidExpression
+
+
+        if (esVoidExpression) {
+            let estaVoidProhibido = forbiddenWords.has('void')
+
+
+            if (estaVoidProhibido) {
                 addKeywordNode('void', node, 'formatear/no-void')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.DeleteExpression) {
-            if (forbiddenWords.has('delete')) {
+        let esDeleteExpression = kind === ts.SyntaxKind.DeleteExpression
+
+
+        if (esDeleteExpression) {
+            let estaDeleteProhibido = forbiddenWords.has('delete')
+
+
+            if (estaDeleteProhibido) {
                 addKeywordNode('delete', node, 'formatear/no-delete')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.BinaryExpression) {
+        let esBinaryExpression = kind === ts.SyntaxKind.BinaryExpression
+
+
+        if (esBinaryExpression) {
             let { operatorToken } = node
 
 
             let { kind: operatorKind } = operatorToken || {}
 
 
-            if (operatorKind === ts.SyntaxKind.InKeyword && forbiddenWords.has('in')) {
+            let esInKeyword = operatorKind === ts.SyntaxKind.InKeyword
+            let estaInProhibido = forbiddenWords.has('in')
+            let debeMarcarIn = esInKeyword && estaInProhibido
+
+
+            if (debeMarcarIn) {
                 addKeywordNode('in', node, 'formatear/no-in')
 
             }
 
-            if (operatorKind === ts.SyntaxKind.InstanceOfKeyword && forbiddenWords.has('instanceof')) {
+            let esInstanceOfKeyword = operatorKind === ts.SyntaxKind.InstanceOfKeyword
+            let estaInstanceofProhibido = forbiddenWords.has('instanceof')
+            let debeMarcarInstanceof = esInstanceOfKeyword && estaInstanceofProhibido
+
+
+            if (debeMarcarInstanceof) {
                 addKeywordNode('instanceof', node, 'formatear/no-instanceof')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.FunctionDeclaration || kind === ts.SyntaxKind.FunctionExpression) {
-            if (forbiddenWords.has('function')) {
+        let esFunctionDeclaration = kind === ts.SyntaxKind.FunctionDeclaration
+        let esFunctionExpression = kind === ts.SyntaxKind.FunctionExpression
+        let esAlgunaFuncion = esFunctionDeclaration || esFunctionExpression
+
+
+        if (esAlgunaFuncion) {
+            let estaFunctionProhibido = forbiddenWords.has('function')
+
+
+            if (estaFunctionProhibido) {
                 addKeywordNode('function', node, 'formatear/no-function')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.ClassDeclaration || kind === ts.SyntaxKind.ClassExpression) {
-            if (forbiddenWords.has('class')) {
+        let esClassDeclaration = kind === ts.SyntaxKind.ClassDeclaration
+        let esClassExpression = kind === ts.SyntaxKind.ClassExpression
+        let esAlgunaClase = esClassDeclaration || esClassExpression
+
+
+        if (esAlgunaClase) {
+            let estaClassProhibido = forbiddenWords.has('class')
+
+
+            if (estaClassProhibido) {
                 addKeywordNode('class', node, 'formatear/no-class')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.SuperKeyword) {
-            if (forbiddenWords.has('super')) {
+        let esSuperKeyword = kind === ts.SyntaxKind.SuperKeyword
+
+
+        if (esSuperKeyword) {
+            let estaSuperProhibido = forbiddenWords.has('super')
+
+
+            if (estaSuperProhibido) {
                 addKeywordNode('super', node, 'formatear/no-super')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.AwaitExpression) {
-            if (forbiddenWords.has('await')) {
+        let esAwaitExpression = kind === ts.SyntaxKind.AwaitExpression
+
+
+        if (esAwaitExpression) {
+            let estaAwaitProhibido = forbiddenWords.has('await')
+
+
+            if (estaAwaitProhibido) {
                 addKeywordNode('await', node, 'formatear/no-await')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.YieldExpression) {
-            if (forbiddenWords.has('yield')) {
+        let esYieldExpression = kind === ts.SyntaxKind.YieldExpression
+
+
+        if (esYieldExpression) {
+            let estaYieldProhibido = forbiddenWords.has('yield')
+
+
+            if (estaYieldProhibido) {
                 addKeywordNode('yield', node, 'formatear/no-yield')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.InterfaceDeclaration) {
-            if (forbiddenWords.has('interface')) {
+        let esInterfaceDeclaration = kind === ts.SyntaxKind.InterfaceDeclaration
+
+
+        if (esInterfaceDeclaration) {
+            let estaInterfaceProhibido = forbiddenWords.has('interface')
+
+
+            if (estaInterfaceProhibido) {
                 addKeywordNode('interface', node, 'formatear/no-interface')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.EnumDeclaration) {
-            if (forbiddenWords.has('enum')) {
+        let esEnumDeclaration = kind === ts.SyntaxKind.EnumDeclaration
+
+
+        if (esEnumDeclaration) {
+            let estaEnumProhibido = forbiddenWords.has('enum')
+
+
+            if (estaEnumProhibido) {
                 addKeywordNode('enum', node, 'formatear/no-enum')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.MetaProperty) {
+        let esMetaProperty = kind === ts.SyntaxKind.MetaProperty
+
+
+        if (esMetaProperty) {
             let { keywordToken, name: nameNode } = node
 
 
             let { escapedText: name } = nameNode || {}
 
 
-            if (keywordToken === ts.SyntaxKind.NewKeyword && name === 'target' && forbiddenWords.has('target')) {
+            let esNewKeyword = keywordToken === ts.SyntaxKind.NewKeyword
+            let esNombreTarget = name === 'target'
+            let estaTargetProhibido = forbiddenWords.has('target')
+            let debeMarcarTarget = esNewKeyword && esNombreTarget && estaTargetProhibido
+
+
+            if (debeMarcarTarget) {
                 addKeywordNode('target', node, 'formatear/no-target')
 
             }
 
-            if (keywordToken === ts.SyntaxKind.ImportKeyword && name === 'meta' && forbiddenWords.has('meta')) {
+            let esImportKeyword = keywordToken === ts.SyntaxKind.ImportKeyword
+            let esNombreMeta = name === 'meta'
+            let estaMetaProhibido = forbiddenWords.has('meta')
+            let debeMarcarMeta = esImportKeyword && esNombreMeta && estaMetaProhibido
+
+
+            if (debeMarcarMeta) {
                 addKeywordNode('meta', node, 'formatear/no-meta')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.AsExpression) {
-            if (forbiddenWords.has('as')) {
+        let esAsExpression = kind === ts.SyntaxKind.AsExpression
+
+
+        if (esAsExpression) {
+            let estaAsProhibido = forbiddenWords.has('as')
+
+
+            if (estaAsProhibido) {
                 addKeywordNode('as', node, 'formatear/no-as')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.WithStatement) {
-            if (forbiddenWords.has('with')) {
+        let esWithStatement = kind === ts.SyntaxKind.WithStatement
+
+
+        if (esWithStatement) {
+            let estaWithProhibido = forbiddenWords.has('with')
+
+
+            if (estaWithProhibido) {
                 addKeywordNode('with', node, 'formatear/no-with')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.DebuggerStatement) {
-            if (forbiddenWords.has('debugger')) {
+        let esDebuggerStatement = kind === ts.SyntaxKind.DebuggerStatement
+
+
+        if (esDebuggerStatement) {
+            let estaDebuggerProhibido = forbiddenWords.has('debugger')
+
+
+            if (estaDebuggerProhibido) {
                 addKeywordNode('debugger', node, 'formatear/no-debugger')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.VariableStatement) {
+        let esVariableStatement = kind === ts.SyntaxKind.VariableStatement
+
+
+        if (esVariableStatement) {
             let { declarationList: declList } = node
 
 
             let { flags = 0 } = declList || {}
 
 
-            if (forbiddenWords.has('const') && (flags & ts.NodeFlags.Const) !== 0) {
+            let estaConstProhibido = forbiddenWords.has('const')
+            let tieneFlagConst = (flags & ts.NodeFlags.Const) !== 0
+            let debeMarcarConst = estaConstProhibido && tieneFlagConst
+
+
+            if (debeMarcarConst) {
                 addKeywordNode('const', node, 'formatear/no-const')
 
             }
 
-            if (forbiddenWords.has('let') && (flags & ts.NodeFlags.Let) !== 0) {
+            let estaLetProhibido = forbiddenWords.has('let')
+            let tieneFlagLet = (flags & ts.NodeFlags.Let) !== 0
+            let debeMarcarLet = estaLetProhibido && tieneFlagLet
+
+
+            if (debeMarcarLet) {
                 addKeywordNode('let', node, 'formatear/no-let')
 
             }
 
-            if (forbiddenWords.has('var') && (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) === 0) {
+            let estaVarProhibido = forbiddenWords.has('var')
+            let tieneFlagConstOLet = (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) !== 0
+            let debeMarcarVar = estaVarProhibido && !tieneFlagConstOLet
+
+
+            if (debeMarcarVar) {
                 addKeywordNode('var', node, 'formatear/no-var')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.Constructor) {
-            if (forbiddenWords.has('constructor')) {
+        let esConstructor = kind === ts.SyntaxKind.Constructor
+
+
+        if (esConstructor) {
+            let estaConstructorProhibido = forbiddenWords.has('constructor')
+
+
+            if (estaConstructorProhibido) {
                 addKeywordNode('constructor', node, 'formatear/no-constructor')
 
             }
         }
 
-        if (kind === ts.SyntaxKind.Identifier) {
+        let esIdentifier = kind === ts.SyntaxKind.Identifier
+
+
+        if (esIdentifier) {
             let { escapedText: name } = node
 
 
-            if (typeof name === 'string' && forbiddenWords.has(name) && !isSkippableTsIdentifierContext(parent, node, ts)) {
+            let esNombreString = typeof name === 'string'
+            let esNombreProhibido = esNombreString && forbiddenWords.has(name)
+            let esContextoOmitible = isSkippableTsIdentifierContext(parent, node, ts)
+            let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible
+
+
+            if (debeMarcarIdentificador) {
                 addKeywordNode(name, node, `formatear/no-${name}`)
 
             }
@@ -1651,13 +2415,22 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let { modifiers } = node
 
 
-        if (modifiers && modifiers.length) {
+        let hayModificadores = Boolean(modifiers && modifiers.length)
+
+
+        if (hayModificadores) {
             modifiers.forEach(function (modifier) {
                 let { kind: modifierKind } = modifier
 
 
-                if (modifierKind === ts.SyntaxKind.PublicKeyword) {
-                    if (forbiddenWords.has('public')) {
+                let esPublicKeyword = modifierKind === ts.SyntaxKind.PublicKeyword
+
+
+                if (esPublicKeyword) {
+                    let estaPublicProhibido = forbiddenWords.has('public')
+
+
+                    if (estaPublicProhibido) {
                         addModifier('public', modifier, 'formatear/no-public')
 
                     }
@@ -1665,8 +2438,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                     return
 
                 }
-                if (modifierKind === ts.SyntaxKind.PrivateKeyword) {
-                    if (forbiddenWords.has('private')) {
+                let esPrivateKeyword = modifierKind === ts.SyntaxKind.PrivateKeyword
+
+
+                if (esPrivateKeyword) {
+                    let estaPrivateProhibido = forbiddenWords.has('private')
+
+
+                    if (estaPrivateProhibido) {
                         addModifier('private', modifier, 'formatear/no-private')
 
                     }
@@ -1674,8 +2453,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                     return
 
                 }
-                if (modifierKind === ts.SyntaxKind.ProtectedKeyword) {
-                    if (forbiddenWords.has('protected')) {
+                let esProtectedKeyword = modifierKind === ts.SyntaxKind.ProtectedKeyword
+
+
+                if (esProtectedKeyword) {
+                    let estaProtectedProhibido = forbiddenWords.has('protected')
+
+
+                    if (estaProtectedProhibido) {
                         addModifier('protected', modifier, 'formatear/no-protected')
 
                     }
@@ -1683,8 +2468,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                     return
 
                 }
-                if (modifierKind === ts.SyntaxKind.StaticKeyword) {
-                    if (forbiddenWords.has('static')) {
+                let esStaticKeyword = modifierKind === ts.SyntaxKind.StaticKeyword
+
+
+                if (esStaticKeyword) {
+                    let estaStaticProhibido = forbiddenWords.has('static')
+
+
+                    if (estaStaticProhibido) {
                         addModifier('static', modifier, 'formatear/no-static')
 
                     }
@@ -1692,8 +2483,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                     return
 
                 }
-                if (modifierKind === ts.SyntaxKind.AsyncKeyword) {
-                    if (forbiddenWords.has('async')) {
+                let esAsyncKeyword = modifierKind === ts.SyntaxKind.AsyncKeyword
+
+
+                if (esAsyncKeyword) {
+                    let estaAsyncProhibido = forbiddenWords.has('async')
+
+
+                    if (estaAsyncProhibido) {
                         addModifier('async', modifier, 'formatear/no-async')
 
                     }
@@ -1701,8 +2498,14 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
                     return
 
                 }
-                if (modifierKind === ts.SyntaxKind.AccessorKeyword) {
-                    if (forbiddenWords.has('accessor')) {
+                let esAccessorKeyword = modifierKind === ts.SyntaxKind.AccessorKeyword
+
+
+                if (esAccessorKeyword) {
+                    let estaAccessorProhibido = forbiddenWords.has('accessor')
+
+
+                    if (estaAccessorProhibido) {
                         addModifier('accessor', modifier, 'formatear/no-accessor')
 
                     }
@@ -1714,14 +2517,27 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
         let { heritageClauses } = node
 
 
-        if (heritageClauses && heritageClauses.length) {
+        let hayHeritageClauses = Boolean(heritageClauses && heritageClauses.length)
+
+
+        if (hayHeritageClauses) {
             heritageClauses.forEach(function (clause) {
-                if (clause.token === ts.SyntaxKind.ExtendsKeyword && forbiddenWords.has('extends')) {
+                let esExtendsKeyword = clause.token === ts.SyntaxKind.ExtendsKeyword
+                let estaExtendsProhibido = forbiddenWords.has('extends')
+                let debeMarcarExtends = esExtendsKeyword && estaExtendsProhibido
+
+
+                if (debeMarcarExtends) {
                     addKeywordNode('extends', clause, 'formatear/no-extends')
 
                 }
 
-                if (clause.token === ts.SyntaxKind.ImplementsKeyword && forbiddenWords.has('implements')) {
+                let esImplementsKeyword = clause.token === ts.SyntaxKind.ImplementsKeyword
+                let estaImplementsProhibido = forbiddenWords.has('implements')
+                let debeMarcarImplements = esImplementsKeyword && estaImplementsProhibido
+
+
+                if (debeMarcarImplements) {
                     addKeywordNode('implements', clause, 'formatear/no-implements')
 
                 }
@@ -1748,12 +2564,18 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
 
 
     function addExpressionFinding(expr) {
-        if (!expr || typeof expr !== 'object') {
+        let noEsExpresion = !expr || typeof expr !== 'object'
+
+
+        if (noEsExpresion) {
             return
 
         }
 
-        if (expr.kind === ts.SyntaxKind.Identifier) {
+        let esIdentificador = expr.kind === ts.SyntaxKind.Identifier
+
+
+        if (esIdentificador) {
             return
 
         }
@@ -1773,23 +2595,38 @@ function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, 
         let { kind } = node
 
 
-        if (kind === ts.SyntaxKind.IfStatement) {
+        let esIfStatement = kind === ts.SyntaxKind.IfStatement
+
+
+        if (esIfStatement) {
             addExpressionFinding(node.expression)
 
         }
 
-        if (kind === ts.SyntaxKind.WhileStatement) {
+        let esWhileStatement = kind === ts.SyntaxKind.WhileStatement
+
+
+        if (esWhileStatement) {
             addExpressionFinding(node.expression)
 
         }
 
-        if (kind === ts.SyntaxKind.DoStatement) {
+        let esDoStatement = kind === ts.SyntaxKind.DoStatement
+
+
+        if (esDoStatement) {
             addExpressionFinding(node.expression)
 
         }
 
-        if (kind === ts.SyntaxKind.ForStatement) {
-            if (node.condition) {
+        let esForStatement = kind === ts.SyntaxKind.ForStatement
+
+
+        if (esForStatement) {
+            let hayCondicion = Boolean(node.condition)
+
+
+            if (hayCondicion) {
                 addExpressionFinding(node.condition)
 
             }
@@ -1839,7 +2676,10 @@ function parseSourceMeriyah(parse, sourceText) {
 
     }
 
-    if (!ast) {
+    let noHayAst = !ast
+
+
+    if (noHayAst) {
         try {
             ast = parse(sourceText, { ...parseOptions, sourceType: 'script', onToken })
 
@@ -1888,17 +2728,26 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
 
     tokens.forEach(function (t) {
-        if (t.text !== ';') {
+        let noEsPuntoYComa = t.text !== ';'
+
+
+        if (noEsPuntoYComa) {
             return
 
         }
 
-        if (emptyStartSet.has(t.start)) {
+        let esVacioDeSentencia = emptyStartSet.has(t.start)
+
+
+        if (esVacioDeSentencia) {
             return
 
         }
 
-        if (isInsideAnySpan(t.start, forHeaderSpans)) {
+        let estaEnCabeceraDeFor = isInsideAnySpan(t.start, forHeaderSpans)
+
+
+        if (estaEnCabeceraDeFor) {
             addFindingAtLoc(unfixableFindings, filePath, ';', t.loc, 'formatear/no-semicolon')
 
 
@@ -1926,17 +2775,28 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
 
 
     tokens.forEach(function (t) {
-        if (t.type !== 'Keyword') {
+        let noEsKeyword = t.type !== 'Keyword'
+
+
+        if (noEsKeyword) {
             return
 
         }
 
-        if (t.text !== 'var' && t.text !== 'const') {
+        let esVar = t.text === 'var'
+        let esConst = t.text === 'const'
+        let noEsVarNiConst = !esVar && !esConst
+
+
+        if (noEsVarNiConst) {
             return
 
         }
 
-        if (typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start) {
+        let rangoInvalido = typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start
+
+
+        if (rangoInvalido) {
             return
 
         }
@@ -1970,12 +2830,18 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
 
     function convertArrowFunction(node) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (node.type !== 'ArrowFunctionExpression') {
+        let noEsArrowFunctionExpression = node.type !== 'ArrowFunctionExpression'
+
+
+        if (noEsArrowFunctionExpression) {
             return
 
         }
@@ -1986,7 +2852,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         })
 
 
-        if (!arrowToken) {
+        let noHayArrowToken = !arrowToken
+
+
+        if (noHayArrowToken) {
             addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
 
 
@@ -1997,7 +2866,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         let headText = sourceText.slice(node.start, arrowToken.start).trimEnd()
 
 
-        if (node.async === true) {
+        let esAsync = node.async === true
+
+
+        if (esAsync) {
             headText = headText.replace(/^\s*async\b\s*/, '')
 
         }
@@ -2005,7 +2877,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         let paramsText = headText.trim()
 
 
-        if (!paramsText.startsWith('(')) {
+        let paramsNoTieneParentesis = !paramsText.startsWith('(')
+
+
+        if (paramsNoTieneParentesis) {
             paramsText = `(${paramsText})`
 
         }
@@ -2016,12 +2891,21 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         let bodyText
 
 
-        if (node.body && node.body.type === 'BlockStatement') {
+        let tieneBody = Boolean(node.body)
+        let esBlockStatement = tieneBody && node.body.type === 'BlockStatement'
+
+
+        if (esBlockStatement) {
             bodyText = sourceText.slice(node.body.start, node.body.end)
 
         }
 
-        if (!bodyText && node.body && typeof node.body.start === 'number' && typeof node.body.end === 'number') {
+        let noHayBodyText = !bodyText
+        let tieneRangoBody = tieneBody && typeof node.body.start === 'number' && typeof node.body.end === 'number'
+        let debeGenerarBodyReturn = noHayBodyText && tieneRangoBody
+
+
+        if (debeGenerarBodyReturn) {
             let expressionText = sourceText.slice(node.body.start, node.body.end)
 
 
@@ -2029,7 +2913,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        if (!bodyText) {
+        let sigueSinBodyText = !bodyText
+
+
+        if (sigueSinBodyText) {
             addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
 
 
@@ -2046,12 +2933,18 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
     }
 
     function visit(node) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (Array.isArray(node)) {
+        let esArreglo = Array.isArray(node)
+
+
+        if (esArreglo) {
             node.forEach(function (item) {
                 visit(item)
 
@@ -2062,7 +2955,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        if (typeof node.type !== 'string') {
+        let noTieneTipo = typeof node.type !== 'string'
+
+
+        if (noTieneTipo) {
             Object.values(node).forEach(function (child) {
                 visit(child)
 
@@ -2073,7 +2969,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        if (node.type === 'ArrowFunctionExpression') {
+        let esArrowFunctionExpression = node.type === 'ArrowFunctionExpression'
+
+
+        if (esArrowFunctionExpression) {
             convertArrowFunction(node)
 
         }
@@ -2082,7 +2981,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
             let childKey = pair[0]
 
 
-            if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+            let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+
+            if (esClaveDeUbicacion) {
                 return
 
             }
@@ -2114,17 +3016,26 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
 
     function wrapStatement(stmt) {
-        if (!stmt || typeof stmt !== 'object') {
+        let noEsStmtValido = !stmt || typeof stmt !== 'object'
+
+
+        if (noEsStmtValido) {
             return
 
         }
 
-        if (stmt.type === 'BlockStatement') {
+        let esBloque = stmt.type === 'BlockStatement'
+
+
+        if (esBloque) {
             return
 
         }
 
-        if (typeof stmt.start !== 'number' || typeof stmt.end !== 'number' || stmt.end < stmt.start) {
+        let rangoInvalido = typeof stmt.start !== 'number' || typeof stmt.end !== 'number' || stmt.end < stmt.start
+
+
+        if (rangoInvalido) {
             addFinding(unfixableFindings, filePath, '{', stmt, 'formatear/require-braces')
 
 
@@ -2140,12 +3051,18 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
     }
 
     function visit(node) {
-        if (!node || typeof node !== 'object') {
+        let noEsNodo = !node || typeof node !== 'object'
+
+
+        if (noEsNodo) {
             return
 
         }
 
-        if (Array.isArray(node)) {
+        let esArreglo = Array.isArray(node)
+
+
+        if (esArreglo) {
             node.forEach(function (item) {
                 visit(item)
 
@@ -2156,7 +3073,10 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         }
 
-        if (typeof node.type !== 'string') {
+        let noTieneTipo = typeof node.type !== 'string'
+
+
+        if (noTieneTipo) {
             Object.values(node).forEach(function (child) {
                 visit(child)
 
@@ -2167,11 +3087,17 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         }
 
-        if (node.type === 'IfStatement') {
+        let esIfStatement = node.type === 'IfStatement'
+
+
+        if (esIfStatement) {
             wrapStatement(node.consequent)
 
 
-            if (node.alternate) {
+            let tieneAlternativa = Boolean(node.alternate)
+
+
+            if (tieneAlternativa) {
                 wrapStatement(node.alternate)
 
             }
@@ -2181,7 +3107,10 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
             let childKey = pair[0]
 
 
-            if (childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end') {
+            let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+
+            if (esClaveDeUbicacion) {
                 return
 
             }
@@ -2207,14 +3136,20 @@ function collectEmptyStatementRangesTypescript(sourceFile, ts) {
 
 
     function visit(node) {
-        if (node.kind === ts.SyntaxKind.EmptyStatement) {
+        let esEmptyStatement = node.kind === ts.SyntaxKind.EmptyStatement
+
+
+        if (esEmptyStatement) {
             let start = node.getStart(sourceFile)
 
 
             let end = node.getEnd()
 
 
-            if (typeof start === 'number' && typeof end === 'number' && end > start) {
+            let rangoValido = typeof start === 'number' && typeof end === 'number' && end > start
+
+
+            if (rangoValido) {
                 ranges.push({ start, end })
 
             }
@@ -2235,12 +3170,18 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
 
     function scanFrom(i) {
-        if (i >= tokens.length) {
+        let excedeLongitudDeTokens = i >= tokens.length
+
+
+        if (excedeLongitudDeTokens) {
             return spans
 
         }
 
-        if (tokens[i].kind !== ts.SyntaxKind.ForKeyword) {
+        let noEsFor = tokens[i].kind !== ts.SyntaxKind.ForKeyword
+
+
+        if (noEsFor) {
             return scanFrom(i + 1)
 
         }
@@ -2248,7 +3189,10 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
         let j = i + 1
 
 
-        if (tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword) {
+        let hayAwait = tokens[j] && tokens[j].kind === ts.SyntaxKind.AwaitKeyword
+
+
+        if (hayAwait) {
             j += 1
 
         }
@@ -2256,7 +3200,11 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
         let openParenToken = tokens[j]
 
 
-        if (!openParenToken || openParenToken.kind !== ts.SyntaxKind.OpenParenToken) {
+        let noHayParentesisDeApertura =
+        !openParenToken || openParenToken.kind !== ts.SyntaxKind.OpenParenToken
+
+
+        if (noHayParentesisDeApertura) {
             return scanFrom(i + 1)
 
         }
@@ -2265,7 +3213,10 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
 
 
         function scanParen(k, depth) {
-            if (k >= tokens.length) {
+            let excedeLongitudDeTokens = k >= tokens.length
+
+
+            if (excedeLongitudDeTokens) {
                 return scanFrom(i + 1)
 
             }
@@ -2276,17 +3227,26 @@ function collectForHeaderSpansFromTsTokens(tokens, ts) {
             let nextDepth = depth
 
 
-            if (tk.kind === ts.SyntaxKind.OpenParenToken) {
+            let abreParentesis = tk.kind === ts.SyntaxKind.OpenParenToken
+
+
+            if (abreParentesis) {
                 nextDepth += 1
 
             }
 
-            if (tk.kind === ts.SyntaxKind.CloseParenToken) {
+            let cierraParentesis = tk.kind === ts.SyntaxKind.CloseParenToken
+
+
+            if (cierraParentesis) {
                 nextDepth -= 1
 
             }
 
-            if (tk.kind === ts.SyntaxKind.CloseParenToken && nextDepth === 0) {
+            let terminaElEncabezado = tk.kind === ts.SyntaxKind.CloseParenToken && nextDepth === 0
+
+
+            if (terminaElEncabezado) {
                 spans.push({ start, end: tk.end })
 
 
@@ -2322,7 +3282,10 @@ function scanTokensTypescript(ts, sourceText, isTsx) {
         let kind = scanner.scan()
 
 
-        if (kind === ts.SyntaxKind.EndOfFileToken) {
+        let finDeArchivo = kind === ts.SyntaxKind.EndOfFileToken
+
+
+        if (finDeArchivo) {
             return tokens
 
         }
@@ -2348,7 +3311,10 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
 
-    if (ext === '.tsx') {
+    let esTsx = ext === '.tsx'
+
+
+    if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
 
     }
@@ -2387,17 +3353,26 @@ function fixSemicolonsTypescript(filePath, ts, sourceText, ext) {
 
 
     tokens.forEach(function (t) {
-        if (t.kind !== ts.SyntaxKind.SemicolonToken) {
+        let noEsPuntoYComa = t.kind !== ts.SyntaxKind.SemicolonToken
+
+
+        if (noEsPuntoYComa) {
             return
 
         }
 
-        if (emptyStartSet.has(t.pos)) {
+        let esEmptyStatement = emptyStartSet.has(t.pos)
+
+
+        if (esEmptyStatement) {
             return
 
         }
 
-        if (isInsideAnySpan(t.pos, forHeaderSpans)) {
+        let estaDentroDeEncabezadoDeFor = isInsideAnySpan(t.pos, forHeaderSpans)
+
+
+        if (estaDentroDeEncabezadoDeFor) {
             let lc = sourceFile.getLineAndCharacterOfPosition(t.pos)
 
 
@@ -2434,12 +3409,18 @@ function fixVarConstToLetTypescript(filePath, ts, sourceText, ext) {
 
 
     tokens.forEach(function (t) {
-        if (t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword) {
+        let noEsVarNiConst = t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword
+
+
+        if (noEsVarNiConst) {
             return
 
         }
 
-        if (typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos) {
+        let rangoInvalido = typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos
+
+
+        if (rangoInvalido) {
             return
 
         }
@@ -2460,7 +3441,10 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
 
-    if (ext === '.tsx') {
+    let esTsx = ext === '.tsx'
+
+
+    if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
 
     }
@@ -2475,14 +3459,20 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
 
 
     function visit(node) {
-        if (node.kind === ts.SyntaxKind.ArrowFunction) {
+        let esArrowFunction = node.kind === ts.SyntaxKind.ArrowFunction
+
+
+        if (esArrowFunction) {
             let start = node.getStart(sourceFile)
 
 
             let end = node.getEnd()
 
 
-            if (typeof start !== 'number' || typeof end !== 'number' || end < start) {
+            let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
+
+
+            if (rangoInvalido) {
                 return
 
             }
@@ -2493,7 +3483,10 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
             let arrowPos = arrowToken ? arrowToken.getStart(sourceFile) : -1
 
 
-            if (typeof arrowPos !== 'number' || arrowPos < start) {
+            let posicionDeFlechaInvalida = typeof arrowPos !== 'number' || arrowPos < start
+
+
+            if (posicionDeFlechaInvalida) {
                 let lc = sourceFile.getLineAndCharacterOfPosition(start)
 
 
@@ -2529,7 +3522,10 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
             let paramsText = headText.trim()
 
 
-            if (!paramsText.startsWith('(')) {
+            let faltanParentesisEnParametros = !paramsText.startsWith('(')
+
+
+            if (faltanParentesisEnParametros) {
                 paramsText = `(${paramsText})`
 
             }
@@ -2540,12 +3536,18 @@ function fixArrowFunctionsToFunctionsTypescript(filePath, ts, sourceText, ext) {
             let bodyText
 
 
-            if (node.body.kind === ts.SyntaxKind.Block) {
+            let esBloque = node.body.kind === ts.SyntaxKind.Block
+
+
+            if (esBloque) {
                 bodyText = sourceText.slice(node.body.getStart(sourceFile), node.body.getEnd())
 
             }
 
-            if (!bodyText) {
+            let faltaCuerpo = !bodyText
+
+
+            if (faltaCuerpo) {
                 let bodyStart = node.body.getStart(sourceFile)
 
 
@@ -2584,7 +3586,10 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     let scriptKind = ts.ScriptKind.TS
 
 
-    if (ext === '.tsx') {
+    let esTsx = ext === '.tsx'
+
+
+    if (esTsx) {
         scriptKind = ts.ScriptKind.TSX
 
     }
@@ -2599,12 +3604,18 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 
 
     function wrapStatement(stmt) {
-        if (!stmt) {
+        let noHaySentencia = !stmt
+
+
+        if (noHaySentencia) {
             return
 
         }
 
-        if (stmt.kind === ts.SyntaxKind.Block) {
+        let yaTieneBloque = stmt.kind === ts.SyntaxKind.Block
+
+
+        if (yaTieneBloque) {
             return
 
         }
@@ -2615,7 +3626,10 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
         let end = stmt.getEnd()
 
 
-        if (typeof start !== 'number' || typeof end !== 'number' || end < start) {
+        let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
+
+
+        if (rangoInvalido) {
             let lc = sourceFile.getLineAndCharacterOfPosition(typeof start === 'number' ? start : 0)
 
 
@@ -2640,11 +3654,17 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
     }
 
     function visit(node) {
-        if (node.kind === ts.SyntaxKind.IfStatement) {
+        let esIfStatement = node.kind === ts.SyntaxKind.IfStatement
+
+
+        if (esIfStatement) {
             wrapStatement(node.thenStatement)
 
 
-            if (node.elseStatement) {
+            let tieneElseStatement = Boolean(node.elseStatement)
+
+
+            if (tieneElseStatement) {
                 wrapStatement(node.elseStatement)
 
             }
@@ -2665,7 +3685,10 @@ function fixMissingBracesIfTypescript(filePath, ts, sourceText, ext) {
 }
 
 async function run(argv) {
-    if (argv.includes('--help') || argv.includes('-h')) {
+    let pidioAyuda = argv.includes('--help') || argv.includes('-h')
+
+
+    if (pidioAyuda) {
         printHelp()
 
 
@@ -2676,7 +3699,10 @@ async function run(argv) {
     let formatearIndex = argv.indexOf('--formatear')
 
 
-    if (formatearIndex === -1) {
+    let faltaFlagFormatear = formatearIndex === -1
+
+
+    if (faltaFlagFormatear) {
         printHelp()
 
 
@@ -2687,7 +3713,10 @@ async function run(argv) {
     let inputPaths = argv.slice(formatearIndex + 1).filter(isPathLike)
 
 
-    if (inputPaths.length === 0) {
+    let noHayRutasDeEntrada = inputPaths.length === 0
+
+
+    if (noHayRutasDeEntrada) {
         printHelp()
 
 
@@ -2712,7 +3741,10 @@ async function run(argv) {
     })
 
 
-    if (files.length === 0) {
+    let noHayArchivos = files.length === 0
+
+
+    if (noHayArchivos) {
         process.stderr.write('No se encontraron archivos para analizar.\n')
 
 
@@ -2781,7 +3813,10 @@ async function run(argv) {
 
 
             if (isTsFile) {
-                if (!ts) {
+                let noHayTypescript = !ts
+
+
+                if (noHayTypescript) {
                     ts = await importTypescript()
 
                 }
@@ -2800,7 +3835,10 @@ async function run(argv) {
                 )
 
 
-                if (tabFixedText !== sourceText) {
+                let huboCambiosDeTabs = tabFixedText !== sourceText
+
+
+                if (huboCambiosDeTabs) {
                     await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
 
 
@@ -2812,7 +3850,10 @@ async function run(argv) {
                 let fixed = fixSemicolonsTypescript(inputFilePath, ts, sourceText, ext)
 
 
-                if (fixed.fixedText !== sourceText) {
+                let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
+
+
+                if (huboCambiosDePuntoYComa) {
                     await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
 
 
@@ -2837,7 +3878,10 @@ async function run(argv) {
                 let varConstFixed = fixVarConstToLetTypescript(inputFilePath, ts, sourceText, ext)
 
 
-                if (varConstFixed.fixedText !== sourceText) {
+                let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
+
+
+                if (huboCambiosVarConst) {
                     await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
 
 
@@ -2848,7 +3892,10 @@ async function run(argv) {
                 let arrowFixed = fixArrowFunctionsToFunctionsTypescript(inputFilePath, ts, sourceText, ext)
 
 
-                if (arrowFixed.fixedText !== sourceText) {
+                let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
+
+
+                if (huboCambiosDeArrows) {
                     await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
 
 
@@ -2873,7 +3920,10 @@ async function run(argv) {
                 let bracesFixed = fixMissingBracesIfTypescript(inputFilePath, ts, sourceText, ext)
 
 
-                if (bracesFixed.fixedText !== sourceText) {
+                let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
+
+
+                if (huboCambiosDeLlaves) {
                     await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
 
 
@@ -2915,7 +3965,10 @@ async function run(argv) {
                 )
 
 
-                if (reindentedText !== sourceText) {
+                let huboCambiosDeIndentacion = reindentedText !== sourceText
+
+
+                if (huboCambiosDeIndentacion) {
                     await fs.writeFile(inputFilePath, reindentedText, 'utf8')
 
 
@@ -2926,7 +3979,10 @@ async function run(argv) {
                 let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
 
 
-                if (noTrailingWhitespaceText !== sourceText) {
+                let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
+
+
+                if (huboCambiosDeEspaciosFinales) {
                     await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
 
 
@@ -2938,7 +3994,10 @@ async function run(argv) {
                 let scriptKind = ts.ScriptKind.TS
 
 
-                if (ext === '.tsx') {
+                let esTsx = ext === '.tsx'
+
+
+                if (esTsx) {
                     scriptKind = ts.ScriptKind.TSX
 
                 }
@@ -2953,7 +4012,10 @@ async function run(argv) {
 
             }
 
-            if (!isTsFile) {
+            let noEsTsFile = !isTsFile
+
+
+            if (noEsTsFile) {
                 let sourceText = await fs.readFile(inputFilePath, 'utf8')
 
                 let parsedForTabs = parseSourceMeriyah(parse, sourceText)
@@ -2968,7 +4030,10 @@ async function run(argv) {
                 )
 
 
-                if (tabFixedText !== sourceText) {
+                let huboCambiosDeTabs = tabFixedText !== sourceText
+
+
+                if (huboCambiosDeTabs) {
                     await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
 
 
@@ -2980,7 +4045,10 @@ async function run(argv) {
                 let fixed = fixSemicolonsMeriyah(inputFilePath, parse, sourceText)
 
 
-                if (fixed.fixedText !== sourceText) {
+                let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
+
+
+                if (huboCambiosDePuntoYComa) {
                     await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
 
 
@@ -3005,7 +4073,10 @@ async function run(argv) {
                 let varConstFixed = fixVarConstToLetMeriyah(inputFilePath, parse, sourceText)
 
 
-                if (varConstFixed.fixedText !== sourceText) {
+                let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
+
+
+                if (huboCambiosVarConst) {
                     await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
 
 
@@ -3016,7 +4087,10 @@ async function run(argv) {
                 let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(inputFilePath, parse, sourceText)
 
 
-                if (arrowFixed.fixedText !== sourceText) {
+                let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
+
+
+                if (huboCambiosDeArrows) {
                     await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
 
 
@@ -3041,7 +4115,10 @@ async function run(argv) {
                 let bracesFixed = fixMissingBracesIfMeriyah(inputFilePath, parse, sourceText)
 
 
-                if (bracesFixed.fixedText !== sourceText) {
+                let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
+
+
+                if (huboCambiosDeLlaves) {
                     await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
 
 
@@ -3083,7 +4160,10 @@ async function run(argv) {
                 )
 
 
-                if (reindentedText !== sourceText) {
+                let huboCambiosDeIndentacion = reindentedText !== sourceText
+
+
+                if (huboCambiosDeIndentacion) {
                     await fs.writeFile(inputFilePath, reindentedText, 'utf8')
 
 
@@ -3094,7 +4174,10 @@ async function run(argv) {
                 let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
 
 
-                if (noTrailingWhitespaceText !== sourceText) {
+                let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
+
+
+                if (huboCambiosDeEspaciosFinales) {
                     await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
 
 
@@ -3170,7 +4253,10 @@ async function run(argv) {
     }, Promise.resolve())
 
 
-    if (parseErrorCount > 0) {
+    let huboErroresDeParseo = parseErrorCount > 0
+
+
+    if (huboErroresDeParseo) {
         return 2
 
     }
