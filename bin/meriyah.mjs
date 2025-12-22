@@ -1182,6 +1182,84 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
 }
 
+function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
+    let findings = []
+
+
+    function checkTest(node) {
+        if (!node || typeof node !== 'object') {
+            return
+
+        }
+
+        let { test } = node
+
+
+        if (!test || typeof test !== 'object') {
+            return
+
+        }
+
+        if (test.type === 'Identifier') {
+            return
+
+        }
+
+        addFinding(findings, filePath, 'condicion', test, 'formatear/condition-single-variable')
+
+    }
+
+    function visit(node) {
+        if (!node || typeof node !== 'object') {
+            return
+
+        }
+
+        if (Array.isArray(node)) {
+            node.forEach(visit)
+
+
+            return
+
+        }
+
+        if (typeof node.type === 'string') {
+            let { type } = node
+
+
+            if (
+            type === 'IfStatement' ||
+            type === 'WhileStatement' ||
+            type === 'DoWhileStatement' ||
+            type === 'ForStatement'
+            ) {
+                checkTest(node)
+
+            }
+        }
+
+        Object.entries(node).forEach(function (pair) {
+            let key = pair[0]
+
+
+            if (key === 'loc' || key === 'range' || key === 'start' || key === 'end') {
+                return
+
+            }
+
+            visit(pair[1])
+
+        })
+
+    }
+
+    visit(ast)
+
+
+    return findings
+
+}
+
 function createTsFinding(findings, filePath, keyword, ruleId, sourceFile, pos) {
     let lc = sourceFile.getLineAndCharacterOfPosition(pos)
 
@@ -1659,6 +1737,69 @@ function collectForbiddenFindingsTypescript(sourceFile, filePath, forbiddenWords
     }
 
     visit(sourceFile, null)
+
+
+    return findings
+
+}
+
+function collectConditionSingleVariableFindingsTypescript(sourceFile, filePath, ts) {
+    let findings = []
+
+
+    function addExpressionFinding(expr) {
+        if (!expr || typeof expr !== 'object') {
+            return
+
+        }
+
+        if (expr.kind === ts.SyntaxKind.Identifier) {
+            return
+
+        }
+
+        createTsFinding(
+        findings,
+        filePath,
+        'condicion',
+        'formatear/condition-single-variable',
+        sourceFile,
+        expr.getStart(sourceFile),
+        )
+
+    }
+
+    function visit(node) {
+        let { kind } = node
+
+
+        if (kind === ts.SyntaxKind.IfStatement) {
+            addExpressionFinding(node.expression)
+
+        }
+
+        if (kind === ts.SyntaxKind.WhileStatement) {
+            addExpressionFinding(node.expression)
+
+        }
+
+        if (kind === ts.SyntaxKind.DoStatement) {
+            addExpressionFinding(node.expression)
+
+        }
+
+        if (kind === ts.SyntaxKind.ForStatement) {
+            if (node.condition) {
+                addExpressionFinding(node.condition)
+
+            }
+        }
+
+        ts.forEachChild(node, visit)
+
+    }
+
+    visit(sourceFile)
 
 
     return findings
@@ -2636,6 +2777,7 @@ async function run(argv) {
 
 
             let findings
+            let conditionFindings = []
 
 
             if (isTsFile) {
@@ -2804,6 +2946,9 @@ async function run(argv) {
                 let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
 
 
+                conditionFindings = collectConditionSingleVariableFindingsTypescript(sourceFile, inputFilePath, ts)
+
+
                 findings = collectForbiddenFindingsTypescript(sourceFile, inputFilePath, forbiddenWords, ts)
 
             }
@@ -2961,6 +3106,9 @@ async function run(argv) {
                 let parsed = parseSourceMeriyah(parse, sourceText)
 
 
+                conditionFindings = collectConditionSingleVariableFindingsMeriyah(parsed.ast, inputFilePath)
+
+
                 findings = collectForbiddenFindingsMeriyah(parsed.ast, inputFilePath, forbiddenWords)
 
             }
@@ -2984,6 +3132,19 @@ async function run(argv) {
 
                 process.stdout.write(
                 `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`,
+                )
+
+            })
+
+            conditionFindings.forEach(function (finding) {
+                issueCount += 1
+
+
+                let normalizedFilePath = normalize(finding.filePath)
+
+
+                process.stdout.write(
+                `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`,
                 )
 
             })
