@@ -46,14 +46,14 @@ export async function loadForbiddenWords() {
     }
 
     let tokenFilePath = path.resolve(
-    path.dirname(
-    path.resolve(
+        path.dirname(
+        path.resolve(
         scriptPath
-    )
-    ),
-    '..',
-    'src',
-    'token.ts'
+        )
+        ),
+        '..',
+        'src',
+        'token.ts'
     )
 
     let content
@@ -74,17 +74,19 @@ export async function loadForbiddenWords() {
     let entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm
 
     Array.from(
-    content.matchAll(
+        content.matchAll(
         entryRegExp
-    )
-    ).forEach(function (
-        match
-    ) {
-        forbidden.add(
-            match[1]
         )
+    ).forEach(
+        function (
+        match
+        ) {
+            forbidden.add(
+            match[1]
+            )
 
-    })
+        }
+    )
 
     let hayPalabrasProhibidas = forbidden.size > 0
 
@@ -100,9 +102,11 @@ export async function loadForbiddenWords() {
 }
 
 export function printHelp() {
-    process.stdout.write(`Uso:
-  meriyah --formatear <archivo|directorio> [...]
-`)
+    process.stdout.write(
+        `Uso:
+          meriyah --formatear <archivo|directorio> [...]
+        `
+    )
 
 }
 
@@ -161,9 +165,9 @@ export async function collectFiles(
         esArchivo
     ) {
         out.add(
-        path.resolve(
+            path.resolve(
             inputPath
-        )
+            )
         )
 
         return
@@ -184,64 +188,64 @@ export async function collectFiles(
     )
 
     await Promise.all(
-    entries.map(async function (
+        entries.map(async function (
         entry
-    ) {
-        let fullPath = path.join(
+        ) {
+            let fullPath = path.join(
             inputPath,
             entry.name
-        )
+            )
 
-        let esDirectorio = entry.isDirectory()
-
-        if (
-            esDirectorio
-        ) {
-            let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+            let esDirectorio = entry.isDirectory()
 
             if (
-                esSaltado
+                esDirectorio
+            ) {
+                let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+
+                if (
+                    esSaltado
+                ) {
+                    return
+
+                }
+
+                await collectFiles(
+                fullPath,
+                out
+                )
+
+                return
+
+            }
+
+            let noEsArchivo = !entry.isFile()
+
+            if (
+                noEsArchivo
             ) {
                 return
 
             }
 
-            await collectFiles(
-                fullPath,
-                out
+            let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
+            entry.name
             )
 
-            return
+            if (
+                noEsExtensionSoportada
+            ) {
+                return
 
-        }
+            }
 
-        let noEsArchivo = !entry.isFile()
-
-        if (
-            noEsArchivo
-        ) {
-            return
-
-        }
-
-        let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
-            entry.name
-        )
-
-        if (
-            noEsExtensionSoportada
-        ) {
-            return
-
-        }
-
-        out.add(
-        path.resolve(
+            out.add(
+            path.resolve(
             fullPath
-        )
-        )
+            )
+            )
 
-    }),
+        })
     )
 
 }

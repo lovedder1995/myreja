@@ -13,52 +13,58 @@ export function applyReplacements(
 
     let sorted = replacements
     .slice()
-    .sort(function (
+    .sort(
+        function (
         a,
         b
-    ) {
-        return b.start - a.start
+        ) {
+            return b.start - a.start
 
-    })
-    .filter(function (
+        }
+    )
+    .filter(
+        function (
         rep
-    ) {
-        return (
-        typeof rep?.start === 'number' &&
-        typeof rep?.end === 'number' &&
-        rep.start >= 0 &&
-        rep.end >= rep.start &&
-        typeof rep?.text === 'string'
-        )
+        ) {
+            return (
+            typeof rep?.start === 'number' &&
+            typeof rep?.end === 'number' &&
+            rep.start >= 0 &&
+            rep.end >= rep.start &&
+            typeof rep?.text === 'string'
+            )
 
-    })
+        }
+    )
 
     let out = sourceText
 
     let lastStart = out.length + 1
 
-    sorted.forEach(function (
+    sorted.forEach(
+        function (
         rep
-    ) {
-        let solapaConReemplazoPrevio = rep.end > lastStart
-
-        if (
-            solapaConReemplazoPrevio
         ) {
-            return
+            let solapaConReemplazoPrevio = rep.end > lastStart
 
-        }
+            if (
+                solapaConReemplazoPrevio
+            ) {
+                return
 
-        out = out.slice(
+            }
+
+            out = out.slice(
             0,
             rep.start
-        ) + rep.text + out.slice(
+            ) + rep.text + out.slice(
             rep.end
-        )
+            )
 
-        lastStart = rep.start
+            lastStart = rep.start
 
-    })
+        }
+    )
 
     return out
 
@@ -137,125 +143,135 @@ export function convertTabsToFourSpacesOutsideTokens(
 
     let sorted = spans
     .slice()
-    .filter(function (
+    .filter(
+        function (
         span
-    ) {
-        return (
-        span &&
-        typeof span.start === 'number' &&
-        typeof span.end === 'number' &&
-        Number.isFinite(
+        ) {
+            return (
+            span &&
+            typeof span.start === 'number' &&
+            typeof span.end === 'number' &&
+            Number.isFinite(
             span.start
-        ) &&
-        Number.isFinite(
+            ) &&
+            Number.isFinite(
             span.end
-        )
-        )
+            )
+            )
 
-    })
-    .map(function (
+        }
+    )
+    .map(
+        function (
         span
-    ) {
-        let start = Math.max(
-        0,
-        Math.min(
+        ) {
+            let start = Math.max(
+            0,
+            Math.min(
             len,
             span.start
-        )
-        )
+            )
+            )
 
-        let end = Math.max(
-        start,
-        Math.min(
+            let end = Math.max(
+            start,
+            Math.min(
             len,
             span.end
-        )
-        )
+            )
+            )
 
-        return { start, end }
+            return { start, end }
 
-    })
-    .sort(function (
+        }
+    )
+    .sort(
+        function (
         a,
         b
-    ) {
-        return a.start - b.start
+        ) {
+            return a.start - b.start
 
-    })
+        }
+    )
 
     let merged = []
 
-    sorted.forEach(function (
+    sorted.forEach(
+        function (
         span
-    ) {
-        let noHayTramosAcumulados = merged.length === 0
-
-        if (
-            noHayTramosAcumulados
         ) {
-            merged.push(
+            let noHayTramosAcumulados = merged.length === 0
+
+            if (
+                noHayTramosAcumulados
+            ) {
+                merged.push(
                 span
-            )
+                )
 
-            return
+                return
 
-        }
+            }
 
-        let last = merged[merged.length - 1]
+            let last = merged[merged.length - 1]
 
-        let empiezaDespuesDelFinal = span.start > last.end
+            let empiezaDespuesDelFinal = span.start > last.end
 
-        if (
-            empiezaDespuesDelFinal
-        ) {
-            merged.push(
+            if (
+                empiezaDespuesDelFinal
+            ) {
+                merged.push(
                 span
-            )
+                )
 
-            return
+                return
 
+            }
+
+            let extiendeElFinal = span.end > last.end
+
+            if (
+                extiendeElFinal
+            ) {
+                last.end = span.end
+
+            }
         }
-
-        let extiendeElFinal = span.end > last.end
-
-        if (
-            extiendeElFinal
-        ) {
-            last.end = span.end
-
-        }
-    })
+    )
 
     let out = ''
 
     let cursor = 0
 
-    merged.forEach(function (
+    merged.forEach(
+        function (
         span
-    ) {
-        let hayTextoAntesDelTramo = span.start > cursor
-
-        if (
-            hayTextoAntesDelTramo
         ) {
-            out += sourceText.slice(
+            let hayTextoAntesDelTramo = span.start > cursor
+
+            if (
+                hayTextoAntesDelTramo
+            ) {
+                out += sourceText.slice(
                 cursor,
                 span.start
-            ).replace(
+                ).replace(
                 /\t/g,
                 '    '
-            )
+                )
 
-        }
+            }
 
-        out += sourceText.slice(
+            out += sourceText.slice(
             span.start,
             span.end
-        )
+            )
 
-        cursor = span.end
+            cursor = span.end
 
-    })
+        }
+    )
 
     let quedaTextoPorProcesar = cursor < len
 
@@ -292,94 +308,102 @@ export function mergeSpans(
 
     let sorted = spans
     .slice()
-    .filter(function (
+    .filter(
+        function (
         span
-    ) {
-        return (
-        span &&
-        typeof span.start === 'number' &&
-        typeof span.end === 'number' &&
-        Number.isFinite(
+        ) {
+            return (
+            span &&
+            typeof span.start === 'number' &&
+            typeof span.end === 'number' &&
+            Number.isFinite(
             span.start
-        ) &&
-        Number.isFinite(
+            ) &&
+            Number.isFinite(
             span.end
-        )
-        )
+            )
+            )
 
-    })
-    .map(function (
+        }
+    )
+    .map(
+        function (
         span
-    ) {
-        let start = Math.max(
-        0,
-        Math.min(
+        ) {
+            let start = Math.max(
+            0,
+            Math.min(
             len,
             span.start
-        )
-        )
+            )
+            )
 
-        let end = Math.max(
-        start,
-        Math.min(
+            let end = Math.max(
+            start,
+            Math.min(
             len,
             span.end
-        )
-        )
+            )
+            )
 
-        return { start, end }
+            return { start, end }
 
-    })
-    .sort(function (
+        }
+    )
+    .sort(
+        function (
         a,
         b
-    ) {
-        return a.start - b.start
+        ) {
+            return a.start - b.start
 
-    })
+        }
+    )
 
     let merged = []
 
-    sorted.forEach(function (
+    sorted.forEach(
+        function (
         span
-    ) {
-        let noHayTramosAcumulados = merged.length === 0
-
-        if (
-            noHayTramosAcumulados
         ) {
-            merged.push(
+            let noHayTramosAcumulados = merged.length === 0
+
+            if (
+                noHayTramosAcumulados
+            ) {
+                merged.push(
                 span
-            )
+                )
 
-            return
+                return
 
-        }
+            }
 
-        let last = merged[merged.length - 1]
+            let last = merged[merged.length - 1]
 
-        let empiezaDespuesDelFinal = span.start > last.end
+            let empiezaDespuesDelFinal = span.start > last.end
 
-        if (
-            empiezaDespuesDelFinal
-        ) {
-            merged.push(
+            if (
+                empiezaDespuesDelFinal
+            ) {
+                merged.push(
                 span
-            )
+                )
 
-            return
+                return
 
+            }
+
+            let extiendeElFinal = span.end > last.end
+
+            if (
+                extiendeElFinal
+            ) {
+                last.end = span.end
+
+            }
         }
-
-        let extiendeElFinal = span.end > last.end
-
-        if (
-            extiendeElFinal
-        ) {
-            last.end = span.end
-
-        }
-    })
+    )
 
     return merged
 
@@ -467,35 +491,41 @@ export function reindentFourSpacesOutsideTokens(
     )
     ? braceEvents
     .slice()
-    .filter(function (
+    .filter(
+        function (
         e
-    ) {
-        return e && typeof e.pos === 'number' && Number.isFinite(
+        ) {
+            return e && typeof e.pos === 'number' && Number.isFinite(
             e.pos
-        ) && (e.delta === 1 || e.delta === -1)
+            ) && (e.delta === 1 || e.delta === -1)
 
-    })
-    .map(function (
+        }
+    )
+    .map(
+        function (
         e
-    ) {
-        let pos = Math.max(
-        0,
-        Math.min(
+        ) {
+            let pos = Math.max(
+            0,
+            Math.min(
             len,
             e.pos
-        )
-        )
+            )
+            )
 
-        return { pos, delta: e.delta }
+            return { pos, delta: e.delta }
 
-    })
-    .sort(function (
+        }
+    )
+    .sort(
+        function (
         a,
         b
-    ) {
-        return a.pos - b.pos
+        ) {
+            return a.pos - b.pos
 
-    })
+        }
+    )
     : []
 
     let out = ''
@@ -504,32 +534,34 @@ export function reindentFourSpacesOutsideTokens(
 
     let eventPrefix = []
 
-    events.forEach(function (
+    events.forEach(
+        function (
         e,
         index
-    ) {
-        eventPos.push(
-            e.pos
-        )
-
-        let esPrimerEvento = index === 0
-
-        if (
-            esPrimerEvento
         ) {
-            eventPrefix.push(
-                e.delta
+            eventPos.push(
+            e.pos
             )
 
-            return
+            let esPrimerEvento = index === 0
+
+            if (
+                esPrimerEvento
+            ) {
+                eventPrefix.push(
+                e.delta
+                )
+
+                return
+
+            }
+
+            eventPrefix.push(
+            eventPrefix[index - 1] + e.delta
+            )
 
         }
-
-        eventPrefix.push(
-            eventPrefix[index - 1] + e.delta
-        )
-
-    })
+    )
 
     function upperBound(
         arr,
@@ -674,38 +706,65 @@ export function reindentFourSpacesOutsideTokens(
 
     let previousWasBlankLineOutsideTokens = false
 
-    segments.forEach(function (
+    segments.forEach(
+        function (
         segment
-    ) {
-        let noHaySegmento = !segment
-
-        if (
-            noHaySegmento
         ) {
-            return
+            let noHaySegmento = !segment
 
-        }
+            if (
+                noHaySegmento
+            ) {
+                return
 
-        let parts = splitLineSegment(
+            }
+
+            let parts = splitLineSegment(
             segment
-        )
+            )
 
-        let { lineText, lineBreak } = parts
+            let { lineText, lineBreak } = parts
 
-        let lineStart = cursor
+            let lineStart = cursor
 
-        cursor += segment.length
+            cursor += segment.length
 
-        let estaDentroDeTramosToken = isInsideMergedSpans(
+            let estaDentroDeTramosToken = isInsideMergedSpans(
             lineStart,
             mergedTokenSpans
-        )
+            )
 
-        let esLineaVacia = lineText.trim().length === 0
+            let esLineaVacia = lineText.trim().length === 0
 
-        if (
-            esLineaVacia
-        ) {
+            if (
+                esLineaVacia
+            ) {
+                if (
+                    estaDentroDeTramosToken
+                ) {
+                    out += lineText + lineBreak
+
+                    previousWasBlankLineOutsideTokens = false
+
+                    return
+
+                }
+
+                if (
+                    previousWasBlankLineOutsideTokens
+                ) {
+                    return
+
+                }
+
+                out += lineBreak
+
+                previousWasBlankLineOutsideTokens = true
+
+                return
+
+            }
+
             if (
                 estaDentroDeTramosToken
             ) {
@@ -717,78 +776,53 @@ export function reindentFourSpacesOutsideTokens(
 
             }
 
+            let content = lineText.replace(
+            /^[ \t]+/,
+            ''
+            )
+
+            let noHayContenido = content.length === 0
+
             if (
-                previousWasBlankLineOutsideTokens
+                noHayContenido
             ) {
+                out += lineBreak
+
+                previousWasBlankLineOutsideTokens = false
+
                 return
 
             }
 
-            out += lineBreak
-
-            previousWasBlankLineOutsideTokens = true
-
-            return
-
-        }
-
-        if (
-            estaDentroDeTramosToken
-        ) {
-            out += lineText + lineBreak
-
-            previousWasBlankLineOutsideTokens = false
-
-            return
-
-        }
-
-        let content = lineText.replace(
-            /^[ \t]+/,
-            ''
-        )
-
-        let noHayContenido = content.length === 0
-
-        if (
-            noHayContenido
-        ) {
-            out += lineBreak
-
-            previousWasBlankLineOutsideTokens = false
-
-            return
-
-        }
-
-        let depth = depthAtPos(
+            let depth = depthAtPos(
             lineStart
-        )
+            )
 
-        let closeMatch = content.match(
+            let closeMatch = content.match(
             /^}+/
-        )
+            )
 
-        let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
+            let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
 
-        let indentLevel = depth - leadingCloseCount
+            let indentLevel = depth - leadingCloseCount
 
-        let nivelDeSangriaNegativo = indentLevel < 0
+            let nivelDeSangriaNegativo = indentLevel < 0
 
-        if (
-            nivelDeSangriaNegativo
-        ) {
-            indentLevel = 0
+            if (
+                nivelDeSangriaNegativo
+            ) {
+                indentLevel = 0
+
+            }
+
+            out += ' '.repeat(
+            indentLevel * 4
+            ) + content + lineBreak
+
+            previousWasBlankLineOutsideTokens = false
 
         }
-
-        out += ' '.repeat(
-            indentLevel * 4
-        ) + content + lineBreak
-
-        previousWasBlankLineOutsideTokens = false
-
-    })
+    )
 
     return out
 
@@ -798,11 +832,13 @@ export function isInsideAnySpan(
     index,
     spans
 ) {
-    return spans.some(function (
+    return spans.some(
+        function (
         span
-    ) {
-        return index >= span.start && index < span.end
+        ) {
+            return index >= span.start && index < span.end
 
-    })
+        }
+    )
 
 }

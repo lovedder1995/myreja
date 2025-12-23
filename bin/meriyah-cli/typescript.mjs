@@ -12,13 +12,15 @@ export function createTsFinding(
         pos
     )
 
-    findings.push({
-        filePath,
-        line: lc.line + 1,
-        column: lc.character,
-        keyword,
-        ruleId,
-    })
+    findings.push(
+        {
+            filePath,
+            line: lc.line + 1,
+            column: lc.character,
+            keyword,
+            ruleId,
+        }
+    )
 
 }
 
@@ -184,14 +186,14 @@ export function collectForbiddenFindingsTypescript(
         ruleId
     ) {
         createTsFinding(
-        findings,
-        filePath,
-        keyword,
-        ruleId,
-        sourceFile,
-        node.getStart(
+            findings,
+            filePath,
+            keyword,
+            ruleId,
+            sourceFile,
+            node.getStart(
             sourceFile
-        )
+            )
         )
 
     }
@@ -202,14 +204,14 @@ export function collectForbiddenFindingsTypescript(
         ruleId
     ) {
         createTsFinding(
-        findings,
-        filePath,
-        keyword,
-        ruleId,
-        sourceFile,
-        modifier.getStart(
+            findings,
+            filePath,
+            keyword,
+            ruleId,
+            sourceFile,
+            modifier.getStart(
             sourceFile
-        )
+            )
         )
 
     }
@@ -1128,147 +1130,149 @@ export function collectForbiddenFindingsTypescript(
         if (
             hayModificadores
         ) {
-            modifiers.forEach(function (
+            modifiers.forEach(
+                function (
                 modifier
-            ) {
-                let { kind: modifierKind } = modifier
-
-                let esPublicKeyword = modifierKind === ts.SyntaxKind.PublicKeyword
-
-                if (
-                    esPublicKeyword
                 ) {
-                    let estaPublicProhibido = forbiddenWords.has(
-                        'public'
-                    )
+                    let { kind: modifierKind } = modifier
+
+                    let esPublicKeyword = modifierKind === ts.SyntaxKind.PublicKeyword
 
                     if (
-                        estaPublicProhibido
+                        esPublicKeyword
                     ) {
-                        addModifier(
+                        let estaPublicProhibido = forbiddenWords.has(
+                        'public'
+                        )
+
+                        if (
+                            estaPublicProhibido
+                        ) {
+                            addModifier(
                             'public',
                             modifier,
                             'formatear/no-public'
-                        )
+                            )
+
+                        }
+
+                        return
 
                     }
-
-                    return
-
-                }
-                let esPrivateKeyword = modifierKind === ts.SyntaxKind.PrivateKeyword
-
-                if (
-                    esPrivateKeyword
-                ) {
-                    let estaPrivateProhibido = forbiddenWords.has(
-                        'private'
-                    )
+                    let esPrivateKeyword = modifierKind === ts.SyntaxKind.PrivateKeyword
 
                     if (
-                        estaPrivateProhibido
+                        esPrivateKeyword
                     ) {
-                        addModifier(
+                        let estaPrivateProhibido = forbiddenWords.has(
+                        'private'
+                        )
+
+                        if (
+                            estaPrivateProhibido
+                        ) {
+                            addModifier(
                             'private',
                             modifier,
                             'formatear/no-private'
-                        )
+                            )
+
+                        }
+
+                        return
 
                     }
-
-                    return
-
-                }
-                let esProtectedKeyword = modifierKind === ts.SyntaxKind.ProtectedKeyword
-
-                if (
-                    esProtectedKeyword
-                ) {
-                    let estaProtectedProhibido = forbiddenWords.has(
-                        'protected'
-                    )
+                    let esProtectedKeyword = modifierKind === ts.SyntaxKind.ProtectedKeyword
 
                     if (
-                        estaProtectedProhibido
+                        esProtectedKeyword
                     ) {
-                        addModifier(
+                        let estaProtectedProhibido = forbiddenWords.has(
+                        'protected'
+                        )
+
+                        if (
+                            estaProtectedProhibido
+                        ) {
+                            addModifier(
                             'protected',
                             modifier,
                             'formatear/no-protected'
-                        )
+                            )
+
+                        }
+
+                        return
 
                     }
-
-                    return
-
-                }
-                let esStaticKeyword = modifierKind === ts.SyntaxKind.StaticKeyword
-
-                if (
-                    esStaticKeyword
-                ) {
-                    let estaStaticProhibido = forbiddenWords.has(
-                        'static'
-                    )
+                    let esStaticKeyword = modifierKind === ts.SyntaxKind.StaticKeyword
 
                     if (
-                        estaStaticProhibido
+                        esStaticKeyword
                     ) {
-                        addModifier(
+                        let estaStaticProhibido = forbiddenWords.has(
+                        'static'
+                        )
+
+                        if (
+                            estaStaticProhibido
+                        ) {
+                            addModifier(
                             'static',
                             modifier,
                             'formatear/no-static'
-                        )
+                            )
+
+                        }
+
+                        return
 
                     }
-
-                    return
-
-                }
-                let esAsyncKeyword = modifierKind === ts.SyntaxKind.AsyncKeyword
-
-                if (
-                    esAsyncKeyword
-                ) {
-                    let estaAsyncProhibido = forbiddenWords.has(
-                        'async'
-                    )
+                    let esAsyncKeyword = modifierKind === ts.SyntaxKind.AsyncKeyword
 
                     if (
-                        estaAsyncProhibido
+                        esAsyncKeyword
                     ) {
-                        addModifier(
+                        let estaAsyncProhibido = forbiddenWords.has(
+                        'async'
+                        )
+
+                        if (
+                            estaAsyncProhibido
+                        ) {
+                            addModifier(
                             'async',
                             modifier,
                             'formatear/no-async'
-                        )
+                            )
+
+                        }
+
+                        return
 
                     }
-
-                    return
-
-                }
-                let esAccessorKeyword = modifierKind === ts.SyntaxKind.AccessorKeyword
-
-                if (
-                    esAccessorKeyword
-                ) {
-                    let estaAccessorProhibido = forbiddenWords.has(
-                        'accessor'
-                    )
+                    let esAccessorKeyword = modifierKind === ts.SyntaxKind.AccessorKeyword
 
                     if (
-                        estaAccessorProhibido
+                        esAccessorKeyword
                     ) {
-                        addModifier(
+                        let estaAccessorProhibido = forbiddenWords.has(
+                        'accessor'
+                        )
+
+                        if (
+                            estaAccessorProhibido
+                        ) {
+                            addModifier(
                             'accessor',
                             modifier,
                             'formatear/no-accessor'
-                        )
+                            )
 
+                        }
                     }
                 }
-            })
+            )
 
         }
 
@@ -1281,59 +1285,64 @@ export function collectForbiddenFindingsTypescript(
         if (
             hayHeritageClauses
         ) {
-            heritageClauses.forEach(function (
+            heritageClauses.forEach(
+                function (
                 clause
-            ) {
-                let esExtendsKeyword = clause.token === ts.SyntaxKind.ExtendsKeyword
-
-                let estaExtendsProhibido = forbiddenWords.has(
-                    'extends'
-                )
-
-                let debeMarcarExtends = esExtendsKeyword && estaExtendsProhibido
-
-                if (
-                    debeMarcarExtends
                 ) {
-                    addKeywordNode(
+                    let esExtendsKeyword = clause.token === ts.SyntaxKind.ExtendsKeyword
+
+                    let estaExtendsProhibido = forbiddenWords.has(
+                    'extends'
+                    )
+
+                    let debeMarcarExtends = esExtendsKeyword && estaExtendsProhibido
+
+                    if (
+                        debeMarcarExtends
+                    ) {
+                        addKeywordNode(
                         'extends',
                         clause,
                         'formatear/no-extends'
+                        )
+
+                    }
+
+                    let esImplementsKeyword = clause.token === ts.SyntaxKind.ImplementsKeyword
+
+                    let estaImplementsProhibido = forbiddenWords.has(
+                    'implements'
                     )
 
-                }
+                    let debeMarcarImplements = esImplementsKeyword && estaImplementsProhibido
 
-                let esImplementsKeyword = clause.token === ts.SyntaxKind.ImplementsKeyword
-
-                let estaImplementsProhibido = forbiddenWords.has(
-                    'implements'
-                )
-
-                let debeMarcarImplements = esImplementsKeyword && estaImplementsProhibido
-
-                if (
-                    debeMarcarImplements
-                ) {
-                    addKeywordNode(
+                    if (
+                        debeMarcarImplements
+                    ) {
+                        addKeywordNode(
                         'implements',
                         clause,
                         'formatear/no-implements'
-                    )
+                        )
 
+                    }
                 }
-            })
+            )
 
         }
 
-        ts.forEachChild(node, function (
+        ts.forEachChild(
+            node,
+            function (
             child
-        ) {
-            visit(
+            ) {
+                visit(
                 child,
                 node
-            )
+                )
 
-        })
+            }
+        )
 
     }
 
@@ -1375,14 +1384,14 @@ export function collectConditionSingleVariableFindingsTypescript(
         }
 
         createTsFinding(
-        findings,
-        filePath,
-        'condicion',
-        'formatear/condition-single-variable',
-        sourceFile,
-        expr.getStart(
+            findings,
+            filePath,
+            'condicion',
+            'formatear/condition-single-variable',
+            sourceFile,
+            expr.getStart(
             sourceFile
-        ),
+            )
         )
 
     }
@@ -1662,10 +1671,12 @@ export function scanTokensTypescript(
 
         let end = scanner.getTextPos()
 
-        tokens.push({ kind, pos, end, text: sourceText.slice(
+        tokens.push(
+            { kind, pos, end, text: sourceText.slice(
             pos,
             end
-        ) })
+            ) }
+        )
 
         return scanNext()
 
@@ -1718,80 +1729,86 @@ export function fixSemicolonsTypescript(
 
     let emptyStartSet = new Set()
 
-    emptyStatementRanges.forEach(function (
+    emptyStatementRanges.forEach(
+        function (
         r
-    ) {
-        emptyStartSet.add(
+        ) {
+            emptyStartSet.add(
             r.start
-        )
+            )
 
-    })
+        }
+    )
 
     let replacements = []
 
-    emptyStatementRanges.forEach(function (
+    emptyStatementRanges.forEach(
+        function (
         range
-    ) {
-        replacements.push(
+        ) {
+            replacements.push(
             { start: range.start, end: range.end, text: '{}' }
-        )
+            )
 
-    })
+        }
+    )
 
     let unfixableFindings = []
 
-    tokens.forEach(function (
+    tokens.forEach(
+        function (
         t
-    ) {
-        let noEsPuntoYComa = t.kind !== ts.SyntaxKind.SemicolonToken
-
-        if (
-            noEsPuntoYComa
         ) {
-            return
+            let noEsPuntoYComa = t.kind !== ts.SyntaxKind.SemicolonToken
 
-        }
+            if (
+                noEsPuntoYComa
+            ) {
+                return
 
-        let esEmptyStatement = emptyStartSet.has(
+            }
+
+            let esEmptyStatement = emptyStartSet.has(
             t.pos
-        )
-
-        if (
-            esEmptyStatement
-        ) {
-            return
-
-        }
-
-        let estaDentroDeEncabezadoDeFor = isInsideAnySpan(
-            t.pos,
-            forHeaderSpans
-        )
-
-        if (
-            estaDentroDeEncabezadoDeFor
-        ) {
-            let lc = sourceFile.getLineAndCharacterOfPosition(
-                t.pos
             )
 
-            unfixableFindings.push({
-                filePath,
-                line: lc.line + 1,
-                column: lc.character,
-                keyword: ';',
-                ruleId: 'formatear/no-semicolon',
-            })
+            if (
+                esEmptyStatement
+            ) {
+                return
 
-            return
+            }
+
+            let estaDentroDeEncabezadoDeFor = isInsideAnySpan(
+            t.pos,
+            forHeaderSpans
+            )
+
+            if (
+                estaDentroDeEncabezadoDeFor
+            ) {
+                let lc = sourceFile.getLineAndCharacterOfPosition(
+                t.pos
+                )
+
+                unfixableFindings.push({
+                    filePath,
+                    line: lc.line + 1,
+                    column: lc.character,
+                    keyword: ';',
+                    ruleId: 'formatear/no-semicolon',
+                })
+
+                return
+
+            }
+
+            replacements.push(
+            { start: t.pos, end: t.end, text: '\n' }
+            )
 
         }
-
-        replacements.push(
-            { start: t.pos, end: t.end, text: '\n' }
-        )
-
-    })
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -1816,32 +1833,34 @@ export function fixVarConstToLetTypescript(
 
     let replacements = []
 
-    tokens.forEach(function (
+    tokens.forEach(
+        function (
         t
-    ) {
-        let noEsVarNiConst = t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword
-
-        if (
-            noEsVarNiConst
         ) {
-            return
+            let noEsVarNiConst = t.kind !== ts.SyntaxKind.VarKeyword && t.kind !== ts.SyntaxKind.ConstKeyword
 
-        }
+            if (
+                noEsVarNiConst
+            ) {
+                return
 
-        let rangoInvalido = typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos
+            }
 
-        if (
-            rangoInvalido
-        ) {
-            return
+            let rangoInvalido = typeof t.pos !== 'number' || typeof t.end !== 'number' || t.end < t.pos
 
-        }
+            if (
+                rangoInvalido
+            ) {
+                return
 
-        replacements.push(
+            }
+
+            replacements.push(
             { start: t.pos, end: t.end, text: 'let' }
-        )
+            )
 
-    })
+        }
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -1919,13 +1938,15 @@ export function fixArrowFunctionsToFunctionsTypescript(
                     start
                 )
 
-                unfixableFindings.push({
-                    filePath,
-                    line: lc.line + 1,
-                    column: lc.character,
-                    keyword: '=>',
-                    ruleId: 'formatear/no-arrow-function',
-                })
+                unfixableFindings.push(
+                    {
+                        filePath,
+                        line: lc.line + 1,
+                        column: lc.character,
+                        keyword: '=>',
+                        ruleId: 'formatear/no-arrow-function',
+                    }
+                )
 
                 return
 
@@ -1940,12 +1961,14 @@ export function fixArrowFunctionsToFunctionsTypescript(
             Array.isArray(
                 node.modifiers
             ) &&
-            node.modifiers.some(function (
+            node.modifiers.some(
+                function (
                 m
-            ) {
-                return m.kind === ts.SyntaxKind.AsyncKeyword
+                ) {
+                    return m.kind === ts.SyntaxKind.AsyncKeyword
 
-            })
+                }
+            )
 
             if (
                 isAsync
@@ -1980,10 +2003,10 @@ export function fixArrowFunctionsToFunctionsTypescript(
                 esBloque
             ) {
                 bodyText = sourceText.slice(
-                node.body.getStart(
+                    node.body.getStart(
                     sourceFile
-                ),
-                node.body.getEnd()
+                    ),
+                    node.body.getEnd()
                 )
 
             }
@@ -2101,13 +2124,15 @@ export function fixMissingBracesIfTypescript(
                 typeof start === 'number' ? start : 0
             )
 
-            unfixableFindings.push({
-                filePath,
-                line: lc.line + 1,
-                column: lc.character,
-                keyword: '{',
-                ruleId: 'formatear/require-braces',
-            })
+            unfixableFindings.push(
+                {
+                    filePath,
+                    line: lc.line + 1,
+                    column: lc.character,
+                    keyword: '{',
+                    ruleId: 'formatear/require-braces',
+                }
+            )
 
             return
 
@@ -2260,11 +2285,11 @@ export function fixFunctionArgumentsLayoutTypescript(
         let len = text.length
 
         let i = Math.max(
-        0,
-        Math.min(
+            0,
+            Math.min(
             len,
             index
-        )
+            )
         )
 
         let searchFrom = i - 1
@@ -2304,11 +2329,11 @@ export function fixFunctionArgumentsLayoutTypescript(
         let len = text.length
 
         let i = Math.max(
-        0,
-        Math.min(
+            0,
+            Math.min(
             len,
             index
-        )
+            )
         )
 
         let nextNl = text.indexOf(
@@ -2512,30 +2537,32 @@ export function fixFunctionArgumentsLayoutTypescript(
             startIndex,
             endIndex
         )
-        .findIndex(function (
+        .findIndex(
+            function (
             t
-        ) {
-            let noHayToken = !t
-
-            if (
-                noHayToken
             ) {
+                let noHayToken = !t
+
+                if (
+                    noHayToken
+                ) {
+                    return false
+
+                }
+
+                let esOpenParen = t.text === '('
+
+                if (
+                    esOpenParen
+                ) {
+                    return true
+
+                }
+
                 return false
 
             }
-
-            let esOpenParen = t.text === '('
-
-            if (
-                esOpenParen
-            ) {
-                return true
-
-            }
-
-            return false
-
-        })
+        )
 
         let noEncontrado = localIndex < 0
 
@@ -2573,48 +2600,50 @@ export function fixFunctionArgumentsLayoutTypescript(
             openIndex,
             endIndex
         )
-        .findIndex(function (
+        .findIndex(
+            function (
             t
-        ) {
-            let noHayToken = !t
-
-            if (
-                noHayToken
             ) {
-                return false
-
-            }
-
-            let esOpenParen = t.text === '('
-
-            if (
-                esOpenParen
-            ) {
-                depth += 1
-                return false
-
-            }
-
-            let esCloseParen = t.text === ')'
-
-            if (
-                esCloseParen
-            ) {
-                depth -= 1
-
-                let depthCero = depth === 0
+                let noHayToken = !t
 
                 if (
-                    depthCero
+                    noHayToken
                 ) {
-                    return true
+                    return false
 
                 }
+
+                let esOpenParen = t.text === '('
+
+                if (
+                    esOpenParen
+                ) {
+                    depth += 1
+                    return false
+
+                }
+
+                let esCloseParen = t.text === ')'
+
+                if (
+                    esCloseParen
+                ) {
+                    depth -= 1
+
+                    let depthCero = depth === 0
+
+                    if (
+                        depthCero
+                    ) {
+                        return true
+
+                    }
+                }
+
+                return false
+
             }
-
-            return false
-
-        })
+        )
 
         let noEncontrado = localIndex < 0
 
@@ -2640,29 +2669,202 @@ export function fixFunctionArgumentsLayoutTypescript(
 
         let desiredIndent = `${indent}    `
 
-        let lines = items.map(function (
-            item,
-            index
+        function getLeadingWhitespaceLength(
+            line
         ) {
-            let { start, end } = item
+            let match = /^[ \t]*/.exec(
+                line
+            )
 
-            let text = sourceText.slice(
-                start,
-                end
-            ).trim()
+            return match ? match[0].length : 0
+        }
 
-            let esUltimo = index === items.length - 1
+        function normalizeMultilineItemText(
+            text
+        ) {
+            let parts = String(
+                text
+            ).split(
+                /\r\n|\n|\r/
+            )
 
-            let debeTenerComa = !esUltimo
+            let hasSecondLine = parts.length > 1
 
             if (
-                debeTenerComa
+                hasSecondLine
             ) {
-                return `${desiredIndent}${text},`
+                let tailLines = parts
+                .slice(
+                    1
+                )
+                .filter(
+                    function (
+                    line
+                    ) {
+                        return line.trim().length > 0
+                    }
+                )
+
+                let minIndent = tailLines.reduce(
+                    function (
+                    acc,
+                    line
+                    ) {
+                        let current = getLeadingWhitespaceLength(
+                        line
+                        )
+
+                        let esMenor = current < acc
+
+                        if (
+                            esMenor
+                        ) {
+                            return current
+                        }
+
+                        return acc
+                    },
+                    Number.POSITIVE_INFINITY
+                )
+
+                let noHayMin = !Number.isFinite(
+                    minIndent
+                ) || minIndent === Number.POSITIVE_INFINITY
+
+                if (
+                    noHayMin
+                ) {
+                    minIndent = 0
+                }
+
+                parts = parts.map(
+                    function (
+                    line,
+                    index
+                    ) {
+                        let isFirst = index === 0
+
+                        if (
+                            isFirst
+                        ) {
+                            return line.trimEnd()
+                        }
+
+                        let leading = getLeadingWhitespaceLength(
+                        line
+                        )
+
+                        let cut = Math.min(
+                        minIndent,
+                        leading
+                        )
+
+                        return line.slice(
+                        cut
+                        ).trimEnd()
+                    }
+                )
+
+                return parts.join(
+                    eol
+                )
             }
 
-            return `${desiredIndent}${text}`
-        })
+            return parts.map(
+                function (
+                line
+                ) {
+                    return line.trimEnd()
+                }
+            ).join(
+                eol
+            )
+        }
+
+        function indentTextBlock(
+            text
+        ) {
+            return String(
+                text
+            ).split(
+                /\r\n|\n|\r/
+            ).map(
+                function (
+                line
+                ) {
+                    return `${desiredIndent}${line}`
+                }
+            ).join(
+                eol
+            )
+        }
+
+        function appendCommaToLastLine(
+            text
+        ) {
+            let parts = String(
+                text
+            ).split(
+                eol
+            )
+
+            let lastIndex = parts.length - 1
+
+            return parts.map(
+                function (
+                line,
+                index
+                ) {
+                    let esUltima = index === lastIndex
+
+                    if (
+                        esUltima
+                    ) {
+                        return `${line},`
+                    }
+
+                    return line
+                }
+            ).join(
+                eol
+            )
+        }
+
+        let lines = items.map(
+            function (
+            item,
+            index
+            ) {
+                let { start, end } = item
+
+                let text = sourceText.slice(
+                start,
+                end
+                ).trim()
+
+                let esUltimo = index === items.length - 1
+
+                let debeTenerComa = !esUltimo
+
+                let normalized = normalizeMultilineItemText(
+                text
+                )
+
+                let indented = indentTextBlock(
+                normalized
+                )
+
+                if (
+                    debeTenerComa
+                ) {
+                    return appendCommaToLastLine(
+                    indented
+                    )
+                }
+
+                return indented
+            }
+        )
 
         let out = `(${eol}${lines.join(
             eol
@@ -2696,33 +2898,35 @@ export function fixFunctionArgumentsLayoutTypescript(
 
         let out = []
 
-        nodeArray.forEach(function (
+        nodeArray.forEach(
+            function (
             item
-        ) {
-            let noHayNodo = !item || typeof item !== 'object'
-
-            if (
-                noHayNodo
             ) {
-                return
-            }
+                let noHayNodo = !item || typeof item !== 'object'
 
-            let { start, end } = getNodeRange(
+                if (
+                    noHayNodo
+                ) {
+                    return
+                }
+
+                let { start, end } = getNodeRange(
                 item
-            )
+                )
 
-            let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
+                let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
 
-            if (
-                rangoInvalido
-            ) {
-                return
-            }
+                if (
+                    rangoInvalido
+                ) {
+                    return
+                }
 
-            out.push(
+                out.push(
                 { start, end }
-            )
-        })
+                )
+            }
+        )
 
         return out
     }
@@ -2781,24 +2985,6 @@ export function fixFunctionArgumentsLayoutTypescript(
             return
         }
 
-        let algunItemTieneSaltos = items.some(function (
-            it
-        ) {
-            let text = sourceText.slice(
-                it.start,
-                it.end
-            )
-            return /[\r\n]/.test(
-                text
-            )
-        })
-
-        if (
-            algunItemTieneSaltos
-        ) {
-            return
-        }
-
         let first = items[0]
         let last = items[items.length - 1]
 
@@ -2839,21 +3025,23 @@ export function fixFunctionArgumentsLayoutTypescript(
             0,
             -1
         )
-        .every(function (
+        .every(
+            function (
             item,
             index
-        ) {
-            let next = items[index + 1]
+            ) {
+                let next = items[index + 1]
 
-            let gap = sourceText.slice(
+                let gap = sourceText.slice(
                 item.end,
                 next.start
-            )
+                )
 
-            return onlyWhitespaceOrCommas(
+                return onlyWhitespaceOrCommas(
                 gap
-            )
-        })
+                )
+            }
+        )
 
         let gapsInvalidos = !gapsValidos
 
@@ -2864,11 +3052,13 @@ export function fixFunctionArgumentsLayoutTypescript(
 
         }
 
-        candidates.push(buildListReplacement(
+        candidates.push(
+            buildListReplacement(
             openToken,
             closeToken,
             items
-        ))
+            )
+        )
     }
 
     function visit(
@@ -3006,32 +3196,36 @@ export function fixFunctionArgumentsLayoutTypescript(
 
     let sorted = candidates
     .slice()
-    .sort(function (
+    .sort(
+        function (
         a,
         b
-    ) {
-        return a.start - b.start
-    })
+        ) {
+            return a.start - b.start
+        }
+    )
 
     let nonOverlapping = []
     let lastEnd = -1
 
-    sorted.forEach(function (
+    sorted.forEach(
+        function (
         rep
-    ) {
-        let solapa = rep.start < lastEnd
-
-        if (
-            solapa
         ) {
-            return
-        }
+            let solapa = rep.start < lastEnd
 
-        nonOverlapping.push(
+            if (
+                solapa
+            ) {
+                return
+            }
+
+            nonOverlapping.push(
             rep
-        )
-        lastEnd = rep.end
-    })
+            )
+            lastEnd = rep.end
+        }
+    )
 
     let fixedText = applyReplacements(
         sourceText,

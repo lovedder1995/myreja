@@ -98,13 +98,15 @@ function addFinding(
 
     let column = node?.loc?.start?.column ?? 0
 
-    findings.push({
-        filePath,
-        line,
-        column,
-        keyword,
-        ruleId,
-    })
+    findings.push(
+        {
+            filePath,
+            line,
+            column,
+            keyword,
+            ruleId,
+        }
+    )
 
 }
 
@@ -119,13 +121,15 @@ function addFindingAtLoc(
 
     let column = loc?.start?.column ?? 0
 
-    findings.push({
-        filePath,
-        line,
-        column,
-        keyword,
-        ruleId,
-    })
+    findings.push(
+        {
+            filePath,
+            line,
+            column,
+            keyword,
+            ruleId,
+        }
+    )
 
 }
 
@@ -155,16 +159,18 @@ function collectEmptyStatementRangesMeriyah(
         if (
             esListaDeNodos
         ) {
-            node.forEach(function (
+            node.forEach(
+                function (
                 item
-            ) {
-                visit(
+                ) {
+                    visit(
                     item,
                     parent,
                     key
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -177,16 +183,18 @@ function collectEmptyStatementRangesMeriyah(
         ) {
             Object.values(
                 node
-            ).forEach(function (
+            ).forEach(
+                function (
                 child
-            ) {
-                visit(
+                ) {
+                    visit(
                     child,
                     node,
                     undefined
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -209,27 +217,29 @@ function collectEmptyStatementRangesMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let childKey = pair[0]
-
-            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
-            if (
-                esClaveIgnorable
             ) {
-                return
+                let childKey = pair[0]
 
-            }
+                let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
 
-            visit(
+                if (
+                    esClaveIgnorable
+                ) {
+                    return
+
+                }
+
+                visit(
                 pair[1],
                 node,
                 childKey
-            )
+                )
 
-        })
+            }
+        )
 
     }
 
@@ -401,16 +411,18 @@ function collectForbiddenFindingsMeriyah(
         if (
             esListaDeNodos
         ) {
-            node.forEach(function (
+            node.forEach(
+                function (
                 item
-            ) {
-                visit(
+                ) {
+                    visit(
                     item,
                     parent,
                     key
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -423,16 +435,18 @@ function collectForbiddenFindingsMeriyah(
         ) {
             Object.values(
                 node
-            ).forEach(function (
+            ).forEach(
+                function (
                 child
-            ) {
-                visit(
+                ) {
+                    visit(
                     child,
                     node,
                     undefined
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -1397,27 +1411,29 @@ function collectForbiddenFindingsMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let childKey = pair[0]
-
-            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
-            if (
-                esClaveIgnorable
             ) {
-                return
+                let childKey = pair[0]
 
-            }
+                let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
 
-            visit(
+                if (
+                    esClaveIgnorable
+                ) {
+                    return
+
+                }
+
+                visit(
                 pair[1],
                 node,
                 childKey
-            )
+                )
 
-        })
+            }
+        )
 
     }
 
@@ -1531,25 +1547,27 @@ function collectConditionSingleVariableFindingsMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let key = pair[0]
-
-            let esClaveIgnorable = key === 'loc' || key === 'range' || key === 'start' || key === 'end'
-
-            if (
-                esClaveIgnorable
             ) {
-                return
+                let key = pair[0]
+
+                let esClaveIgnorable = key === 'loc' || key === 'range' || key === 'start' || key === 'end'
+
+                if (
+                    esClaveIgnorable
+                ) {
+                    return
+
+                }
+
+                visit(
+                pair[1]
+                )
 
             }
-
-            visit(
-                pair[1]
-            )
-
-        })
+        )
 
     }
 
@@ -1575,16 +1593,18 @@ function parseSourceMeriyah(
         end,
         loc
     ) {
-        tokens.push({
-            type,
-            start,
-            end,
-            loc,
-            text: sourceText.slice(
+        tokens.push(
+            {
+                type,
+                start,
+                end,
+                loc,
+                text: sourceText.slice(
                 start,
                 end
-            ),
-        })
+                ),
+            }
+        )
 
     }
 
@@ -1616,9 +1636,9 @@ function parseSourceMeriyah(
 
         } catch {
             let err = moduleError instanceof Error ? moduleError : new Error(
-            String(
+                String(
                 moduleError
-            )
+                )
             )
 
             throw err
@@ -1666,9 +1686,9 @@ function parseCommentsMeriyah(
 
         } catch {
             let err = moduleError instanceof Error ? moduleError : new Error(
-            String(
+                String(
                 moduleError
-            )
+                )
             )
 
             throw err
@@ -1727,11 +1747,11 @@ function findLineStartIndex(
     let len = sourceText.length
 
     let i = Math.max(
-    0,
-    Math.min(
+        0,
+        Math.min(
         len,
         index
-    )
+        )
     )
 
     let searchFrom = i - 1
@@ -1771,11 +1791,11 @@ function findLineEndIndex(
     let len = sourceText.length
 
     let i = Math.max(
-    0,
-    Math.min(
+        0,
+        Math.min(
         len,
         index
-    )
+        )
     )
 
     let nextNl = sourceText.indexOf(
@@ -1899,30 +1919,32 @@ function buildLineCommentBlockFromValue(
 
     let out = []
 
-    lines.forEach(function (
+    lines.forEach(
+        function (
         line,
         index
-    ) {
-        let esPrimera = index === 0
-
-        let debeOmitir = esPrimera && omitFirstIndent
-
-        let prefix = indent
-
-        if (
-            debeOmitir
         ) {
-            prefix = ''
+            let esPrimera = index === 0
+
+            let debeOmitir = esPrimera && omitFirstIndent
+
+            let prefix = indent
+
+            if (
+                debeOmitir
+            ) {
+                prefix = ''
+
+            }
+
+            out.push(
+            `${prefix}//${normalizeLineCommentValue(
+            line
+            )}`
+            )
 
         }
-
-        out.push(
-        `${prefix}//${normalizeLineCommentValue(
-            line
-        )}`
-        )
-
-    })
+    )
 
     return out.join(
         eol
@@ -1951,57 +1973,59 @@ function fixIfSingleVariableConditionIndent(
     let singleLineRe = /(^[ \t]*)if[ \t]*\([ \t]*([A-Za-z_$][\w$]*)[ \t]*\)[ \t]*\{[ \t]*$/gm
 
     Array.from(
-    sourceText.matchAll(
+        sourceText.matchAll(
         singleLineRe
-    )
-    ).forEach(function (
+        )
+    ).forEach(
+        function (
         match
-    ) {
-        let { index } = match
+        ) {
+            let { index } = match
 
-        let tieneIndex = typeof index === 'number' && Number.isFinite(
+            let tieneIndex = typeof index === 'number' && Number.isFinite(
             index
-        )
+            )
 
-        let noTieneIndex = !tieneIndex
+            let noTieneIndex = !tieneIndex
 
-        if (
-            noTieneIndex
-        ) {
-            return
+            if (
+                noTieneIndex
+            ) {
+                return
 
-        }
+            }
 
-        let indentIf = match[1]
+            let indentIf = match[1]
 
-        let condVar = match[2]
+            let condVar = match[2]
 
-        let matchText = match[0]
+            let matchText = match[0]
 
-        let tieneIndentIf = typeof indentIf === 'string'
+            let tieneIndentIf = typeof indentIf === 'string'
 
-        let tieneCondVar = typeof condVar === 'string' && condVar.length > 0
+            let tieneCondVar = typeof condVar === 'string' && condVar.length > 0
 
-        let datosValidos = tieneIndentIf && tieneCondVar && typeof matchText === 'string'
+            let datosValidos = tieneIndentIf && tieneCondVar && typeof matchText === 'string'
 
-        let datosInvalidos = !datosValidos
+            let datosInvalidos = !datosValidos
 
-        if (
-            datosInvalidos
-        ) {
-            return
+            if (
+                datosInvalidos
+            ) {
+                return
 
-        }
+            }
 
-        let desiredIndent = `${indentIf}    `
+            let desiredIndent = `${indentIf}    `
 
-        let repText = `${indentIf}if (${eol}${desiredIndent}${condVar}${eol}${indentIf}) {`
+            let repText = `${indentIf}if (${eol}${desiredIndent}${condVar}${eol}${indentIf}) {`
 
-        replacements.push(
+            replacements.push(
             { start: index, end: index + matchText.length, text: repText }
-        )
+            )
 
-    })
+        }
+    )
 
     let convertedText = applyReplacements(
         sourceText,
@@ -2011,9 +2035,9 @@ function fixIfSingleVariableConditionIndent(
     let re = /(^[ \t]*)(if[ \t]*\([ \t]*)(\r\n|\n|\r)([ \t]*)([A-Za-z_$][\w$]*)[ \t]*(\r\n|\n|\r)([ \t]*\))/gm
 
     let matches = Array.from(
-    convertedText.matchAll(
+        convertedText.matchAll(
         re
-    )
+        )
     )
 
     let noHayMatches = matches.length === 0
@@ -2027,65 +2051,67 @@ function fixIfSingleVariableConditionIndent(
 
     let indentReplacements = []
 
-    matches.forEach(function (
+    matches.forEach(
+        function (
         match
-    ) {
-        let { index } = match
+        ) {
+            let { index } = match
 
-        let tieneIndex = typeof index === 'number' && Number.isFinite(
+            let tieneIndex = typeof index === 'number' && Number.isFinite(
             index
-        )
+            )
 
-        let noTieneIndex = !tieneIndex
+            let noTieneIndex = !tieneIndex
 
-        if (
-            noTieneIndex
-        ) {
-            return
+            if (
+                noTieneIndex
+            ) {
+                return
 
-        }
+            }
 
-        let indentIf = match[1]
-        let beforeBreak = match[2]
-        let lb = match[3]
-        let indentCond = match[4]
+            let indentIf = match[1]
+            let beforeBreak = match[2]
+            let lb = match[3]
+            let indentCond = match[4]
 
-        let tieneIndentIf = typeof indentIf === 'string'
-        let tieneBeforeBreak = typeof beforeBreak === 'string'
-        let tieneLb = typeof lb === 'string'
-        let tieneIndentCond = typeof indentCond === 'string'
+            let tieneIndentIf = typeof indentIf === 'string'
+            let tieneBeforeBreak = typeof beforeBreak === 'string'
+            let tieneLb = typeof lb === 'string'
+            let tieneIndentCond = typeof indentCond === 'string'
 
-        let datosValidos = tieneIndentIf && tieneBeforeBreak && tieneLb && tieneIndentCond
+            let datosValidos = tieneIndentIf && tieneBeforeBreak && tieneLb && tieneIndentCond
 
-        let datosInvalidos = !datosValidos
+            let datosInvalidos = !datosValidos
 
-        if (
-            datosInvalidos
-        ) {
-            return
+            if (
+                datosInvalidos
+            ) {
+                return
 
-        }
+            }
 
-        let desiredIndent = `${indentIf}    `
+            let desiredIndent = `${indentIf}    `
 
-        let yaEsDeseado = indentCond === desiredIndent
+            let yaEsDeseado = indentCond === desiredIndent
 
-        if (
-            yaEsDeseado
-        ) {
-            return
+            if (
+                yaEsDeseado
+            ) {
+                return
 
-        }
+            }
 
-        let indentStart = index + indentIf.length + beforeBreak.length + lb.length
+            let indentStart = index + indentIf.length + beforeBreak.length + lb.length
 
-        let indentEnd = indentStart + indentCond.length
+            let indentEnd = indentStart + indentCond.length
 
-        indentReplacements.push(
+            indentReplacements.push(
             { start: indentStart, end: indentEnd, text: desiredIndent }
-        )
+            )
 
-    })
+        }
+    )
 
     let fixedText = applyReplacements(
         convertedText,
@@ -2133,10 +2159,12 @@ function scanCommentsTypescript(
 
             let end = scanner.getTextPos()
 
-            comments.push({ kind, start, end, text: sourceText.slice(
+            comments.push(
+                { kind, start, end, text: sourceText.slice(
                 start,
                 end
-            ) })
+                ) }
+            )
 
         }
 
@@ -2408,43 +2436,37 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         let out = []
 
-        nodeArray.forEach(function (
+        nodeArray.forEach(
+            function (
             item
-        ) {
-            let noEsNodo = !item || typeof item !== 'object'
-
-            if (
-                noEsNodo
             ) {
-                return
-            }
+                let noEsNodo = !item || typeof item !== 'object'
 
-            let { start, end } = item
+                if (
+                    noEsNodo
+                ) {
+                    return
+                }
 
-            let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
+                let { start, end } = item
 
-            if (
-                rangoInvalido
-            ) {
-                return
-            }
+                let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
 
-            out.push(
+                if (
+                    rangoInvalido
+                ) {
+                    return
+                }
+
+                out.push(
                 { start, end }
-            )
+                )
 
-        })
+            }
+        )
 
         return out
 
-    }
-
-    function containsLineBreak(
-        text
-    ) {
-        return /[\r\n]/.test(
-            text
-        )
     }
 
     function onlyWhitespaceOrCommas(
@@ -2466,27 +2488,200 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         let desiredIndent = `${indent}    `
 
-        let lines = items.map(function (
-            item,
-            index
+        function getLeadingWhitespaceLength(
+            line
         ) {
-            let text = sourceText.slice(
-                item.start,
-                item.end
-            ).trim()
+            let match = /^[ \t]*/.exec(
+                line
+            )
 
-            let esUltimo = index === items.length - 1
+            return match ? match[0].length : 0
+        }
 
-            let debeTenerComa = !esUltimo
+        function normalizeMultilineItemText(
+            text
+        ) {
+            let parts = String(
+                text
+            ).split(
+                /\r\n|\n|\r/
+            )
+
+            let hasSecondLine = parts.length > 1
 
             if (
-                debeTenerComa
+                hasSecondLine
             ) {
-                return `${desiredIndent}${text},`
+                let tailLines = parts
+                .slice(
+                    1
+                )
+                .filter(
+                    function (
+                    line
+                    ) {
+                        return line.trim().length > 0
+                    }
+                )
+
+                let minIndent = tailLines.reduce(
+                    function (
+                    acc,
+                    line
+                    ) {
+                        let current = getLeadingWhitespaceLength(
+                        line
+                        )
+
+                        let esMenor = current < acc
+
+                        if (
+                            esMenor
+                        ) {
+                            return current
+                        }
+
+                        return acc
+                    },
+                    Number.POSITIVE_INFINITY
+                )
+
+                let noHayMin = !Number.isFinite(
+                    minIndent
+                ) || minIndent === Number.POSITIVE_INFINITY
+
+                if (
+                    noHayMin
+                ) {
+                    minIndent = 0
+                }
+
+                parts = parts.map(
+                    function (
+                    line,
+                    index
+                    ) {
+                        let isFirst = index === 0
+
+                        if (
+                            isFirst
+                        ) {
+                            return line.trimEnd()
+                        }
+
+                        let leading = getLeadingWhitespaceLength(
+                        line
+                        )
+
+                        let cut = Math.min(
+                        minIndent,
+                        leading
+                        )
+
+                        return line.slice(
+                        cut
+                        ).trimEnd()
+                    }
+                )
+
+                return parts.join(
+                    eol
+                )
             }
 
-            return `${desiredIndent}${text}`
-        })
+            return parts.map(
+                function (
+                line
+                ) {
+                    return line.trimEnd()
+                }
+            ).join(
+                eol
+            )
+        }
+
+        function indentTextBlock(
+            text
+        ) {
+            return String(
+                text
+            ).split(
+                /\r\n|\n|\r/
+            ).map(
+                function (
+                line
+                ) {
+                    return `${desiredIndent}${line}`
+                }
+            ).join(
+                eol
+            )
+        }
+
+        function appendCommaToLastLine(
+            text
+        ) {
+            let parts = String(
+                text
+            ).split(
+                eol
+            )
+
+            let lastIndex = parts.length - 1
+
+            return parts.map(
+                function (
+                line,
+                index
+                ) {
+                    let esUltima = index === lastIndex
+
+                    if (
+                        esUltima
+                    ) {
+                        return `${line},`
+                    }
+
+                    return line
+                }
+            ).join(
+                eol
+            )
+        }
+
+        let lines = items.map(
+            function (
+            item,
+            index
+            ) {
+                let text = sourceText.slice(
+                item.start,
+                item.end
+                ).trim()
+
+                let esUltimo = index === items.length - 1
+
+                let debeTenerComa = !esUltimo
+
+                let normalized = normalizeMultilineItemText(
+                text
+                )
+
+                let indented = indentTextBlock(
+                normalized
+                )
+
+                if (
+                    debeTenerComa
+                ) {
+                    return appendCommaToLastLine(
+                    indented
+                    )
+                }
+
+                return indented
+            }
+        )
 
         let out = `(${eol}${lines.join(
             eol
@@ -2546,21 +2741,6 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         if (
             faltanTokens
-        ) {
-            return
-        }
-
-        let algunItemTieneSaltos = items.some(function (
-            it
-        ) {
-            return containsLineBreak(sourceText.slice(
-                it.start,
-                it.end
-            ))
-        })
-
-        if (
-            algunItemTieneSaltos
         ) {
             return
         }
@@ -2641,11 +2821,13 @@ function fixFunctionArgumentsLayoutMeriyah(
             return
         }
 
-        candidates.push(buildListReplacement(
+        candidates.push(
+            buildListReplacement(
             openToken,
             closeToken,
             items
-        ))
+            )
+        )
 
     }
 
@@ -2667,14 +2849,16 @@ function fixFunctionArgumentsLayoutMeriyah(
         if (
             esArreglo
         ) {
-            node.forEach(function (
+            node.forEach(
+                function (
                 item
-            ) {
-                visit(
+                ) {
+                    visit(
                     item
-                )
+                    )
 
-            })
+                }
+            )
 
             return
         }
@@ -2751,24 +2935,26 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let childKey = pair[0]
-
-            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
-            if (
-                esClaveIgnorable
             ) {
-                return
-            }
+                let childKey = pair[0]
 
-            visit(
+                let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+                if (
+                    esClaveIgnorable
+                ) {
+                    return
+                }
+
+                visit(
                 pair[1]
-            )
+                )
 
-        })
+            }
+        )
 
     }
 
@@ -2787,33 +2973,37 @@ function fixFunctionArgumentsLayoutMeriyah(
 
     let sorted = candidates
     .slice()
-    .sort(function (
+    .sort(
+        function (
         a,
         b
-    ) {
-        return a.start - b.start
-    })
+        ) {
+            return a.start - b.start
+        }
+    )
 
     let nonOverlapping = []
     let lastEnd = -1
 
-    sorted.forEach(function (
+    sorted.forEach(
+        function (
         rep
-    ) {
-        let solapa = rep.start < lastEnd
-
-        if (
-            solapa
         ) {
-            return
-        }
+            let solapa = rep.start < lastEnd
 
-        nonOverlapping.push(
+            if (
+                solapa
+            ) {
+                return
+            }
+
+            nonOverlapping.push(
             rep
-        )
-        lastEnd = rep.end
+            )
+            lastEnd = rep.end
 
-    })
+        }
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -2834,308 +3024,310 @@ function fixCommentsText(
 
     let replacements = []
 
-    comments.forEach(function (
+    comments.forEach(
+        function (
         comment
-    ) {
-        let start = comment?.start
-
-        let end = comment?.end
-
-        let startEsNumero = typeof start === 'number'
-
-        let endEsNumero = typeof end === 'number'
-
-        let startEsFinito = startEsNumero && Number.isFinite(
-            start
-        )
-
-        let endEsFinito = endEsNumero && Number.isFinite(
-            end
-        )
-
-        let hayRango = startEsFinito && endEsFinito
-
-        let rangoDesordenado = hayRango && end <= start
-
-        let rangoInvalido = !hayRango || rangoDesordenado
-
-        if (
-            rangoInvalido
         ) {
-            return
+            let start = comment?.start
 
-        }
+            let end = comment?.end
 
-        let startLineStart = findLineStartIndex(
-            sourceText,
+            let startEsNumero = typeof start === 'number'
+
+            let endEsNumero = typeof end === 'number'
+
+            let startEsFinito = startEsNumero && Number.isFinite(
             start
-        )
-
-        let startLineEnd = findLineEndIndex(
-            sourceText,
-            start
-        )
-
-        let endLineEnd = findLineEndIndex(
-            sourceText,
-            end
-        )
-
-        let indent = findLineIndent(
-            sourceText,
-            startLineStart,
-            startLineEnd
-        )
-
-        let prefix = sourceText.slice(
-            startLineStart,
-            start
-        )
-
-        let suffix = sourceText.slice(
-            end,
-            endLineEnd
-        )
-
-        let hayCodigoAntes = /\S/.test(
-            prefix
-        )
-
-        let hayCodigoDespues = /\S/.test(
-            suffix
-        )
-
-        let rawText = sourceText.slice(
-            start,
-            end
-        )
-
-        let tieneTexto = typeof comment.text === 'string' && comment.text.length > 0
-
-        if (
-            tieneTexto
-        ) {
-            rawText = comment.text
-
-        }
-
-        let esMultiLine = comment.type === 'MultiLine'
-
-        let esBloquePorTexto = rawText.startsWith(
-            '/*'
-        )
-
-        let esComentarioDeBloque = esMultiLine || esBloquePorTexto
-
-        let value = ''
-
-        let tieneValue = typeof comment.value === 'string'
-
-        if (
-            tieneValue
-        ) {
-            value = comment.value
-
-        }
-
-        let debeDerivarValue = !tieneValue
-
-        if (
-            debeDerivarValue
-        ) {
-            let esBloqueCerrado = rawText.startsWith(
-                '/*'
-            ) && rawText.endsWith(
-                '*/'
             )
 
-            if (
-                esBloqueCerrado
-            ) {
-                value = rawText.slice(
-                    2,
-                    -2
-                )
+            let endEsFinito = endEsNumero && Number.isFinite(
+            end
+            )
 
-            }
+            let hayRango = startEsFinito && endEsFinito
 
-            let noEsBloqueCerrado = !esBloqueCerrado
+            let rangoDesordenado = hayRango && end <= start
+
+            let rangoInvalido = !hayRango || rangoDesordenado
 
             if (
-                noEsBloqueCerrado
-            ) {
-                let esLinea = rawText.startsWith(
-                    '//'
-                )
-
-                if (
-                    esLinea
-                ) {
-                    value = rawText.slice(
-                        2
-                    )
-
-                }
-            }
-        }
-
-        let esMultilinea = /[\r\n]/.test(
-            rawText
-        )
-
-        if (
-            esMultilinea
-        ) {
-            let comparteLineaConCodigo = hayCodigoAntes || hayCodigoDespues
-
-            if (
-                comparteLineaConCodigo
+                rangoInvalido
             ) {
                 return
 
             }
 
+            let startLineStart = findLineStartIndex(
+            sourceText,
+            start
+            )
+
+            let startLineEnd = findLineEndIndex(
+            sourceText,
+            start
+            )
+
+            let endLineEnd = findLineEndIndex(
+            sourceText,
+            end
+            )
+
+            let indent = findLineIndent(
+            sourceText,
+            startLineStart,
+            startLineEnd
+            )
+
+            let prefix = sourceText.slice(
+            startLineStart,
+            start
+            )
+
+            let suffix = sourceText.slice(
+            end,
+            endLineEnd
+            )
+
+            let hayCodigoAntes = /\S/.test(
+            prefix
+            )
+
+            let hayCodigoDespues = /\S/.test(
+            suffix
+            )
+
+            let rawText = sourceText.slice(
+            start,
+            end
+            )
+
+            let tieneTexto = typeof comment.text === 'string' && comment.text.length > 0
+
             if (
-                esComentarioDeBloque
+                tieneTexto
             ) {
-                let repText = buildLineCommentBlockFromValue(
+                rawText = comment.text
+
+            }
+
+            let esMultiLine = comment.type === 'MultiLine'
+
+            let esBloquePorTexto = rawText.startsWith(
+            '/*'
+            )
+
+            let esComentarioDeBloque = esMultiLine || esBloquePorTexto
+
+            let value = ''
+
+            let tieneValue = typeof comment.value === 'string'
+
+            if (
+                tieneValue
+            ) {
+                value = comment.value
+
+            }
+
+            let debeDerivarValue = !tieneValue
+
+            if (
+                debeDerivarValue
+            ) {
+                let esBloqueCerrado = rawText.startsWith(
+                '/*'
+                ) && rawText.endsWith(
+                '*/'
+                )
+
+                if (
+                    esBloqueCerrado
+                ) {
+                    value = rawText.slice(
+                    2,
+                    -2
+                    )
+
+                }
+
+                let noEsBloqueCerrado = !esBloqueCerrado
+
+                if (
+                    noEsBloqueCerrado
+                ) {
+                    let esLinea = rawText.startsWith(
+                    '//'
+                    )
+
+                    if (
+                        esLinea
+                    ) {
+                        value = rawText.slice(
+                        2
+                        )
+
+                    }
+                }
+            }
+
+            let esMultilinea = /[\r\n]/.test(
+            rawText
+            )
+
+            if (
+                esMultilinea
+            ) {
+                let comparteLineaConCodigo = hayCodigoAntes || hayCodigoDespues
+
+                if (
+                    comparteLineaConCodigo
+                ) {
+                    return
+
+                }
+
+                if (
+                    esComentarioDeBloque
+                ) {
+                    let repText = buildLineCommentBlockFromValue(
                     value,
                     indent,
                     eol,
                     true
-                )
+                    )
 
-                replacements.push(
+                    replacements.push(
                     { start, end, text: repText }
+                    )
+
+                }
+
+                return
+
+            }
+
+            let comentarioAlFinalDeLinea = hayCodigoAntes && !hayCodigoDespues
+
+            if (
+                comentarioAlFinalDeLinea
+            ) {
+                let matchTrailing = /[ \t]*$/.exec(
+                prefix
                 )
 
-            }
+                let trailingWs = ''
 
-            return
-
-        }
-
-        let comentarioAlFinalDeLinea = hayCodigoAntes && !hayCodigoDespues
-
-        if (
-            comentarioAlFinalDeLinea
-        ) {
-            let matchTrailing = /[ \t]*$/.exec(
-                prefix
-            )
-
-            let trailingWs = ''
-
-            let tieneTrailing = Boolean(
+                let tieneTrailing = Boolean(
                 matchTrailing
-            )
+                )
 
-            if (
-                tieneTrailing
-            ) {
-                trailingWs = matchTrailing[0]
+                if (
+                    tieneTrailing
+                ) {
+                    trailingWs = matchTrailing[0]
 
-            }
+                }
 
-            let wsStart = start - trailingWs.length
+                let wsStart = start - trailingWs.length
 
-            let repText = `${eol}${indent}//${normalizeLineCommentValue(
+                let repText = `${eol}${indent}//${normalizeLineCommentValue(
                 value
-            )}`
+                )}`
 
-            if (
-                esComentarioDeBloque
-            ) {
-                repText = `${eol}${buildLineCommentBlockFromValue(
+                if (
+                    esComentarioDeBloque
+                ) {
+                    repText = `${eol}${buildLineCommentBlockFromValue(
                     value,
                     indent,
                     eol,
                     false
-                )}`
+                    )}`
+
+                }
+
+                replacements.push(
+                { start: wsStart, end: startLineEnd, text: repText }
+                )
+
+                return
 
             }
 
-            replacements.push(
-                { start: wsStart, end: startLineEnd, text: repText }
-            )
-
-            return
-
-        }
-
-        let comentarioDeBloqueConCodigoDespues = esComentarioDeBloque && !hayCodigoAntes && hayCodigoDespues
-
-        if (
-            comentarioDeBloqueConCodigoDespues
-        ) {
-            let between = sourceText.slice(
-                end,
-                startLineEnd
-            )
-
-            let matchLeading = /^[ \t]*/.exec(
-                between
-            )
-
-            let leadingWs = ''
-
-            let tieneLeading = Boolean(
-                matchLeading
-            )
+            let comentarioDeBloqueConCodigoDespues = esComentarioDeBloque && !hayCodigoAntes && hayCodigoDespues
 
             if (
-                tieneLeading
+                comentarioDeBloqueConCodigoDespues
             ) {
-                leadingWs = matchLeading[0]
+                let between = sourceText.slice(
+                end,
+                startLineEnd
+                )
 
-            }
+                let matchLeading = /^[ \t]*/.exec(
+                between
+                )
 
-            let afterNonWs = end + leadingWs.length
+                let leadingWs = ''
 
-            let repText = buildLineCommentBlockFromValue(
+                let tieneLeading = Boolean(
+                matchLeading
+                )
+
+                if (
+                    tieneLeading
+                ) {
+                    leadingWs = matchLeading[0]
+
+                }
+
+                let afterNonWs = end + leadingWs.length
+
+                let repText = buildLineCommentBlockFromValue(
                 value,
                 indent,
                 eol,
                 true
-            )
+                )
 
-            replacements.push(
+                replacements.push(
                 { start, end, text: repText }
-            )
+                )
 
-            replacements.push(
+                replacements.push(
                 { start: end, end: afterNonWs, text: `${eol}${indent}` }
-            )
+                )
 
-            return
+                return
 
-        }
+            }
 
-        let comentarioSoloEnLinea = !hayCodigoAntes && !hayCodigoDespues
+            let comentarioSoloEnLinea = !hayCodigoAntes && !hayCodigoDespues
 
-        if (
-            comentarioSoloEnLinea
-        ) {
             if (
-                esComentarioDeBloque
+                comentarioSoloEnLinea
             ) {
-                let repText = buildLineCommentBlockFromValue(
+                if (
+                    esComentarioDeBloque
+                ) {
+                    let repText = buildLineCommentBlockFromValue(
                     value,
                     indent,
                     eol,
                     true
-                )
+                    )
 
-                replacements.push(
+                    replacements.push(
                     { start, end, text: repText }
-                )
+                    )
+
+                }
+
+                return
 
             }
-
-            return
-
         }
-    })
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -3161,33 +3353,37 @@ function fixCommentsMeriyah(
     ) ? parsed.comments : []
 
     let normalized = comments
-    .filter(function (
+    .filter(
+        function (
         c
-    ) {
-        return (
-        c &&
-        typeof c === 'object' &&
-        typeof c.start === 'number' &&
-        typeof c.end === 'number' &&
-        Number.isFinite(
+        ) {
+            return (
+            c &&
+            typeof c === 'object' &&
+            typeof c.start === 'number' &&
+            typeof c.end === 'number' &&
+            Number.isFinite(
             c.start
-        ) &&
-        Number.isFinite(
+            ) &&
+            Number.isFinite(
             c.end
-        ) &&
-        c.end > c.start
-        )
+            ) &&
+            c.end > c.start
+            )
 
-    })
-    .map(function (
+        }
+    )
+    .map(
+        function (
         c
-    ) {
-        return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(
-            c.start,
-            c.end
-        ) }
+        ) {
+            return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(
+                c.start,
+                c.end
+                ) }
 
-    })
+        }
+    )
 
     let fixedText = fixCommentsText(
         sourceText,
@@ -3213,13 +3409,13 @@ function fixCommentsTypescript(
     )
 
     let fixedText = fixCommentsText(
-    sourceText,
-    trivia.map(function (
+        sourceText,
+        trivia.map(function (
         c
-    ) {
-        return { start: c.start, end: c.end, text: c.text }
+        ) {
+            return { start: c.start, end: c.end, text: c.text }
 
-    }),
+        })
     )
 
     return { fixedText }
@@ -3246,76 +3442,82 @@ function fixSemicolonsMeriyah(
 
     let emptyStartSet = new Set()
 
-    emptyStatementRanges.forEach(function (
+    emptyStatementRanges.forEach(
+        function (
         r
-    ) {
-        emptyStartSet.add(
+        ) {
+            emptyStartSet.add(
             r.start
-        )
+            )
 
-    })
+        }
+    )
 
     let replacements = []
 
-    emptyStatementRanges.forEach(function (
+    emptyStatementRanges.forEach(
+        function (
         range
-    ) {
-        replacements.push(
+        ) {
+            replacements.push(
             { start: range.start, end: range.end, text: '{}' }
-        )
+            )
 
-    })
+        }
+    )
 
     let unfixableFindings = []
 
-    tokens.forEach(function (
+    tokens.forEach(
+        function (
         t
-    ) {
-        let noEsPuntoYComa = t.text !== ';'
-
-        if (
-            noEsPuntoYComa
         ) {
-            return
+            let noEsPuntoYComa = t.text !== ';'
 
-        }
+            if (
+                noEsPuntoYComa
+            ) {
+                return
 
-        let esVacioDeSentencia = emptyStartSet.has(
+            }
+
+            let esVacioDeSentencia = emptyStartSet.has(
             t.start
-        )
+            )
 
-        if (
-            esVacioDeSentencia
-        ) {
-            return
+            if (
+                esVacioDeSentencia
+            ) {
+                return
 
-        }
+            }
 
-        let estaEnCabeceraDeFor = isInsideAnySpan(
+            let estaEnCabeceraDeFor = isInsideAnySpan(
             t.start,
             forHeaderSpans
-        )
+            )
 
-        if (
-            estaEnCabeceraDeFor
-        ) {
-            addFindingAtLoc(
+            if (
+                estaEnCabeceraDeFor
+            ) {
+                addFindingAtLoc(
                 unfixableFindings,
                 filePath,
                 ';',
                 t.loc,
                 'formatear/no-semicolon'
+                )
+
+                return
+
+            }
+
+            replacements.push(
+            { start: t.start, end: t.end, text: '\n' }
             )
 
-            return
-
         }
-
-        replacements.push(
-            { start: t.start, end: t.end, text: '\n' }
-        )
-
-    })
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -3338,43 +3540,45 @@ function fixVarConstToLetMeriyah(
 
     let replacements = []
 
-    tokens.forEach(function (
+    tokens.forEach(
+        function (
         t
-    ) {
-        let noEsKeyword = t.type !== 'Keyword'
-
-        if (
-            noEsKeyword
         ) {
-            return
+            let noEsKeyword = t.type !== 'Keyword'
 
-        }
+            if (
+                noEsKeyword
+            ) {
+                return
 
-        let esVar = t.text === 'var'
-        let esConst = t.text === 'const'
-        let noEsVarNiConst = !esVar && !esConst
+            }
 
-        if (
-            noEsVarNiConst
-        ) {
-            return
+            let esVar = t.text === 'var'
+            let esConst = t.text === 'const'
+            let noEsVarNiConst = !esVar && !esConst
 
-        }
+            if (
+                noEsVarNiConst
+            ) {
+                return
 
-        let rangoInvalido = typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start
+            }
 
-        if (
-            rangoInvalido
-        ) {
-            return
+            let rangoInvalido = typeof t.start !== 'number' || typeof t.end !== 'number' || t.end < t.start
 
-        }
+            if (
+                rangoInvalido
+            ) {
+                return
 
-        replacements.push(
+            }
+
+            replacements.push(
             { start: t.start, end: t.end, text: 'let' }
-        )
+            )
 
-    })
+        }
+    )
 
     let fixedText = applyReplacements(
         sourceText,
@@ -3399,12 +3603,14 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
     let unfixableFindings = []
 
-    let arrowTokens = tokens.filter(function (
+    let arrowTokens = tokens.filter(
+        function (
         t
-    ) {
-        return t.type === 'Punctuator' && t.text === '=>'
+        ) {
+            return t.type === 'Punctuator' && t.text === '=>'
 
-    })
+        }
+    )
 
     function convertArrowFunction(
         node
@@ -3427,12 +3633,14 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
         }
 
-        let arrowToken = arrowTokens.find(function (
+        let arrowToken = arrowTokens.find(
+            function (
             t
-        ) {
-            return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end
+            ) {
+                return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end
 
-        })
+            }
+        )
 
         let noHayArrowToken = !arrowToken
 
@@ -3533,11 +3741,13 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
         }
 
-        replacements.push({
-            start: node.start,
-            end: node.end,
-            text: `${functionPrefix}${paramsText} ${bodyText}`,
-        })
+        replacements.push(
+            {
+                start: node.start,
+                end: node.end,
+                text: `${functionPrefix}${paramsText} ${bodyText}`,
+            }
+        )
 
     }
 
@@ -3560,14 +3770,16 @@ function fixArrowFunctionsToFunctionsMeriyah(
         if (
             esArreglo
         ) {
-            node.forEach(function (
+            node.forEach(
+                function (
                 item
-            ) {
-                visit(
+                ) {
+                    visit(
                     item
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -3580,14 +3792,16 @@ function fixArrowFunctionsToFunctionsMeriyah(
         ) {
             Object.values(
                 node
-            ).forEach(function (
+            ).forEach(
+                function (
                 child
-            ) {
-                visit(
+                ) {
+                    visit(
                     child
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -3606,25 +3820,27 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let childKey = pair[0]
-
-            let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
-            if (
-                esClaveDeUbicacion
             ) {
-                return
+                let childKey = pair[0]
+
+                let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+                if (
+                    esClaveDeUbicacion
+                ) {
+                    return
+
+                }
+
+                visit(
+                pair[1]
+                )
 
             }
-
-            visit(
-                pair[1]
-            )
-
-        })
+        )
 
     }
 
@@ -3722,14 +3938,16 @@ function fixMissingBracesIfMeriyah(
         if (
             esArreglo
         ) {
-            node.forEach(function (
+            node.forEach(
+                function (
                 item
-            ) {
-                visit(
+                ) {
+                    visit(
                     item
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -3742,14 +3960,16 @@ function fixMissingBracesIfMeriyah(
         ) {
             Object.values(
                 node
-            ).forEach(function (
+            ).forEach(
+                function (
                 child
-            ) {
-                visit(
+                ) {
+                    visit(
                     child
-                )
+                    )
 
-            })
+                }
+            )
 
             return
 
@@ -3780,25 +4000,27 @@ function fixMissingBracesIfMeriyah(
 
         Object.entries(
             node
-        ).forEach(function (
+        ).forEach(
+            function (
             pair
-        ) {
-            let childKey = pair[0]
-
-            let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
-
-            if (
-                esClaveDeUbicacion
             ) {
-                return
+                let childKey = pair[0]
+
+                let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+                if (
+                    esClaveDeUbicacion
+                ) {
+                    return
+
+                }
+
+                visit(
+                pair[1]
+                )
 
             }
-
-            visit(
-                pair[1]
-            )
-
-        })
+        )
 
     }
 
@@ -3868,28 +4090,30 @@ async function run(
     let fileSet = new Set()
 
     await Promise.all(
-    inputPaths.map(async function (
+        inputPaths.map(async function (
         inputPath
-    ) {
-        await collectFiles(
+        ) {
+            await collectFiles(
             inputPath,
             fileSet
-        )
+            )
 
-    }),
+        })
     )
 
     let files = Array.from(
         fileSet
-    ).sort(function (
+    ).sort(
+        function (
         a,
         b
-    ) {
-        return a.localeCompare(
+        ) {
+            return a.localeCompare(
             b
-        )
+            )
 
-    })
+        }
+    )
 
     let noHayArchivos = files.length === 0
 
@@ -3942,16 +4166,18 @@ async function run(
         return Array.from(
             str
         )
-        .filter(function (
+        .filter(
+            function (
             ch
-        ) {
-            let code = ch.charCodeAt(
+            ) {
+                let code = ch.charCodeAt(
                 0
-            )
+                )
 
-            return !(code <= 31 || code === 127)
+                return !(code <= 31 || code === 127)
 
-        })
+            }
+        )
         .join(
             ''
         )
@@ -3995,13 +4221,13 @@ async function run(
                 )
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
-                sourceText,
-                tokensForTabs.map(function (
+                    sourceText,
+                    tokensForTabs.map(function (
                     t
-                ) {
-                    return { start: t.pos, end: t.end }
+                    ) {
+                        return { start: t.pos, end: t.end }
 
-                }),
+                    })
                 )
 
                 let huboCambiosDeTabs = tabFixedText !== sourceText
@@ -4041,20 +4267,22 @@ async function run(
 
                 }
 
-                fixed.unfixableFindings.forEach(function (
+                fixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let varConstFixed = fixVarConstToLetTypescript(
                     inputFilePath,
@@ -4100,20 +4328,22 @@ async function run(
 
                 }
 
-                arrowFixed.unfixableFindings.forEach(function (
+                arrowFixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let bracesFixed = fixMissingBracesIfTypescript(
                     inputFilePath,
@@ -4137,20 +4367,22 @@ async function run(
 
                 }
 
-                bracesFixed.unfixableFindings.forEach(function (
+                bracesFixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let commentsFixed = fixCommentsTypescript(
                     inputFilePath,
@@ -4181,26 +4413,26 @@ async function run(
                 )
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
-                sourceText,
-                tokensForIndent.map(function (
+                    sourceText,
+                    tokensForIndent.map(function (
                     t
-                ) {
-                    return { start: t.pos, end: t.end }
+                    ) {
+                        return { start: t.pos, end: t.end }
 
-                }),
-                tokensForIndent
-                .filter(function (
+                    }),
+                    tokensForIndent
+                    .filter(function (
                     t
-                ) {
-                    return t.text === '{' || t.text === '}'
+                    ) {
+                        return t.text === '{' || t.text === '}'
 
-                })
-                .map(function (
+                    })
+                    .map(function (
                     t
-                ) {
-                    return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
+                    ) {
+                        return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
 
-                }),
+                    })
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -4328,13 +4560,13 @@ async function run(
                 )
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
-                sourceText,
-                parsedForTabs.tokens.map(function (
+                    sourceText,
+                    parsedForTabs.tokens.map(function (
                     t
-                ) {
-                    return { start: t.start, end: t.end }
+                    ) {
+                        return { start: t.start, end: t.end }
 
-                }),
+                    })
                 )
 
                 let huboCambiosDeTabs = tabFixedText !== sourceText
@@ -4373,20 +4605,22 @@ async function run(
 
                 }
 
-                fixed.unfixableFindings.forEach(function (
+                fixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let varConstFixed = fixVarConstToLetMeriyah(
                     inputFilePath,
@@ -4430,20 +4664,22 @@ async function run(
 
                 }
 
-                arrowFixed.unfixableFindings.forEach(function (
+                arrowFixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let bracesFixed = fixMissingBracesIfMeriyah(
                     inputFilePath,
@@ -4466,20 +4702,22 @@ async function run(
 
                 }
 
-                bracesFixed.unfixableFindings.forEach(function (
+                bracesFixed.unfixableFindings.forEach(
+                    function (
                     finding
-                ) {
-                    issueCount += 1
+                    ) {
+                        issueCount += 1
 
-                    let normalizedFilePath = normalize(
+                        let normalizedFilePath = normalize(
                         finding.filePath
-                    )
+                        )
 
-                    process.stdout.write(
+                        process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
-                    )
+                        )
 
-                })
+                    }
+                )
 
                 let commentsFixed = fixCommentsMeriyah(
                     inputFilePath,
@@ -4508,26 +4746,26 @@ async function run(
                 )
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
-                sourceText,
-                parsedForIndent.tokens.map(function (
+                    sourceText,
+                    parsedForIndent.tokens.map(function (
                     t
-                ) {
-                    return { start: t.start, end: t.end }
+                    ) {
+                        return { start: t.start, end: t.end }
 
-                }),
-                parsedForIndent.tokens
-                .filter(function (
+                    }),
+                    parsedForIndent.tokens
+                    .filter(function (
                     t
-                ) {
-                    return t.text === '{' || t.text === '}'
+                    ) {
+                        return t.text === '{' || t.text === '}'
 
-                })
-                .map(function (
+                    })
+                    .map(function (
                     t
-                ) {
-                    return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
+                    ) {
+                        return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
 
-                }),
+                    })
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -4622,46 +4860,50 @@ async function run(
 
             }
 
-            findings.forEach(function (
+            findings.forEach(
+                function (
                 finding
-            ) {
-                issueCount += 1
+                ) {
+                    issueCount += 1
 
-                let normalizedFilePath = normalize(
+                    let normalizedFilePath = normalize(
                     finding.filePath
-                )
+                    )
 
-                let keyword = normalize(
+                    let keyword = normalize(
                     finding.keyword
-                )
+                    )
 
-                let ruleIdValue =
-                typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
+                    let ruleIdValue =
+                    typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
 
-                let ruleId = normalize(
+                    let ruleId = normalize(
                     ruleIdValue
-                )
+                    )
 
-                process.stdout.write(
+                    process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`
-                )
+                    )
 
-            })
+                }
+            )
 
-            conditionFindings.forEach(function (
+            conditionFindings.forEach(
+                function (
                 finding
-            ) {
-                issueCount += 1
+                ) {
+                    issueCount += 1
 
-                let normalizedFilePath = normalize(
+                    let normalizedFilePath = normalize(
                     finding.filePath
-                )
+                    )
 
-                process.stdout.write(
+                    process.stdout.write(
                     `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`
-                )
+                    )
 
-            })
+                }
+            )
 
         } catch (error) {
             parseErrorCount += 1
@@ -4677,18 +4919,21 @@ async function run(
         }
     }
 
-    await files.reduce(function (
+    await files.reduce(
+        function (
         prev,
         inputFilePath
-    ) {
-        return prev.then(function () {
-            return analyzeOne(
+        ) {
+            return prev.then(function () {
+                return analyzeOne(
                 inputFilePath
-            )
+                )
 
-        })
+            })
 
-    }, Promise.resolve())
+        },
+        Promise.resolve()
+    )
 
     let huboErroresDeParseo = parseErrorCount > 0
 
@@ -4704,9 +4949,9 @@ async function run(
 }
 
 let exitCode = await run(
-process.argv.slice(
+    process.argv.slice(
     2
-)
+    )
 )
 
 process.exitCode = exitCode
