@@ -14,13 +14,17 @@ import {
     collectConditionSingleVariableFindingsTypescript,
     collectForbiddenFindingsTypescript,
     fixArrowFunctionsToFunctionsTypescript,
+    fixFunctionArgumentsLayoutTypescript,
     fixMissingBracesIfTypescript,
     fixSemicolonsTypescript,
     fixVarConstToLetTypescript,
     scanTokensTypescript,
 } from './meriyah-cli/typescript.mjs'
 
-function isSkippableIdentifierContext(parent, key) {
+function isSkippableIdentifierContext(
+    parent,
+    key
+) {
     let noEsNodoPadre = !parent || typeof parent !== 'object'
 
     if (
@@ -83,7 +87,13 @@ function isSkippableIdentifierContext(parent, key) {
 
 }
 
-function addFinding(findings, filePath, keyword, node, ruleId) {
+function addFinding(
+    findings,
+    filePath,
+    keyword,
+    node,
+    ruleId
+) {
     let line = node?.loc?.start?.line ?? 1
 
     let column = node?.loc?.start?.column ?? 0
@@ -98,7 +108,13 @@ function addFinding(findings, filePath, keyword, node, ruleId) {
 
 }
 
-function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
+function addFindingAtLoc(
+    findings,
+    filePath,
+    keyword,
+    loc,
+    ruleId
+) {
     let line = loc?.start?.line ?? 1
 
     let column = loc?.start?.column ?? 0
@@ -113,10 +129,16 @@ function addFindingAtLoc(findings, filePath, keyword, loc, ruleId) {
 
 }
 
-function collectEmptyStatementRangesMeriyah(ast) {
+function collectEmptyStatementRangesMeriyah(
+    ast
+) {
     let ranges = []
 
-    function visit(node, parent, key) {
+    function visit(
+        node,
+        parent,
+        key
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -126,13 +148,21 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
         }
 
-        let esListaDeNodos = Array.isArray(node)
+        let esListaDeNodos = Array.isArray(
+            node
+        )
 
         if (
             esListaDeNodos
         ) {
-            node.forEach(function (item) {
-                visit(item, parent, key)
+            node.forEach(function (
+                item
+            ) {
+                visit(
+                    item,
+                    parent,
+                    key
+                )
 
             })
 
@@ -145,8 +175,16 @@ function collectEmptyStatementRangesMeriyah(ast) {
         if (
             noTieneTipoValido
         ) {
-            Object.values(node).forEach(function (child) {
-                visit(child, node, undefined)
+            Object.values(
+                node
+            ).forEach(function (
+                child
+            ) {
+                visit(
+                    child,
+                    node,
+                    undefined
+                )
 
             })
 
@@ -163,11 +201,17 @@ function collectEmptyStatementRangesMeriyah(ast) {
         if (
             esEmptyStatementConRango
         ) {
-            ranges.push({ start: node.start, end: node.end })
+            ranges.push(
+                { start: node.start, end: node.end }
+            )
 
         }
 
-        Object.entries(node).forEach(function (pair) {
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
             let childKey = pair[0]
 
             let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
@@ -179,22 +223,34 @@ function collectEmptyStatementRangesMeriyah(ast) {
 
             }
 
-            visit(pair[1], node, childKey)
+            visit(
+                pair[1],
+                node,
+                childKey
+            )
 
         })
 
     }
 
-    visit(ast, null, undefined)
+    visit(
+        ast,
+        null,
+        undefined
+    )
 
     return ranges
 
 }
 
-function collectForHeaderSpansFromMeriyahTokens(tokens) {
+function collectForHeaderSpansFromMeriyahTokens(
+    tokens
+) {
     let spans = []
 
-    function scanFrom(i) {
+    function scanFrom(
+        i
+    ) {
         let excedeLongitudDeTokens = i >= tokens.length
 
         if (
@@ -211,7 +267,9 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
         if (
             noEsFor
         ) {
-            return scanFrom(i + 1)
+            return scanFrom(
+                i + 1
+            )
 
         }
 
@@ -235,19 +293,26 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
         if (
             noHayParentesisDeApertura
         ) {
-            return scanFrom(i + 1)
+            return scanFrom(
+                i + 1
+            )
 
         }
 
         let { start } = openParenToken
 
-        function scanParen(k, depth) {
+        function scanParen(
+            k,
+            depth
+        ) {
             let excedeLongitudDeTokens = k >= tokens.length
 
             if (
                 excedeLongitudDeTokens
             ) {
-                return scanFrom(i + 1)
+                return scanFrom(
+                    i + 1
+                )
 
             }
 
@@ -278,28 +343,48 @@ function collectForHeaderSpansFromMeriyahTokens(tokens) {
             if (
                 terminaElEncabezado
             ) {
-                spans.push({ start, end: token.end })
+                spans.push(
+                    { start, end: token.end }
+                )
 
-                return scanFrom(k + 1)
+                return scanFrom(
+                    k + 1
+                )
 
             }
 
-            return scanParen(k + 1, nextDepth)
+            return scanParen(
+                k + 1,
+                nextDepth
+            )
 
         }
 
-        return scanParen(j, 0)
+        return scanParen(
+            j,
+            0
+        )
 
     }
 
-    return scanFrom(0)
+    return scanFrom(
+        0
+    )
 
 }
 
-function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
+function collectForbiddenFindingsMeriyah(
+    ast,
+    filePath,
+    forbiddenWords
+) {
     let findings = []
 
-    function visit(node, parent, key) {
+    function visit(
+        node,
+        parent,
+        key
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -309,13 +394,21 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
         }
 
-        let esListaDeNodos = Array.isArray(node)
+        let esListaDeNodos = Array.isArray(
+            node
+        )
 
         if (
             esListaDeNodos
         ) {
-            node.forEach(function (item) {
-                visit(item, parent, key)
+            node.forEach(function (
+                item
+            ) {
+                visit(
+                    item,
+                    parent,
+                    key
+                )
 
             })
 
@@ -328,8 +421,16 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             noTieneTipoValido
         ) {
-            Object.values(node).forEach(function (child) {
-                visit(child, node, undefined)
+            Object.values(
+                node
+            ).forEach(function (
+                child
+            ) {
+                visit(
+                    child,
+                    node,
+                    undefined
+                )
 
             })
 
@@ -344,12 +445,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esThisExpression
         ) {
-            let estaThisProhibido = forbiddenWords.has('this')
+            let estaThisProhibido = forbiddenWords.has(
+                'this'
+            )
 
             if (
                 estaThisProhibido
             ) {
-                addFinding(findings, filePath, 'this', node, 'formatear/no-this')
+                addFinding(
+                    findings,
+                    filePath,
+                    'this',
+                    node,
+                    'formatear/no-this'
+                )
 
             }
         }
@@ -359,23 +468,41 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esIfStatement
         ) {
-            let estaIfProhibido = forbiddenWords.has('if')
+            let estaIfProhibido = forbiddenWords.has(
+                'if'
+            )
 
             if (
                 estaIfProhibido
             ) {
-                addFinding(findings, filePath, 'if', node, 'formatear/no-if')
+                addFinding(
+                    findings,
+                    filePath,
+                    'if',
+                    node,
+                    'formatear/no-if'
+                )
 
             }
 
-            let tieneAlternate = Boolean(node.alternate)
-            let estaElseProhibido = forbiddenWords.has('else')
+            let tieneAlternate = Boolean(
+                node.alternate
+            )
+            let estaElseProhibido = forbiddenWords.has(
+                'else'
+            )
             let debeMarcarElse = tieneAlternate && estaElseProhibido
 
             if (
                 debeMarcarElse
             ) {
-                addFinding(findings, filePath, 'else', node.alternate, 'formatear/no-else')
+                addFinding(
+                    findings,
+                    filePath,
+                    'else',
+                    node.alternate,
+                    'formatear/no-else'
+                )
 
             }
         }
@@ -385,12 +512,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esReturnStatement
         ) {
-            let estaReturnProhibido = forbiddenWords.has('return')
+            let estaReturnProhibido = forbiddenWords.has(
+                'return'
+            )
 
             if (
                 estaReturnProhibido
             ) {
-                addFinding(findings, filePath, 'return', node, 'formatear/no-return')
+                addFinding(
+                    findings,
+                    filePath,
+                    'return',
+                    node,
+                    'formatear/no-return'
+                )
 
             }
         }
@@ -403,9 +538,15 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let esVar = node.kind === 'var'
             let esLet = node.kind === 'let'
             let esConst = node.kind === 'const'
-            let estaVarProhibido = forbiddenWords.has('var')
-            let estaLetProhibido = forbiddenWords.has('let')
-            let estaConstProhibido = forbiddenWords.has('const')
+            let estaVarProhibido = forbiddenWords.has(
+                'var'
+            )
+            let estaLetProhibido = forbiddenWords.has(
+                'let'
+            )
+            let estaConstProhibido = forbiddenWords.has(
+                'const'
+            )
             let debeMarcarVar = esVar && estaVarProhibido
             let debeMarcarLet = esLet && estaLetProhibido
             let debeMarcarConst = esConst && estaConstProhibido
@@ -413,21 +554,39 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             if (
                 debeMarcarVar
             ) {
-                addFinding(findings, filePath, 'var', node, 'formatear/no-var')
+                addFinding(
+                    findings,
+                    filePath,
+                    'var',
+                    node,
+                    'formatear/no-var'
+                )
 
             }
 
             if (
                 debeMarcarLet
             ) {
-                addFinding(findings, filePath, 'let', node, 'formatear/no-let')
+                addFinding(
+                    findings,
+                    filePath,
+                    'let',
+                    node,
+                    'formatear/no-let'
+                )
 
             }
 
             if (
                 debeMarcarConst
             ) {
-                addFinding(findings, filePath, 'const', node, 'formatear/no-const')
+                addFinding(
+                    findings,
+                    filePath,
+                    'const',
+                    node,
+                    'formatear/no-const'
+                )
 
             }
         }
@@ -440,31 +599,55 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAlgunFor
         ) {
-            let estaForProhibido = forbiddenWords.has('for')
+            let estaForProhibido = forbiddenWords.has(
+                'for'
+            )
 
             if (
                 estaForProhibido
             ) {
-                addFinding(findings, filePath, 'for', node, 'formatear/no-for')
+                addFinding(
+                    findings,
+                    filePath,
+                    'for',
+                    node,
+                    'formatear/no-for'
+                )
 
             }
 
-            let estaInProhibido = forbiddenWords.has('in')
-            let estaOfProhibido = forbiddenWords.has('of')
+            let estaInProhibido = forbiddenWords.has(
+                'in'
+            )
+            let estaOfProhibido = forbiddenWords.has(
+                'of'
+            )
             let debeMarcarIn = esForInStatement && estaInProhibido
             let debeMarcarOf = esForOfStatement && estaOfProhibido
 
             if (
                 debeMarcarIn
             ) {
-                addFinding(findings, filePath, 'in', node, 'formatear/no-in')
+                addFinding(
+                    findings,
+                    filePath,
+                    'in',
+                    node,
+                    'formatear/no-in'
+                )
 
             }
 
             if (
                 debeMarcarOf
             ) {
-                addFinding(findings, filePath, 'of', node, 'formatear/no-of')
+                addFinding(
+                    findings,
+                    filePath,
+                    'of',
+                    node,
+                    'formatear/no-of'
+                )
 
             }
         }
@@ -474,12 +657,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esWhileStatement
         ) {
-            let estaWhileProhibido = forbiddenWords.has('while')
+            let estaWhileProhibido = forbiddenWords.has(
+                'while'
+            )
 
             if (
                 estaWhileProhibido
             ) {
-                addFinding(findings, filePath, 'while', node, 'formatear/no-while')
+                addFinding(
+                    findings,
+                    filePath,
+                    'while',
+                    node,
+                    'formatear/no-while'
+                )
 
             }
         }
@@ -489,12 +680,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esDoWhileStatement
         ) {
-            let estaDoProhibido = forbiddenWords.has('do')
+            let estaDoProhibido = forbiddenWords.has(
+                'do'
+            )
 
             if (
                 estaDoProhibido
             ) {
-                addFinding(findings, filePath, 'do', node, 'formatear/no-do')
+                addFinding(
+                    findings,
+                    filePath,
+                    'do',
+                    node,
+                    'formatear/no-do'
+                )
 
             }
         }
@@ -504,12 +703,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esSwitchStatement
         ) {
-            let estaSwitchProhibido = forbiddenWords.has('switch')
+            let estaSwitchProhibido = forbiddenWords.has(
+                'switch'
+            )
 
             if (
                 estaSwitchProhibido
             ) {
-                addFinding(findings, filePath, 'switch', node, 'formatear/no-switch')
+                addFinding(
+                    findings,
+                    filePath,
+                    'switch',
+                    node,
+                    'formatear/no-switch'
+                )
 
             }
         }
@@ -519,23 +726,41 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esSwitchCase
         ) {
-            let tieneTest = Boolean(node.test)
-            let estaCaseProhibido = forbiddenWords.has('case')
-            let estaDefaultProhibido = forbiddenWords.has('default')
+            let tieneTest = Boolean(
+                node.test
+            )
+            let estaCaseProhibido = forbiddenWords.has(
+                'case'
+            )
+            let estaDefaultProhibido = forbiddenWords.has(
+                'default'
+            )
             let debeMarcarCase = tieneTest && estaCaseProhibido
             let debeMarcarDefault = !tieneTest && estaDefaultProhibido
 
             if (
                 debeMarcarCase
             ) {
-                addFinding(findings, filePath, 'case', node, 'formatear/no-case')
+                addFinding(
+                    findings,
+                    filePath,
+                    'case',
+                    node,
+                    'formatear/no-case'
+                )
 
             }
 
             if (
                 debeMarcarDefault
             ) {
-                addFinding(findings, filePath, 'default', node, 'formatear/no-default')
+                addFinding(
+                    findings,
+                    filePath,
+                    'default',
+                    node,
+                    'formatear/no-default'
+                )
 
             }
         }
@@ -545,12 +770,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esBreakStatement
         ) {
-            let estaBreakProhibido = forbiddenWords.has('break')
+            let estaBreakProhibido = forbiddenWords.has(
+                'break'
+            )
 
             if (
                 estaBreakProhibido
             ) {
-                addFinding(findings, filePath, 'break', node, 'formatear/no-break')
+                addFinding(
+                    findings,
+                    filePath,
+                    'break',
+                    node,
+                    'formatear/no-break'
+                )
 
             }
         }
@@ -560,12 +793,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esContinueStatement
         ) {
-            let estaContinueProhibido = forbiddenWords.has('continue')
+            let estaContinueProhibido = forbiddenWords.has(
+                'continue'
+            )
 
             if (
                 estaContinueProhibido
             ) {
-                addFinding(findings, filePath, 'continue', node, 'formatear/no-continue')
+                addFinding(
+                    findings,
+                    filePath,
+                    'continue',
+                    node,
+                    'formatear/no-continue'
+                )
 
             }
         }
@@ -575,23 +816,41 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esTryStatement
         ) {
-            let estaTryProhibido = forbiddenWords.has('try')
+            let estaTryProhibido = forbiddenWords.has(
+                'try'
+            )
 
             if (
                 estaTryProhibido
             ) {
-                addFinding(findings, filePath, 'try', node, 'formatear/no-try')
+                addFinding(
+                    findings,
+                    filePath,
+                    'try',
+                    node,
+                    'formatear/no-try'
+                )
 
             }
 
-            let tieneFinalizer = Boolean(node.finalizer)
-            let estaFinallyProhibido = forbiddenWords.has('finally')
+            let tieneFinalizer = Boolean(
+                node.finalizer
+            )
+            let estaFinallyProhibido = forbiddenWords.has(
+                'finally'
+            )
             let debeMarcarFinally = tieneFinalizer && estaFinallyProhibido
 
             if (
                 debeMarcarFinally
             ) {
-                addFinding(findings, filePath, 'finally', node.finalizer, 'formatear/no-finally')
+                addFinding(
+                    findings,
+                    filePath,
+                    'finally',
+                    node.finalizer,
+                    'formatear/no-finally'
+                )
 
             }
         }
@@ -601,12 +860,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esCatchClause
         ) {
-            let estaCatchProhibido = forbiddenWords.has('catch')
+            let estaCatchProhibido = forbiddenWords.has(
+                'catch'
+            )
 
             if (
                 estaCatchProhibido
             ) {
-                addFinding(findings, filePath, 'catch', node, 'formatear/no-catch')
+                addFinding(
+                    findings,
+                    filePath,
+                    'catch',
+                    node,
+                    'formatear/no-catch'
+                )
 
             }
         }
@@ -616,12 +883,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esThrowStatement
         ) {
-            let estaThrowProhibido = forbiddenWords.has('throw')
+            let estaThrowProhibido = forbiddenWords.has(
+                'throw'
+            )
 
             if (
                 estaThrowProhibido
             ) {
-                addFinding(findings, filePath, 'throw', node, 'formatear/no-throw')
+                addFinding(
+                    findings,
+                    filePath,
+                    'throw',
+                    node,
+                    'formatear/no-throw'
+                )
 
             }
         }
@@ -631,12 +906,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esNewExpression
         ) {
-            let estaNewProhibido = forbiddenWords.has('new')
+            let estaNewProhibido = forbiddenWords.has(
+                'new'
+            )
 
             if (
                 estaNewProhibido
             ) {
-                addFinding(findings, filePath, 'new', node, 'formatear/no-new')
+                addFinding(
+                    findings,
+                    filePath,
+                    'new',
+                    node,
+                    'formatear/no-new'
+                )
 
             }
         }
@@ -651,9 +934,15 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let esTypeof = op === 'typeof'
             let esVoid = op === 'void'
             let esDelete = op === 'delete'
-            let estaTypeofProhibido = forbiddenWords.has('typeof')
-            let estaVoidProhibido = forbiddenWords.has('void')
-            let estaDeleteProhibido = forbiddenWords.has('delete')
+            let estaTypeofProhibido = forbiddenWords.has(
+                'typeof'
+            )
+            let estaVoidProhibido = forbiddenWords.has(
+                'void'
+            )
+            let estaDeleteProhibido = forbiddenWords.has(
+                'delete'
+            )
             let debeMarcarTypeof = esTypeof && estaTypeofProhibido
             let debeMarcarVoid = esVoid && estaVoidProhibido
             let debeMarcarDelete = esDelete && estaDeleteProhibido
@@ -661,21 +950,39 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             if (
                 debeMarcarTypeof
             ) {
-                addFinding(findings, filePath, 'typeof', node, 'formatear/no-typeof')
+                addFinding(
+                    findings,
+                    filePath,
+                    'typeof',
+                    node,
+                    'formatear/no-typeof'
+                )
 
             }
 
             if (
                 debeMarcarVoid
             ) {
-                addFinding(findings, filePath, 'void', node, 'formatear/no-void')
+                addFinding(
+                    findings,
+                    filePath,
+                    'void',
+                    node,
+                    'formatear/no-void'
+                )
 
             }
 
             if (
                 debeMarcarDelete
             ) {
-                addFinding(findings, filePath, 'delete', node, 'formatear/no-delete')
+                addFinding(
+                    findings,
+                    filePath,
+                    'delete',
+                    node,
+                    'formatear/no-delete'
+                )
 
             }
         }
@@ -689,22 +996,38 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
             let esIn = op === 'in'
             let esInstanceof = op === 'instanceof'
-            let estaInProhibido = forbiddenWords.has('in')
-            let estaInstanceofProhibido = forbiddenWords.has('instanceof')
+            let estaInProhibido = forbiddenWords.has(
+                'in'
+            )
+            let estaInstanceofProhibido = forbiddenWords.has(
+                'instanceof'
+            )
             let debeMarcarIn = esIn && estaInProhibido
             let debeMarcarInstanceof = esInstanceof && estaInstanceofProhibido
 
             if (
                 debeMarcarIn
             ) {
-                addFinding(findings, filePath, 'in', node, 'formatear/no-in')
+                addFinding(
+                    findings,
+                    filePath,
+                    'in',
+                    node,
+                    'formatear/no-in'
+                )
 
             }
 
             if (
                 debeMarcarInstanceof
             ) {
-                addFinding(findings, filePath, 'instanceof', node, 'formatear/no-instanceof')
+                addFinding(
+                    findings,
+                    filePath,
+                    'instanceof',
+                    node,
+                    'formatear/no-instanceof'
+                )
 
             }
         }
@@ -716,23 +1039,39 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAlgunFunction
         ) {
-            let estaFunctionProhibido = forbiddenWords.has('function')
+            let estaFunctionProhibido = forbiddenWords.has(
+                'function'
+            )
 
             if (
                 estaFunctionProhibido
             ) {
-                addFinding(findings, filePath, 'function', node, 'formatear/no-function')
+                addFinding(
+                    findings,
+                    filePath,
+                    'function',
+                    node,
+                    'formatear/no-function'
+                )
 
             }
 
             let esAsync = node.async === true
-            let estaAsyncProhibido = forbiddenWords.has('async')
+            let estaAsyncProhibido = forbiddenWords.has(
+                'async'
+            )
             let debeMarcarAsync = esAsync && estaAsyncProhibido
 
             if (
                 debeMarcarAsync
             ) {
-                addFinding(findings, filePath, 'async', node, 'formatear/no-async')
+                addFinding(
+                    findings,
+                    filePath,
+                    'async',
+                    node,
+                    'formatear/no-async'
+                )
 
             }
         }
@@ -743,13 +1082,21 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             esArrowFunctionExpression
         ) {
             let esAsync = node.async === true
-            let estaAsyncProhibido = forbiddenWords.has('async')
+            let estaAsyncProhibido = forbiddenWords.has(
+                'async'
+            )
             let debeMarcarAsync = esAsync && estaAsyncProhibido
 
             if (
                 debeMarcarAsync
             ) {
-                addFinding(findings, filePath, 'async', node, 'formatear/no-async')
+                addFinding(
+                    findings,
+                    filePath,
+                    'async',
+                    node,
+                    'formatear/no-async'
+                )
 
             }
         }
@@ -759,12 +1106,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAwaitExpression
         ) {
-            let estaAwaitProhibido = forbiddenWords.has('await')
+            let estaAwaitProhibido = forbiddenWords.has(
+                'await'
+            )
 
             if (
                 estaAwaitProhibido
             ) {
-                addFinding(findings, filePath, 'await', node, 'formatear/no-await')
+                addFinding(
+                    findings,
+                    filePath,
+                    'await',
+                    node,
+                    'formatear/no-await'
+                )
 
             }
         }
@@ -774,12 +1129,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esYieldExpression
         ) {
-            let estaYieldProhibido = forbiddenWords.has('yield')
+            let estaYieldProhibido = forbiddenWords.has(
+                'yield'
+            )
 
             if (
                 estaYieldProhibido
             ) {
-                addFinding(findings, filePath, 'yield', node, 'formatear/no-yield')
+                addFinding(
+                    findings,
+                    filePath,
+                    'yield',
+                    node,
+                    'formatear/no-yield'
+                )
 
             }
         }
@@ -791,23 +1154,41 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAlgunaClase
         ) {
-            let estaClassProhibido = forbiddenWords.has('class')
+            let estaClassProhibido = forbiddenWords.has(
+                'class'
+            )
 
             if (
                 estaClassProhibido
             ) {
-                addFinding(findings, filePath, 'class', node, 'formatear/no-class')
+                addFinding(
+                    findings,
+                    filePath,
+                    'class',
+                    node,
+                    'formatear/no-class'
+                )
 
             }
 
-            let tieneSuperClase = Boolean(node.superClass)
-            let estaExtendsProhibido = forbiddenWords.has('extends')
+            let tieneSuperClase = Boolean(
+                node.superClass
+            )
+            let estaExtendsProhibido = forbiddenWords.has(
+                'extends'
+            )
             let debeMarcarExtends = tieneSuperClase && estaExtendsProhibido
 
             if (
                 debeMarcarExtends
             ) {
-                addFinding(findings, filePath, 'extends', node.superClass, 'formatear/no-extends')
+                addFinding(
+                    findings,
+                    filePath,
+                    'extends',
+                    node.superClass,
+                    'formatear/no-extends'
+                )
 
             }
         }
@@ -817,12 +1198,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esSuper
         ) {
-            let estaSuperProhibido = forbiddenWords.has('super')
+            let estaSuperProhibido = forbiddenWords.has(
+                'super'
+            )
 
             if (
                 estaSuperProhibido
             ) {
-                addFinding(findings, filePath, 'super', node, 'formatear/no-super')
+                addFinding(
+                    findings,
+                    filePath,
+                    'super',
+                    node,
+                    'formatear/no-super'
+                )
 
             }
         }
@@ -834,12 +1223,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAlgunImport
         ) {
-            let estaImportProhibido = forbiddenWords.has('import')
+            let estaImportProhibido = forbiddenWords.has(
+                'import'
+            )
 
             if (
                 estaImportProhibido
             ) {
-                addFinding(findings, filePath, 'import', node, 'formatear/no-import')
+                addFinding(
+                    findings,
+                    filePath,
+                    'import',
+                    node,
+                    'formatear/no-import'
+                )
 
             }
         }
@@ -852,12 +1249,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esAlgunExport
         ) {
-            let estaExportProhibido = forbiddenWords.has('export')
+            let estaExportProhibido = forbiddenWords.has(
+                'export'
+            )
 
             if (
                 estaExportProhibido
             ) {
-                addFinding(findings, filePath, 'export', node, 'formatear/no-export')
+                addFinding(
+                    findings,
+                    filePath,
+                    'export',
+                    node,
+                    'formatear/no-export'
+                )
 
             }
         }
@@ -876,24 +1281,40 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
             let propertyName = propertyNode && propertyNode.name
 
             let esNewTarget = metaName === 'new' && propertyName === 'target'
-            let estaTargetProhibido = forbiddenWords.has('target')
+            let estaTargetProhibido = forbiddenWords.has(
+                'target'
+            )
             let debeMarcarTarget = esNewTarget && estaTargetProhibido
 
             if (
                 debeMarcarTarget
             ) {
-                addFinding(findings, filePath, 'target', node, 'formatear/no-target')
+                addFinding(
+                    findings,
+                    filePath,
+                    'target',
+                    node,
+                    'formatear/no-target'
+                )
 
             }
 
             let esImportMeta = metaName === 'import' && propertyName === 'meta'
-            let estaMetaProhibido = forbiddenWords.has('meta')
+            let estaMetaProhibido = forbiddenWords.has(
+                'meta'
+            )
             let debeMarcarMeta = esImportMeta && estaMetaProhibido
 
             if (
                 debeMarcarMeta
             ) {
-                addFinding(findings, filePath, 'meta', node, 'formatear/no-meta')
+                addFinding(
+                    findings,
+                    filePath,
+                    'meta',
+                    node,
+                    'formatear/no-meta'
+                )
 
             }
         }
@@ -903,12 +1324,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esWithStatement
         ) {
-            let estaWithProhibido = forbiddenWords.has('with')
+            let estaWithProhibido = forbiddenWords.has(
+                'with'
+            )
 
             if (
                 estaWithProhibido
             ) {
-                addFinding(findings, filePath, 'with', node, 'formatear/no-with')
+                addFinding(
+                    findings,
+                    filePath,
+                    'with',
+                    node,
+                    'formatear/no-with'
+                )
 
             }
         }
@@ -918,12 +1347,20 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         if (
             esDebuggerStatement
         ) {
-            let estaDebuggerProhibido = forbiddenWords.has('debugger')
+            let estaDebuggerProhibido = forbiddenWords.has(
+                'debugger'
+            )
 
             if (
                 estaDebuggerProhibido
             ) {
-                addFinding(findings, filePath, 'debugger', node, 'formatear/no-debugger')
+                addFinding(
+                    findings,
+                    filePath,
+                    'debugger',
+                    node,
+                    'formatear/no-debugger'
+                )
 
             }
         }
@@ -935,25 +1372,34 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
         ) {
             let nombreIdentificador = node.name
             let esNombreString = typeof nombreIdentificador === 'string'
-            let esNombreProhibido = esNombreString && forbiddenWords.has(nombreIdentificador)
-            let esContextoOmitible = isSkippableIdentifierContext(parent, key)
+            let esNombreProhibido = esNombreString && forbiddenWords.has(
+                nombreIdentificador
+            )
+            let esContextoOmitible = isSkippableIdentifierContext(
+                parent,
+                key
+            )
             let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible
 
             if (
                 debeMarcarIdentificador
             ) {
                 addFinding(
-                findings,
-                filePath,
-                nombreIdentificador,
-                node,
-                `formatear/no-${nombreIdentificador}`,
+                    findings,
+                    filePath,
+                    nombreIdentificador,
+                    node,
+                    `formatear/no-${nombreIdentificador}`
                 )
 
             }
         }
 
-        Object.entries(node).forEach(function (pair) {
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
             let childKey = pair[0]
 
             let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
@@ -965,22 +1411,35 @@ function collectForbiddenFindingsMeriyah(ast, filePath, forbiddenWords) {
 
             }
 
-            visit(pair[1], node, childKey)
+            visit(
+                pair[1],
+                node,
+                childKey
+            )
 
         })
 
     }
 
-    visit(ast, null, undefined)
+    visit(
+        ast,
+        null,
+        undefined
+    )
 
     return findings
 
 }
 
-function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
+function collectConditionSingleVariableFindingsMeriyah(
+    ast,
+    filePath
+) {
     let findings = []
 
-    function checkTest(node) {
+    function checkTest(
+        node
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -1010,11 +1469,19 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         }
 
-        addFinding(findings, filePath, 'condicion', test, 'formatear/condition-single-variable')
+        addFinding(
+            findings,
+            filePath,
+            'condicion',
+            test,
+            'formatear/condition-single-variable'
+        )
 
     }
 
-    function visit(node) {
+    function visit(
+        node
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -1024,12 +1491,16 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
         }
 
-        let esListaDeNodos = Array.isArray(node)
+        let esListaDeNodos = Array.isArray(
+            node
+        )
 
         if (
             esListaDeNodos
         ) {
-            node.forEach(visit)
+            node.forEach(
+                visit
+            )
 
             return
 
@@ -1051,12 +1522,18 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
             if (
                 esNodoConCondicion
             ) {
-                checkTest(node)
+                checkTest(
+                    node
+                )
 
             }
         }
 
-        Object.entries(node).forEach(function (pair) {
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
             let key = pair[0]
 
             let esClaveIgnorable = key === 'loc' || key === 'range' || key === 'start' || key === 'end'
@@ -1068,30 +1545,45 @@ function collectConditionSingleVariableFindingsMeriyah(ast, filePath) {
 
             }
 
-            visit(pair[1])
+            visit(
+                pair[1]
+            )
 
         })
 
     }
 
-    visit(ast)
+    visit(
+        ast
+    )
 
     return findings
 
 }
 
-function parseSourceMeriyah(parse, sourceText) {
+function parseSourceMeriyah(
+    parse,
+    sourceText
+) {
     let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true }
 
     let tokens = []
 
-    let onToken = function (type, start, end, loc) {
+    let onToken = function (
+        type,
+        start,
+        end,
+        loc
+    ) {
         tokens.push({
             type,
             start,
             end,
             loc,
-            text: sourceText.slice(start, end),
+            text: sourceText.slice(
+                start,
+                end
+            ),
         })
 
     }
@@ -1101,7 +1593,10 @@ function parseSourceMeriyah(parse, sourceText) {
     let moduleError
 
     try {
-        ast = parse(sourceText, { ...parseOptions, sourceType: 'module', onToken })
+        ast = parse(
+            sourceText,
+            { ...parseOptions, sourceType: 'module', onToken }
+        )
 
     } catch (error) {
         moduleError = error
@@ -1114,10 +1609,17 @@ function parseSourceMeriyah(parse, sourceText) {
         noHayAst
     ) {
         try {
-            ast = parse(sourceText, { ...parseOptions, sourceType: 'script', onToken })
+            ast = parse(
+                sourceText,
+                { ...parseOptions, sourceType: 'script', onToken }
+            )
 
         } catch {
-            let err = moduleError instanceof Error ? moduleError : new Error(String(moduleError))
+            let err = moduleError instanceof Error ? moduleError : new Error(
+            String(
+                moduleError
+            )
+            )
 
             throw err
 
@@ -1128,7 +1630,10 @@ function parseSourceMeriyah(parse, sourceText) {
 
 }
 
-function parseCommentsMeriyah(parse, sourceText) {
+function parseCommentsMeriyah(
+    parse,
+    sourceText
+) {
     let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true }
 
     let comments = []
@@ -1138,7 +1643,10 @@ function parseCommentsMeriyah(parse, sourceText) {
     let moduleError
 
     try {
-        ast = parse(sourceText, { ...parseOptions, sourceType: 'module', onComment: comments })
+        ast = parse(
+            sourceText,
+            { ...parseOptions, sourceType: 'module', onComment: comments }
+        )
 
     } catch (error) {
         moduleError = error
@@ -1151,10 +1659,17 @@ function parseCommentsMeriyah(parse, sourceText) {
         noHayAst
     ) {
         try {
-            ast = parse(sourceText, { ...parseOptions, sourceType: 'script', onComment: comments })
+            ast = parse(
+                sourceText,
+                { ...parseOptions, sourceType: 'script', onComment: comments }
+            )
 
         } catch {
-            let err = moduleError instanceof Error ? moduleError : new Error(String(moduleError))
+            let err = moduleError instanceof Error ? moduleError : new Error(
+            String(
+                moduleError
+            )
+            )
 
             throw err
 
@@ -1165,8 +1680,12 @@ function parseCommentsMeriyah(parse, sourceText) {
 
 }
 
-function detectEol(sourceText) {
-    let hayCrLf = sourceText.includes('\r\n')
+function detectEol(
+    sourceText
+) {
+    let hayCrLf = sourceText.includes(
+        '\r\n'
+    )
 
     if (
         hayCrLf
@@ -1175,7 +1694,9 @@ function detectEol(sourceText) {
 
     }
 
-    let hayLf = sourceText.includes('\n')
+    let hayLf = sourceText.includes(
+        '\n'
+    )
 
     if (
         hayLf
@@ -1184,7 +1705,9 @@ function detectEol(sourceText) {
 
     }
 
-    let hayCr = sourceText.includes('\r')
+    let hayCr = sourceText.includes(
+        '\r'
+    )
 
     if (
         hayCr
@@ -1197,18 +1720,36 @@ function detectEol(sourceText) {
 
 }
 
-function findLineStartIndex(sourceText, index) {
+function findLineStartIndex(
+    sourceText,
+    index
+) {
     let len = sourceText.length
 
-    let i = Math.max(0, Math.min(len, index))
+    let i = Math.max(
+    0,
+    Math.min(
+        len,
+        index
+    )
+    )
 
     let searchFrom = i - 1
 
-    let lastNl = sourceText.lastIndexOf('\n', searchFrom)
+    let lastNl = sourceText.lastIndexOf(
+        '\n',
+        searchFrom
+    )
 
-    let lastCr = sourceText.lastIndexOf('\r', searchFrom)
+    let lastCr = sourceText.lastIndexOf(
+        '\r',
+        searchFrom
+    )
 
-    let lastBreak = Math.max(lastNl, lastCr)
+    let lastBreak = Math.max(
+        lastNl,
+        lastCr
+    )
 
     let noHayBreak = lastBreak < 0
 
@@ -1223,14 +1764,29 @@ function findLineStartIndex(sourceText, index) {
 
 }
 
-function findLineEndIndex(sourceText, index) {
+function findLineEndIndex(
+    sourceText,
+    index
+) {
     let len = sourceText.length
 
-    let i = Math.max(0, Math.min(len, index))
+    let i = Math.max(
+    0,
+    Math.min(
+        len,
+        index
+    )
+    )
 
-    let nextNl = sourceText.indexOf('\n', i)
+    let nextNl = sourceText.indexOf(
+        '\n',
+        i
+    )
 
-    let nextCr = sourceText.indexOf('\r', i)
+    let nextCr = sourceText.indexOf(
+        '\r',
+        i
+    )
 
     let hayNl = nextNl >= 0
 
@@ -1241,7 +1797,10 @@ function findLineEndIndex(sourceText, index) {
     if (
         hayAmbos
     ) {
-        return Math.min(nextNl, nextCr)
+        return Math.min(
+            nextNl,
+            nextCr
+        )
 
     }
 
@@ -1263,12 +1822,23 @@ function findLineEndIndex(sourceText, index) {
 
 }
 
-function findLineIndent(sourceText, lineStartIndex, lineEndIndex) {
-    let lineText = sourceText.slice(lineStartIndex, lineEndIndex)
+function findLineIndent(
+    sourceText,
+    lineStartIndex,
+    lineEndIndex
+) {
+    let lineText = sourceText.slice(
+        lineStartIndex,
+        lineEndIndex
+    )
 
-    let match = /^[ \t]*/.exec(lineText)
+    let match = /^[ \t]*/.exec(
+        lineText
+    )
 
-    let tieneMatch = Boolean(match)
+    let tieneMatch = Boolean(
+        match
+    )
 
     if (
         tieneMatch
@@ -1281,10 +1851,15 @@ function findLineIndent(sourceText, lineStartIndex, lineEndIndex) {
 
 }
 
-function normalizeLineCommentValue(value) {
+function normalizeLineCommentValue(
+    value
+) {
     let str = typeof value === 'string' ? value : ''
 
-    str = str.replace(/[ \t]+$/g, '')
+    str = str.replace(
+        /[ \t]+$/g,
+        ''
+    )
 
     let esVacio = str.length === 0
 
@@ -1295,7 +1870,9 @@ function normalizeLineCommentValue(value) {
 
     }
 
-    let empiezaConEspacio = str.startsWith(' ')
+    let empiezaConEspacio = str.startsWith(
+        ' '
+    )
 
     if (
         empiezaConEspacio
@@ -1308,14 +1885,24 @@ function normalizeLineCommentValue(value) {
 
 }
 
-function buildLineCommentBlockFromValue(value, indent, eol, omitFirstIndent) {
+function buildLineCommentBlockFromValue(
+    value,
+    indent,
+    eol,
+    omitFirstIndent
+) {
     let raw = typeof value === 'string' ? value : ''
 
-    let lines = raw.split(/\r\n|\r|\n/)
+    let lines = raw.split(
+        /\r\n|\r|\n/
+    )
 
     let out = []
 
-    lines.forEach(function (line, index) {
+    lines.forEach(function (
+        line,
+        index
+    ) {
         let esPrimera = index === 0
 
         let debeOmitir = esPrimera && omitFirstIndent
@@ -1329,15 +1916,23 @@ function buildLineCommentBlockFromValue(value, indent, eol, omitFirstIndent) {
 
         }
 
-        out.push(`${prefix}//${normalizeLineCommentValue(line)}`)
+        out.push(
+        `${prefix}//${normalizeLineCommentValue(
+            line
+        )}`
+        )
 
     })
 
-    return out.join(eol)
+    return out.join(
+        eol
+    )
 
 }
 
-function fixIfSingleVariableConditionIndent(sourceText) {
+function fixIfSingleVariableConditionIndent(
+    sourceText
+) {
     let noEsTexto = typeof sourceText !== 'string' || sourceText.length === 0
 
     if (
@@ -1347,16 +1942,26 @@ function fixIfSingleVariableConditionIndent(sourceText) {
 
     }
 
-    let eol = detectEol(sourceText)
+    let eol = detectEol(
+        sourceText
+    )
 
     let replacements = []
 
     let singleLineRe = /(^[ \t]*)if[ \t]*\([ \t]*([A-Za-z_$][\w$]*)[ \t]*\)[ \t]*\{[ \t]*$/gm
 
-    Array.from(sourceText.matchAll(singleLineRe)).forEach(function (match) {
+    Array.from(
+    sourceText.matchAll(
+        singleLineRe
+    )
+    ).forEach(function (
+        match
+    ) {
         let { index } = match
 
-        let tieneIndex = typeof index === 'number' && Number.isFinite(index)
+        let tieneIndex = typeof index === 'number' && Number.isFinite(
+            index
+        )
 
         let noTieneIndex = !tieneIndex
 
@@ -1392,15 +1997,24 @@ function fixIfSingleVariableConditionIndent(sourceText) {
 
         let repText = `${indentIf}if (${eol}${desiredIndent}${condVar}${eol}${indentIf}) {`
 
-        replacements.push({ start: index, end: index + matchText.length, text: repText })
+        replacements.push(
+            { start: index, end: index + matchText.length, text: repText }
+        )
 
     })
 
-    let convertedText = applyReplacements(sourceText, replacements)
+    let convertedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     let re = /(^[ \t]*)(if[ \t]*\([ \t]*)(\r\n|\n|\r)([ \t]*)([A-Za-z_$][\w$]*)[ \t]*(\r\n|\n|\r)([ \t]*\))/gm
 
-    let matches = Array.from(convertedText.matchAll(re))
+    let matches = Array.from(
+    convertedText.matchAll(
+        re
+    )
+    )
 
     let noHayMatches = matches.length === 0
 
@@ -1413,10 +2027,14 @@ function fixIfSingleVariableConditionIndent(sourceText) {
 
     let indentReplacements = []
 
-    matches.forEach(function (match) {
+    matches.forEach(function (
+        match
+    ) {
         let { index } = match
 
-        let tieneIndex = typeof index === 'number' && Number.isFinite(index)
+        let tieneIndex = typeof index === 'number' && Number.isFinite(
+            index
+        )
 
         let noTieneIndex = !tieneIndex
 
@@ -1463,22 +2081,31 @@ function fixIfSingleVariableConditionIndent(sourceText) {
 
         let indentEnd = indentStart + indentCond.length
 
-        indentReplacements.push({ start: indentStart, end: indentEnd, text: desiredIndent })
+        indentReplacements.push(
+            { start: indentStart, end: indentEnd, text: desiredIndent }
+        )
 
     })
 
-    let fixedText = applyReplacements(convertedText, indentReplacements)
+    let fixedText = applyReplacements(
+        convertedText,
+        indentReplacements
+    )
 
     return fixedText
 
 }
 
-function scanCommentsTypescript(ts, sourceText, isTsx) {
-    let scanner = ts.createScanner(
-    ts.ScriptTarget.Latest,
-    false,
-    isTsx ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+function scanCommentsTypescript(
+    ts,
     sourceText,
+    isTsx
+) {
+    let scanner = ts.createScanner(
+        ts.ScriptTarget.Latest,
+        false,
+        isTsx ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+        sourceText
     )
 
     let comments = []
@@ -1506,7 +2133,10 @@ function scanCommentsTypescript(ts, sourceText, isTsx) {
 
             let end = scanner.getTextPos()
 
-            comments.push({ kind, start, end, text: sourceText.slice(start, end) })
+            comments.push({ kind, start, end, text: sourceText.slice(
+                start,
+                end
+            ) })
 
         }
 
@@ -1517,12 +2147,696 @@ function scanCommentsTypescript(ts, sourceText, isTsx) {
 
 }
 
-function fixCommentsText(sourceText, comments) {
-    let eol = detectEol(sourceText)
+function fixFunctionArgumentsLayoutMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
+
+    if (
+        noEsTextoValido
+    ) {
+        return { fixedText: sourceText }
+
+    }
+
+    let { ast, tokens } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
+
+    let eol = detectEol(
+        sourceText
+    )
+
+    function findLineIndentAt(
+        index
+    ) {
+        let lineStart = findLineStartIndex(
+            sourceText,
+            index
+        )
+
+        let lineEnd = findLineEndIndex(
+            sourceText,
+            index
+        )
+
+        return findLineIndent(
+            sourceText,
+            lineStart,
+            lineEnd
+        )
+
+    }
+
+    function lowerBoundTokens(
+        pos
+    ) {
+        function step(
+            lo,
+            hi
+        ) {
+            let seguir = lo < hi
+
+            if (
+                seguir
+            ) {
+                let mid = (lo + hi) >> 1
+
+                let t = tokens[mid]
+
+                let debeAvanzar = t.start < pos
+
+                if (
+                    debeAvanzar
+                ) {
+                    return step(
+                        mid + 1,
+                        hi
+                    )
+                }
+
+                return step(
+                    lo,
+                    mid
+                )
+            }
+
+            return lo
+        }
+
+        return step(
+            0,
+            tokens.length
+        )
+
+    }
+
+    function upperBoundTokens(
+        pos
+    ) {
+        function step(
+            lo,
+            hi
+        ) {
+            let seguir = lo < hi
+
+            if (
+                seguir
+            ) {
+                let mid = (lo + hi) >> 1
+
+                let t = tokens[mid]
+
+                let debeAvanzar = t.start <= pos
+
+                if (
+                    debeAvanzar
+                ) {
+                    return step(
+                        mid + 1,
+                        hi
+                    )
+                }
+
+                return step(
+                    lo,
+                    mid
+                )
+            }
+
+            return lo
+        }
+
+        return step(
+            0,
+            tokens.length
+        )
+
+    }
+
+    function findOpenParenIndex(
+        fromPos,
+        toPos
+    ) {
+        let startIndex = lowerBoundTokens(
+            fromPos
+        )
+
+        let endIndex = upperBoundTokens(
+            toPos
+        )
+
+        function scan(
+            i
+        ) {
+            let seguir = i < endIndex
+
+            if (
+                seguir
+            ) {
+                let t = tokens[i]
+
+                let esParentesisApertura = t && t.type === 'Punctuator' && t.text === '('
+
+                if (
+                    esParentesisApertura
+                ) {
+                    return i
+                }
+
+                return scan(
+                    i + 1
+                )
+            }
+
+            return -1
+        }
+
+        return scan(
+            startIndex
+        )
+
+    }
+
+    function findMatchingCloseParenIndex(
+        openIndex,
+        toPos
+    ) {
+        let openIndexInvalido = openIndex < 0
+
+        if (
+            openIndexInvalido
+        ) {
+            return -1
+        }
+
+        let endIndex = upperBoundTokens(
+            toPos
+        )
+
+        function scan(
+            i,
+            depth
+        ) {
+            let seguir = i < endIndex
+
+            if (
+                seguir
+            ) {
+                let t = tokens[i]
+
+                let noHayToken = !t
+
+                if (
+                    noHayToken
+                ) {
+                    return scan(
+                        i + 1,
+                        depth
+                    )
+                }
+
+                let esParentesisApertura = t.type === 'Punctuator' && t.text === '('
+                let esParentesisCierre = t.type === 'Punctuator' && t.text === ')'
+
+                let inc = esParentesisApertura ? 1 : 0
+                let dec = esParentesisCierre ? 1 : 0
+
+                let nextDepth = depth + inc - dec
+
+                let nextDepthEsCero = nextDepth === 0
+
+                let esCierreFinal = esParentesisCierre && nextDepthEsCero
+
+                if (
+                    esCierreFinal
+                ) {
+                    return i
+                }
+
+                return scan(
+                    i + 1,
+                    nextDepth
+                )
+            }
+
+            return -1
+        }
+
+        return scan(
+            openIndex,
+            0
+        )
+
+    }
+
+    function collectItemsFromNodeArray(
+        nodeArray
+    ) {
+        let noEsArreglo = !Array.isArray(
+            nodeArray
+        ) || nodeArray.length === 0
+
+        if (
+            noEsArreglo
+        ) {
+            return []
+        }
+
+        let out = []
+
+        nodeArray.forEach(function (
+            item
+        ) {
+            let noEsNodo = !item || typeof item !== 'object'
+
+            if (
+                noEsNodo
+            ) {
+                return
+            }
+
+            let { start, end } = item
+
+            let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
+
+            if (
+                rangoInvalido
+            ) {
+                return
+            }
+
+            out.push(
+                { start, end }
+            )
+
+        })
+
+        return out
+
+    }
+
+    function containsLineBreak(
+        text
+    ) {
+        return /[\r\n]/.test(
+            text
+        )
+    }
+
+    function onlyWhitespaceOrCommas(
+        text
+    ) {
+        return !/[^\s,]/.test(
+            text
+        )
+    }
+
+    function buildListReplacement(
+        openToken,
+        closeToken,
+        items
+    ) {
+        let indent = findLineIndentAt(
+            openToken.start
+        )
+
+        let desiredIndent = `${indent}    `
+
+        let lines = items.map(function (
+            item,
+            index
+        ) {
+            let text = sourceText.slice(
+                item.start,
+                item.end
+            ).trim()
+
+            let esUltimo = index === items.length - 1
+
+            let debeTenerComa = !esUltimo
+
+            if (
+                debeTenerComa
+            ) {
+                return `${desiredIndent}${text},`
+            }
+
+            return `${desiredIndent}${text}`
+        })
+
+        let out = `(${eol}${lines.join(
+            eol
+        )}${eol}${indent})`
+
+        return { start: openToken.start, end: closeToken.end, text: out }
+
+    }
+
+    let candidates = []
+
+    function maybeAddList(
+        fromPos,
+        toPos,
+        items
+    ) {
+        let noHayItems = !Array.isArray(
+            items
+        ) || items.length === 0
+
+        if (
+            noHayItems
+        ) {
+            return
+        }
+
+        let openIndex = findOpenParenIndex(
+            fromPos,
+            toPos
+        )
+
+        let openIndexInvalido = openIndex < 0
+
+        if (
+            openIndexInvalido
+        ) {
+            return
+        }
+
+        let closeIndex = findMatchingCloseParenIndex(
+            openIndex,
+            toPos
+        )
+
+        let closeIndexInvalido = closeIndex < 0
+
+        if (
+            closeIndexInvalido
+        ) {
+            return
+        }
+
+        let openToken = tokens[openIndex]
+        let closeToken = tokens[closeIndex]
+
+        let faltanTokens = !openToken || !closeToken
+
+        if (
+            faltanTokens
+        ) {
+            return
+        }
+
+        let algunItemTieneSaltos = items.some(function (
+            it
+        ) {
+            return containsLineBreak(sourceText.slice(
+                it.start,
+                it.end
+            ))
+        })
+
+        if (
+            algunItemTieneSaltos
+        ) {
+            return
+        }
+
+        let first = items[0]
+        let last = items[items.length - 1]
+
+        let headBetween = sourceText.slice(
+            openToken.end,
+            first.start
+        )
+
+        let tailBetween = sourceText.slice(
+            last.end,
+            closeToken.start
+        )
+
+        let headInvalido = !/^\s*$/.test(
+            headBetween
+        )
+
+        if (
+            headInvalido
+        ) {
+            return
+        }
+
+        let tailInvalido = !onlyWhitespaceOrCommas(
+            tailBetween
+        )
+
+        if (
+            tailInvalido
+        ) {
+            return
+        }
+
+        function checkGaps(
+            i
+        ) {
+            let seguir = i < items.length - 1
+
+            if (
+                seguir
+            ) {
+                let gap = sourceText.slice(
+                    items[i].end,
+                    items[i + 1].start
+                )
+
+                let gapInvalido = !onlyWhitespaceOrCommas(
+                    gap
+                )
+
+                if (
+                    gapInvalido
+                ) {
+                    return false
+                }
+
+                return checkGaps(
+                    i + 1
+                )
+            }
+
+            return true
+        }
+
+        let gapsValidos = checkGaps(
+            0
+        )
+
+        let gapsInvalidos = !gapsValidos
+
+        if (
+            gapsInvalidos
+        ) {
+            return
+        }
+
+        candidates.push(buildListReplacement(
+            openToken,
+            closeToken,
+            items
+        ))
+
+    }
+
+    function visit(
+        node
+    ) {
+        let noEsNodo = !node || typeof node !== 'object'
+
+        if (
+            noEsNodo
+        ) {
+            return
+        }
+
+        let esArreglo = Array.isArray(
+            node
+        )
+
+        if (
+            esArreglo
+        ) {
+            node.forEach(function (
+                item
+            ) {
+                visit(
+                    item
+                )
+
+            })
+
+            return
+        }
+
+        let nodeType = typeof node.type === 'string' ? node.type : ''
+
+        let esCallExpression = nodeType === 'CallExpression'
+
+        if (
+            esCallExpression
+        ) {
+            let { callee } = node
+
+            let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
+
+            let items = collectItemsFromNodeArray(
+                node.arguments
+            )
+
+            maybeAddList(
+                fromPos,
+                node.end,
+                items
+            )
+        }
+
+        let esNewExpression = nodeType === 'NewExpression'
+
+        if (
+            esNewExpression
+        ) {
+            let { callee } = node
+
+            let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
+
+            let items = collectItemsFromNodeArray(
+                node.arguments
+            )
+
+            let hayItems = items.length > 0
+
+            if (
+                hayItems
+            ) {
+                maybeAddList(
+                    fromPos,
+                    node.end,
+                    items
+                )
+            }
+        }
+
+        let esFunctionDeclaration = nodeType === 'FunctionDeclaration'
+        let esFunctionExpression = nodeType === 'FunctionExpression'
+        let esArrowFunctionExpression = nodeType === 'ArrowFunctionExpression'
+
+        let esAlgunaFuncion = esFunctionDeclaration || esFunctionExpression || esArrowFunctionExpression
+
+        if (
+            esAlgunaFuncion
+        ) {
+            let items = collectItemsFromNodeArray(
+                node.params
+            )
+
+            let bodyStart = typeof node.body?.start === 'number' ? node.body.start : node.end
+
+            maybeAddList(
+                node.start,
+                bodyStart,
+                items
+            )
+        }
+
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
+            let childKey = pair[0]
+
+            let esClaveIgnorable = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+            if (
+                esClaveIgnorable
+            ) {
+                return
+            }
+
+            visit(
+                pair[1]
+            )
+
+        })
+
+    }
+
+    visit(
+        ast
+    )
+
+    let noHayReemplazos = candidates.length === 0
+
+    if (
+        noHayReemplazos
+    ) {
+        return { fixedText: sourceText }
+
+    }
+
+    let sorted = candidates
+    .slice()
+    .sort(function (
+        a,
+        b
+    ) {
+        return a.start - b.start
+    })
+
+    let nonOverlapping = []
+    let lastEnd = -1
+
+    sorted.forEach(function (
+        rep
+    ) {
+        let solapa = rep.start < lastEnd
+
+        if (
+            solapa
+        ) {
+            return
+        }
+
+        nonOverlapping.push(
+            rep
+        )
+        lastEnd = rep.end
+
+    })
+
+    let fixedText = applyReplacements(
+        sourceText,
+        nonOverlapping
+    )
+
+    return { fixedText }
+
+}
+
+function fixCommentsText(
+    sourceText,
+    comments
+) {
+    let eol = detectEol(
+        sourceText
+    )
 
     let replacements = []
 
-    comments.forEach(function (comment) {
+    comments.forEach(function (
+        comment
+    ) {
         let start = comment?.start
 
         let end = comment?.end
@@ -1531,9 +2845,13 @@ function fixCommentsText(sourceText, comments) {
 
         let endEsNumero = typeof end === 'number'
 
-        let startEsFinito = startEsNumero && Number.isFinite(start)
+        let startEsFinito = startEsNumero && Number.isFinite(
+            start
+        )
 
-        let endEsFinito = endEsNumero && Number.isFinite(end)
+        let endEsFinito = endEsNumero && Number.isFinite(
+            end
+        )
 
         let hayRango = startEsFinito && endEsFinito
 
@@ -1548,23 +2866,49 @@ function fixCommentsText(sourceText, comments) {
 
         }
 
-        let startLineStart = findLineStartIndex(sourceText, start)
+        let startLineStart = findLineStartIndex(
+            sourceText,
+            start
+        )
 
-        let startLineEnd = findLineEndIndex(sourceText, start)
+        let startLineEnd = findLineEndIndex(
+            sourceText,
+            start
+        )
 
-        let endLineEnd = findLineEndIndex(sourceText, end)
+        let endLineEnd = findLineEndIndex(
+            sourceText,
+            end
+        )
 
-        let indent = findLineIndent(sourceText, startLineStart, startLineEnd)
+        let indent = findLineIndent(
+            sourceText,
+            startLineStart,
+            startLineEnd
+        )
 
-        let prefix = sourceText.slice(startLineStart, start)
+        let prefix = sourceText.slice(
+            startLineStart,
+            start
+        )
 
-        let suffix = sourceText.slice(end, endLineEnd)
+        let suffix = sourceText.slice(
+            end,
+            endLineEnd
+        )
 
-        let hayCodigoAntes = /\S/.test(prefix)
+        let hayCodigoAntes = /\S/.test(
+            prefix
+        )
 
-        let hayCodigoDespues = /\S/.test(suffix)
+        let hayCodigoDespues = /\S/.test(
+            suffix
+        )
 
-        let rawText = sourceText.slice(start, end)
+        let rawText = sourceText.slice(
+            start,
+            end
+        )
 
         let tieneTexto = typeof comment.text === 'string' && comment.text.length > 0
 
@@ -1577,7 +2921,9 @@ function fixCommentsText(sourceText, comments) {
 
         let esMultiLine = comment.type === 'MultiLine'
 
-        let esBloquePorTexto = rawText.startsWith('/*')
+        let esBloquePorTexto = rawText.startsWith(
+            '/*'
+        )
 
         let esComentarioDeBloque = esMultiLine || esBloquePorTexto
 
@@ -1597,12 +2943,19 @@ function fixCommentsText(sourceText, comments) {
         if (
             debeDerivarValue
         ) {
-            let esBloqueCerrado = rawText.startsWith('/*') && rawText.endsWith('*/')
+            let esBloqueCerrado = rawText.startsWith(
+                '/*'
+            ) && rawText.endsWith(
+                '*/'
+            )
 
             if (
                 esBloqueCerrado
             ) {
-                value = rawText.slice(2, -2)
+                value = rawText.slice(
+                    2,
+                    -2
+                )
 
             }
 
@@ -1611,18 +2964,24 @@ function fixCommentsText(sourceText, comments) {
             if (
                 noEsBloqueCerrado
             ) {
-                let esLinea = rawText.startsWith('//')
+                let esLinea = rawText.startsWith(
+                    '//'
+                )
 
                 if (
                     esLinea
                 ) {
-                    value = rawText.slice(2)
+                    value = rawText.slice(
+                        2
+                    )
 
                 }
             }
         }
 
-        let esMultilinea = /[\r\n]/.test(rawText)
+        let esMultilinea = /[\r\n]/.test(
+            rawText
+        )
 
         if (
             esMultilinea
@@ -1639,9 +2998,16 @@ function fixCommentsText(sourceText, comments) {
             if (
                 esComentarioDeBloque
             ) {
-                let repText = buildLineCommentBlockFromValue(value, indent, eol, true)
+                let repText = buildLineCommentBlockFromValue(
+                    value,
+                    indent,
+                    eol,
+                    true
+                )
 
-                replacements.push({ start, end, text: repText })
+                replacements.push(
+                    { start, end, text: repText }
+                )
 
             }
 
@@ -1654,11 +3020,15 @@ function fixCommentsText(sourceText, comments) {
         if (
             comentarioAlFinalDeLinea
         ) {
-            let matchTrailing = /[ \t]*$/.exec(prefix)
+            let matchTrailing = /[ \t]*$/.exec(
+                prefix
+            )
 
             let trailingWs = ''
 
-            let tieneTrailing = Boolean(matchTrailing)
+            let tieneTrailing = Boolean(
+                matchTrailing
+            )
 
             if (
                 tieneTrailing
@@ -1669,16 +3039,25 @@ function fixCommentsText(sourceText, comments) {
 
             let wsStart = start - trailingWs.length
 
-            let repText = `${eol}${indent}//${normalizeLineCommentValue(value)}`
+            let repText = `${eol}${indent}//${normalizeLineCommentValue(
+                value
+            )}`
 
             if (
                 esComentarioDeBloque
             ) {
-                repText = `${eol}${buildLineCommentBlockFromValue(value, indent, eol, false)}`
+                repText = `${eol}${buildLineCommentBlockFromValue(
+                    value,
+                    indent,
+                    eol,
+                    false
+                )}`
 
             }
 
-            replacements.push({ start: wsStart, end: startLineEnd, text: repText })
+            replacements.push(
+                { start: wsStart, end: startLineEnd, text: repText }
+            )
 
             return
 
@@ -1689,13 +3068,20 @@ function fixCommentsText(sourceText, comments) {
         if (
             comentarioDeBloqueConCodigoDespues
         ) {
-            let between = sourceText.slice(end, startLineEnd)
+            let between = sourceText.slice(
+                end,
+                startLineEnd
+            )
 
-            let matchLeading = /^[ \t]*/.exec(between)
+            let matchLeading = /^[ \t]*/.exec(
+                between
+            )
 
             let leadingWs = ''
 
-            let tieneLeading = Boolean(matchLeading)
+            let tieneLeading = Boolean(
+                matchLeading
+            )
 
             if (
                 tieneLeading
@@ -1706,11 +3092,20 @@ function fixCommentsText(sourceText, comments) {
 
             let afterNonWs = end + leadingWs.length
 
-            let repText = buildLineCommentBlockFromValue(value, indent, eol, true)
+            let repText = buildLineCommentBlockFromValue(
+                value,
+                indent,
+                eol,
+                true
+            )
 
-            replacements.push({ start, end, text: repText })
+            replacements.push(
+                { start, end, text: repText }
+            )
 
-            replacements.push({ start: end, end: afterNonWs, text: `${eol}${indent}` })
+            replacements.push(
+                { start: end, end: afterNonWs, text: `${eol}${indent}` }
+            )
 
             return
 
@@ -1724,9 +3119,16 @@ function fixCommentsText(sourceText, comments) {
             if (
                 esComentarioDeBloque
             ) {
-                let repText = buildLineCommentBlockFromValue(value, indent, eol, true)
+                let repText = buildLineCommentBlockFromValue(
+                    value,
+                    indent,
+                    eol,
+                    true
+                )
 
-                replacements.push({ start, end, text: repText })
+                replacements.push(
+                    { start, end, text: repText }
+                )
 
             }
 
@@ -1735,49 +3137,86 @@ function fixCommentsText(sourceText, comments) {
         }
     })
 
-    let fixedText = applyReplacements(sourceText, replacements)
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     return fixedText
 
 }
 
-function fixCommentsMeriyah(_filePath, parse, sourceText) {
-    let parsed = parseCommentsMeriyah(parse, sourceText)
+function fixCommentsMeriyah(
+    _filePath,
+    parse,
+    sourceText
+) {
+    let parsed = parseCommentsMeriyah(
+        parse,
+        sourceText
+    )
 
-    let comments = Array.isArray(parsed.comments) ? parsed.comments : []
+    let comments = Array.isArray(
+        parsed.comments
+    ) ? parsed.comments : []
 
     let normalized = comments
-    .filter(function (c) {
+    .filter(function (
+        c
+    ) {
         return (
         c &&
         typeof c === 'object' &&
         typeof c.start === 'number' &&
         typeof c.end === 'number' &&
-        Number.isFinite(c.start) &&
-        Number.isFinite(c.end) &&
+        Number.isFinite(
+            c.start
+        ) &&
+        Number.isFinite(
+            c.end
+        ) &&
         c.end > c.start
         )
 
     })
-    .map(function (c) {
-        return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(c.start, c.end) }
+    .map(function (
+        c
+    ) {
+        return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(
+            c.start,
+            c.end
+        ) }
 
     })
 
-    let fixedText = fixCommentsText(sourceText, normalized)
+    let fixedText = fixCommentsText(
+        sourceText,
+        normalized
+    )
 
     return { fixedText }
 
 }
 
-function fixCommentsTypescript(_filePath, ts, sourceText, ext) {
+function fixCommentsTypescript(
+    _filePath,
+    ts,
+    sourceText,
+    ext
+) {
     let isTsx = ext === '.tsx'
 
-    let trivia = scanCommentsTypescript(ts, sourceText, isTsx)
+    let trivia = scanCommentsTypescript(
+        ts,
+        sourceText,
+        isTsx
+    )
 
     let fixedText = fixCommentsText(
     sourceText,
-    trivia.map(function (c) {
+    trivia.map(function (
+        c
+    ) {
         return { start: c.start, end: c.end, text: c.text }
 
     }),
@@ -1787,30 +3226,51 @@ function fixCommentsTypescript(_filePath, ts, sourceText, ext) {
 
 }
 
-function fixSemicolonsMeriyah(filePath, parse, sourceText) {
-    let { ast, tokens } = parseSourceMeriyah(parse, sourceText)
+function fixSemicolonsMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let { ast, tokens } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
 
-    let forHeaderSpans = collectForHeaderSpansFromMeriyahTokens(tokens)
+    let forHeaderSpans = collectForHeaderSpansFromMeriyahTokens(
+        tokens
+    )
 
-    let emptyStatementRanges = collectEmptyStatementRangesMeriyah(ast)
+    let emptyStatementRanges = collectEmptyStatementRangesMeriyah(
+        ast
+    )
 
     let emptyStartSet = new Set()
 
-    emptyStatementRanges.forEach(function (r) {
-        emptyStartSet.add(r.start)
+    emptyStatementRanges.forEach(function (
+        r
+    ) {
+        emptyStartSet.add(
+            r.start
+        )
 
     })
 
     let replacements = []
 
-    emptyStatementRanges.forEach(function (range) {
-        replacements.push({ start: range.start, end: range.end, text: '{}' })
+    emptyStatementRanges.forEach(function (
+        range
+    ) {
+        replacements.push(
+            { start: range.start, end: range.end, text: '{}' }
+        )
 
     })
 
     let unfixableFindings = []
 
-    tokens.forEach(function (t) {
+    tokens.forEach(function (
+        t
+    ) {
         let noEsPuntoYComa = t.text !== ';'
 
         if (
@@ -1820,7 +3280,9 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        let esVacioDeSentencia = emptyStartSet.has(t.start)
+        let esVacioDeSentencia = emptyStartSet.has(
+            t.start
+        )
 
         if (
             esVacioDeSentencia
@@ -1829,33 +3291,56 @@ function fixSemicolonsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        let estaEnCabeceraDeFor = isInsideAnySpan(t.start, forHeaderSpans)
+        let estaEnCabeceraDeFor = isInsideAnySpan(
+            t.start,
+            forHeaderSpans
+        )
 
         if (
             estaEnCabeceraDeFor
         ) {
-            addFindingAtLoc(unfixableFindings, filePath, ';', t.loc, 'formatear/no-semicolon')
+            addFindingAtLoc(
+                unfixableFindings,
+                filePath,
+                ';',
+                t.loc,
+                'formatear/no-semicolon'
+            )
 
             return
 
         }
 
-        replacements.push({ start: t.start, end: t.end, text: '\n' })
+        replacements.push(
+            { start: t.start, end: t.end, text: '\n' }
+        )
 
     })
 
-    let fixedText = applyReplacements(sourceText, replacements)
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     return { fixedText, unfixableFindings }
 
 }
 
-function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
-    let { tokens } = parseSourceMeriyah(parse, sourceText)
+function fixVarConstToLetMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let { tokens } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
 
     let replacements = []
 
-    tokens.forEach(function (t) {
+    tokens.forEach(function (
+        t
+    ) {
         let noEsKeyword = t.type !== 'Keyword'
 
         if (
@@ -1885,29 +3370,45 @@ function fixVarConstToLetMeriyah(filePath, parse, sourceText) {
 
         }
 
-        replacements.push({ start: t.start, end: t.end, text: 'let' })
+        replacements.push(
+            { start: t.start, end: t.end, text: 'let' }
+        )
 
     })
 
-    let fixedText = applyReplacements(sourceText, replacements)
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     return { fixedText, unfixableFindings: [] }
 
 }
 
-function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
-    let { ast, tokens } = parseSourceMeriyah(parse, sourceText)
+function fixArrowFunctionsToFunctionsMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let { ast, tokens } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
 
     let replacements = []
 
     let unfixableFindings = []
 
-    let arrowTokens = tokens.filter(function (t) {
+    let arrowTokens = tokens.filter(function (
+        t
+    ) {
         return t.type === 'Punctuator' && t.text === '=>'
 
     })
 
-    function convertArrowFunction(node) {
+    function convertArrowFunction(
+        node
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -1926,7 +3427,9 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        let arrowToken = arrowTokens.find(function (t) {
+        let arrowToken = arrowTokens.find(function (
+            t
+        ) {
             return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end
 
         })
@@ -1936,26 +3439,40 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         if (
             noHayArrowToken
         ) {
-            addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
+            addFinding(
+                unfixableFindings,
+                filePath,
+                '=>',
+                node,
+                'formatear/no-arrow-function'
+            )
 
             return
 
         }
 
-        let headText = sourceText.slice(node.start, arrowToken.start).trimEnd()
+        let headText = sourceText.slice(
+            node.start,
+            arrowToken.start
+        ).trimEnd()
 
         let esAsync = node.async === true
 
         if (
             esAsync
         ) {
-            headText = headText.replace(/^\s*async\b\s*/, '')
+            headText = headText.replace(
+                /^\s*async\b\s*/,
+                ''
+            )
 
         }
 
         let paramsText = headText.trim()
 
-        let paramsNoTieneParentesis = !paramsText.startsWith('(')
+        let paramsNoTieneParentesis = !paramsText.startsWith(
+            '('
+        )
 
         if (
             paramsNoTieneParentesis
@@ -1968,13 +3485,18 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         let bodyText
 
-        let tieneBody = Boolean(node.body)
+        let tieneBody = Boolean(
+            node.body
+        )
         let esBlockStatement = tieneBody && node.body.type === 'BlockStatement'
 
         if (
             esBlockStatement
         ) {
-            bodyText = sourceText.slice(node.body.start, node.body.end)
+            bodyText = sourceText.slice(
+                node.body.start,
+                node.body.end
+            )
 
         }
 
@@ -1985,7 +3507,10 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         if (
             debeGenerarBodyReturn
         ) {
-            let expressionText = sourceText.slice(node.body.start, node.body.end)
+            let expressionText = sourceText.slice(
+                node.body.start,
+                node.body.end
+            )
 
             bodyText = `{ return ${expressionText} }`
 
@@ -1996,7 +3521,13 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         if (
             sigueSinBodyText
         ) {
-            addFinding(unfixableFindings, filePath, '=>', node, 'formatear/no-arrow-function')
+            addFinding(
+                unfixableFindings,
+                filePath,
+                '=>',
+                node,
+                'formatear/no-arrow-function'
+            )
 
             return
 
@@ -2010,7 +3541,9 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
     }
 
-    function visit(node) {
+    function visit(
+        node
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -2020,13 +3553,19 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
         }
 
-        let esArreglo = Array.isArray(node)
+        let esArreglo = Array.isArray(
+            node
+        )
 
         if (
             esArreglo
         ) {
-            node.forEach(function (item) {
-                visit(item)
+            node.forEach(function (
+                item
+            ) {
+                visit(
+                    item
+                )
 
             })
 
@@ -2039,8 +3578,14 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         if (
             noTieneTipo
         ) {
-            Object.values(node).forEach(function (child) {
-                visit(child)
+            Object.values(
+                node
+            ).forEach(function (
+                child
+            ) {
+                visit(
+                    child
+                )
 
             })
 
@@ -2053,11 +3598,17 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
         if (
             esArrowFunctionExpression
         ) {
-            convertArrowFunction(node)
+            convertArrowFunction(
+                node
+            )
 
         }
 
-        Object.entries(node).forEach(function (pair) {
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
             let childKey = pair[0]
 
             let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
@@ -2069,28 +3620,44 @@ function fixArrowFunctionsToFunctionsMeriyah(filePath, parse, sourceText) {
 
             }
 
-            visit(pair[1])
+            visit(
+                pair[1]
+            )
 
         })
 
     }
 
-    visit(ast)
+    visit(
+        ast
+    )
 
-    let fixedText = applyReplacements(sourceText, replacements)
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     return { fixedText, unfixableFindings }
 
 }
 
-function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
-    let { ast } = parseSourceMeriyah(parse, sourceText)
+function fixMissingBracesIfMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let { ast } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
 
     let replacements = []
 
     let unfixableFindings = []
 
-    function wrapStatement(stmt) {
+    function wrapStatement(
+        stmt
+    ) {
         let noEsStmtValido = !stmt || typeof stmt !== 'object'
 
         if (
@@ -2114,19 +3681,31 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
         if (
             rangoInvalido
         ) {
-            addFinding(unfixableFindings, filePath, '{', stmt, 'formatear/require-braces')
+            addFinding(
+                unfixableFindings,
+                filePath,
+                '{',
+                stmt,
+                'formatear/require-braces'
+            )
 
             return
 
         }
 
-        replacements.push({ start: stmt.start, end: stmt.start, text: '{ ' })
+        replacements.push(
+            { start: stmt.start, end: stmt.start, text: '{ ' }
+        )
 
-        replacements.push({ start: stmt.end, end: stmt.end, text: ' }' })
+        replacements.push(
+            { start: stmt.end, end: stmt.end, text: ' }' }
+        )
 
     }
 
-    function visit(node) {
+    function visit(
+        node
+    ) {
         let noEsNodo = !node || typeof node !== 'object'
 
         if (
@@ -2136,13 +3715,19 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
         }
 
-        let esArreglo = Array.isArray(node)
+        let esArreglo = Array.isArray(
+            node
+        )
 
         if (
             esArreglo
         ) {
-            node.forEach(function (item) {
-                visit(item)
+            node.forEach(function (
+                item
+            ) {
+                visit(
+                    item
+                )
 
             })
 
@@ -2155,8 +3740,14 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
         if (
             noTieneTipo
         ) {
-            Object.values(node).forEach(function (child) {
-                visit(child)
+            Object.values(
+                node
+            ).forEach(function (
+                child
+            ) {
+                visit(
+                    child
+                )
 
             })
 
@@ -2169,19 +3760,29 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
         if (
             esIfStatement
         ) {
-            wrapStatement(node.consequent)
+            wrapStatement(
+                node.consequent
+            )
 
-            let tieneAlternativa = Boolean(node.alternate)
+            let tieneAlternativa = Boolean(
+                node.alternate
+            )
 
             if (
                 tieneAlternativa
             ) {
-                wrapStatement(node.alternate)
+                wrapStatement(
+                    node.alternate
+                )
 
             }
         }
 
-        Object.entries(node).forEach(function (pair) {
+        Object.entries(
+            node
+        ).forEach(function (
+            pair
+        ) {
             let childKey = pair[0]
 
             let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
@@ -2193,22 +3794,35 @@ function fixMissingBracesIfMeriyah(filePath, parse, sourceText) {
 
             }
 
-            visit(pair[1])
+            visit(
+                pair[1]
+            )
 
         })
 
     }
 
-    visit(ast)
+    visit(
+        ast
+    )
 
-    let fixedText = applyReplacements(sourceText, replacements)
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
 
     return { fixedText, unfixableFindings }
 
 }
 
-async function run(argv) {
-    let pidioAyuda = argv.includes('--help') || argv.includes('-h')
+async function run(
+    argv
+) {
+    let pidioAyuda = argv.includes(
+        '--help'
+    ) || argv.includes(
+        '-h'
+    )
 
     if (
         pidioAyuda
@@ -2219,7 +3833,9 @@ async function run(argv) {
 
     }
 
-    let formatearIndex = argv.indexOf('--formatear')
+    let formatearIndex = argv.indexOf(
+        '--formatear'
+    )
 
     let faltaFlagFormatear = formatearIndex === -1
 
@@ -2232,7 +3848,11 @@ async function run(argv) {
 
     }
 
-    let inputPaths = argv.slice(formatearIndex + 1).filter(isPathLike)
+    let inputPaths = argv.slice(
+        formatearIndex + 1
+    ).filter(
+        isPathLike
+    )
 
     let noHayRutasDeEntrada = inputPaths.length === 0
 
@@ -2248,14 +3868,26 @@ async function run(argv) {
     let fileSet = new Set()
 
     await Promise.all(
-    inputPaths.map(async function (inputPath) {
-        await collectFiles(inputPath, fileSet)
+    inputPaths.map(async function (
+        inputPath
+    ) {
+        await collectFiles(
+            inputPath,
+            fileSet
+        )
 
     }),
     )
 
-    let files = Array.from(fileSet).sort(function (a, b) {
-        return a.localeCompare(b)
+    let files = Array.from(
+        fileSet
+    ).sort(function (
+        a,
+        b
+    ) {
+        return a.localeCompare(
+            b
+        )
 
     })
 
@@ -2264,7 +3896,9 @@ async function run(argv) {
     if (
         noHayArchivos
     ) {
-        process.stderr.write('No se encontraron archivos para analizar.\n')
+        process.stderr.write(
+            'No se encontraron archivos para analizar.\n'
+        )
 
         return 2
 
@@ -2286,31 +3920,51 @@ async function run(argv) {
         parse = meriyahModule.parse
 
     } catch (error) {
-        let message = error instanceof Error ? error.message : String(error)
+        let message = error instanceof Error ? error.message : String(
+            error
+        )
 
-        process.stderr.write(`${message}\n`)
+        process.stderr.write(
+            `${message}\n`
+        )
 
         return 2
 
     }
 
-    function normalize(value) {
-        let str = String(value)
+    function normalize(
+        value
+    ) {
+        let str = String(
+            value
+        )
 
-        return Array.from(str)
-        .filter(function (ch) {
-            let code = ch.charCodeAt(0)
+        return Array.from(
+            str
+        )
+        .filter(function (
+            ch
+        ) {
+            let code = ch.charCodeAt(
+                0
+            )
 
             return !(code <= 31 || code === 127)
 
         })
-        .join('')
+        .join(
+            ''
+        )
 
     }
 
-    async function analyzeOne(inputFilePath) {
+    async function analyzeOne(
+        inputFilePath
+    ) {
         try {
-            let ext = path.extname(inputFilePath).toLowerCase()
+            let ext = path.extname(
+                inputFilePath
+            ).toLowerCase()
 
             let isTsFile = ext === '.ts' || ext === '.tsx' || ext === '.mts' || ext === '.cts'
 
@@ -2329,13 +3983,22 @@ async function run(argv) {
 
                 }
 
-                let sourceText = await fs.readFile(inputFilePath, 'utf8')
+                let sourceText = await fs.readFile(
+                    inputFilePath,
+                    'utf8'
+                )
 
-                let tokensForTabs = scanTokensTypescript(ts, sourceText, ext === '.tsx')
+                let tokensForTabs = scanTokensTypescript(
+                    ts,
+                    sourceText,
+                    ext === '.tsx'
+                )
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                 sourceText,
-                tokensForTabs.map(function (t) {
+                tokensForTabs.map(function (
+                    t
+                ) {
                     return { start: t.pos, end: t.end }
 
                 }),
@@ -2346,124 +4009,195 @@ async function run(argv) {
                 if (
                     huboCambiosDeTabs
                 ) {
-                    await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        tabFixedText,
+                        'utf8'
+                    )
 
                     sourceText = tabFixedText
 
                 }
 
-                let fixed = fixSemicolonsTypescript(inputFilePath, ts, sourceText, ext)
+                let fixed = fixSemicolonsTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
 
                 let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDePuntoYComa
                 ) {
-                    await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        fixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = fixed.fixedText
 
                 }
 
-                fixed.unfixableFindings.forEach(function (finding) {
+                fixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
                     )
 
                 })
 
-                let varConstFixed = fixVarConstToLetTypescript(inputFilePath, ts, sourceText, ext)
+                let varConstFixed = fixVarConstToLetTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
 
                 let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosVarConst
                 ) {
-                    await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        varConstFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = varConstFixed.fixedText
 
                 }
 
-                let arrowFixed = fixArrowFunctionsToFunctionsTypescript(inputFilePath, ts, sourceText, ext)
+                let arrowFixed = fixArrowFunctionsToFunctionsTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
 
                 let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeArrows
                 ) {
-                    await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        arrowFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = arrowFixed.fixedText
 
                 }
 
-                arrowFixed.unfixableFindings.forEach(function (finding) {
+                arrowFixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
                     )
 
                 })
 
-                let bracesFixed = fixMissingBracesIfTypescript(inputFilePath, ts, sourceText, ext)
+                let bracesFixed = fixMissingBracesIfTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
 
                 let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeLlaves
                 ) {
-                    await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        bracesFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = bracesFixed.fixedText
 
                 }
 
-                bracesFixed.unfixableFindings.forEach(function (finding) {
+                bracesFixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
                     )
 
                 })
 
-                let commentsFixed = fixCommentsTypescript(inputFilePath, ts, sourceText, ext)
+                let commentsFixed = fixCommentsTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
 
                 let huboCambiosDeComentarios = commentsFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeComentarios
                 ) {
-                    await fs.writeFile(inputFilePath, commentsFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        commentsFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = commentsFixed.fixedText
 
                 }
 
-                let tokensForIndent = scanTokensTypescript(ts, sourceText, ext === '.tsx')
+                let tokensForIndent = scanTokensTypescript(
+                    ts,
+                    sourceText,
+                    ext === '.tsx'
+                )
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                 sourceText,
-                tokensForIndent.map(function (t) {
+                tokensForIndent.map(function (
+                    t
+                ) {
                     return { start: t.pos, end: t.end }
 
                 }),
                 tokensForIndent
-                .filter(function (t) {
+                .filter(function (
+                    t
+                ) {
                     return t.text === '{' || t.text === '}'
 
                 })
-                .map(function (t) {
+                .map(function (
+                    t
+                ) {
                     return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
 
                 }),
@@ -2474,33 +4208,71 @@ async function run(argv) {
                 if (
                     huboCambiosDeIndentacion
                 ) {
-                    await fs.writeFile(inputFilePath, reindentedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        reindentedText,
+                        'utf8'
+                    )
 
                     sourceText = reindentedText
 
                 }
 
-                let conditionIndentFixedText = fixIfSingleVariableConditionIndent(sourceText)
+                let conditionIndentFixedText = fixIfSingleVariableConditionIndent(
+                    sourceText
+                )
 
                 let huboCambiosDeCondicionIndent = conditionIndentFixedText !== sourceText
 
                 if (
                     huboCambiosDeCondicionIndent
                 ) {
-                    await fs.writeFile(inputFilePath, conditionIndentFixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        conditionIndentFixedText,
+                        'utf8'
+                    )
 
                     sourceText = conditionIndentFixedText
 
                 }
 
-                let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
+                let argsFixed = fixFunctionArgumentsLayoutTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
+
+                let huboCambiosDeArgumentos = argsFixed.fixedText !== sourceText
+
+                if (
+                    huboCambiosDeArgumentos
+                ) {
+                    await fs.writeFile(
+                        inputFilePath,
+                        argsFixed.fixedText,
+                        'utf8'
+                    )
+
+                    sourceText = argsFixed.fixedText
+
+                }
+
+                let noTrailingWhitespaceText = stripTrailingWhitespace(
+                    sourceText
+                )
 
                 let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
 
                 if (
                     huboCambiosDeEspaciosFinales
                 ) {
-                    await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        noTrailingWhitespaceText,
+                        'utf8'
+                    )
 
                     sourceText = noTrailingWhitespaceText
 
@@ -2517,11 +4289,26 @@ async function run(argv) {
 
                 }
 
-                let sourceFile = ts.createSourceFile(inputFilePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind)
+                let sourceFile = ts.createSourceFile(
+                    inputFilePath,
+                    sourceText,
+                    ts.ScriptTarget.Latest,
+                    true,
+                    scriptKind
+                )
 
-                conditionFindings = collectConditionSingleVariableFindingsTypescript(sourceFile, inputFilePath, ts)
+                conditionFindings = collectConditionSingleVariableFindingsTypescript(
+                    sourceFile,
+                    inputFilePath,
+                    ts
+                )
 
-                findings = collectForbiddenFindingsTypescript(sourceFile, inputFilePath, forbiddenWords, ts)
+                findings = collectForbiddenFindingsTypescript(
+                    sourceFile,
+                    inputFilePath,
+                    forbiddenWords,
+                    ts
+                )
 
             }
 
@@ -2530,13 +4317,21 @@ async function run(argv) {
             if (
                 noEsTsFile
             ) {
-                let sourceText = await fs.readFile(inputFilePath, 'utf8')
+                let sourceText = await fs.readFile(
+                    inputFilePath,
+                    'utf8'
+                )
 
-                let parsedForTabs = parseSourceMeriyah(parse, sourceText)
+                let parsedForTabs = parseSourceMeriyah(
+                    parse,
+                    sourceText
+                )
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                 sourceText,
-                parsedForTabs.tokens.map(function (t) {
+                parsedForTabs.tokens.map(function (
+                    t
+                ) {
                     return { start: t.start, end: t.end }
 
                 }),
@@ -2547,124 +4342,189 @@ async function run(argv) {
                 if (
                     huboCambiosDeTabs
                 ) {
-                    await fs.writeFile(inputFilePath, tabFixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        tabFixedText,
+                        'utf8'
+                    )
 
                     sourceText = tabFixedText
 
                 }
 
-                let fixed = fixSemicolonsMeriyah(inputFilePath, parse, sourceText)
+                let fixed = fixSemicolonsMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
 
                 let huboCambiosDePuntoYComa = fixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDePuntoYComa
                 ) {
-                    await fs.writeFile(inputFilePath, fixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        fixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = fixed.fixedText
 
                 }
 
-                fixed.unfixableFindings.forEach(function (finding) {
+                fixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
                     )
 
                 })
 
-                let varConstFixed = fixVarConstToLetMeriyah(inputFilePath, parse, sourceText)
+                let varConstFixed = fixVarConstToLetMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
 
                 let huboCambiosVarConst = varConstFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosVarConst
                 ) {
-                    await fs.writeFile(inputFilePath, varConstFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        varConstFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = varConstFixed.fixedText
 
                 }
 
-                let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(inputFilePath, parse, sourceText)
+                let arrowFixed = fixArrowFunctionsToFunctionsMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
 
                 let huboCambiosDeArrows = arrowFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeArrows
                 ) {
-                    await fs.writeFile(inputFilePath, arrowFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        arrowFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = arrowFixed.fixedText
 
                 }
 
-                arrowFixed.unfixableFindings.forEach(function (finding) {
+                arrowFixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
                     )
 
                 })
 
-                let bracesFixed = fixMissingBracesIfMeriyah(inputFilePath, parse, sourceText)
+                let bracesFixed = fixMissingBracesIfMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
 
                 let huboCambiosDeLlaves = bracesFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeLlaves
                 ) {
-                    await fs.writeFile(inputFilePath, bracesFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        bracesFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = bracesFixed.fixedText
 
                 }
 
-                bracesFixed.unfixableFindings.forEach(function (finding) {
+                bracesFixed.unfixableFindings.forEach(function (
+                    finding
+                ) {
                     issueCount += 1
 
-                    let normalizedFilePath = normalize(finding.filePath)
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`,
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
                     )
 
                 })
 
-                let commentsFixed = fixCommentsMeriyah(inputFilePath, parse, sourceText)
+                let commentsFixed = fixCommentsMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
 
                 let huboCambiosDeComentarios = commentsFixed.fixedText !== sourceText
 
                 if (
                     huboCambiosDeComentarios
                 ) {
-                    await fs.writeFile(inputFilePath, commentsFixed.fixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        commentsFixed.fixedText,
+                        'utf8'
+                    )
 
                     sourceText = commentsFixed.fixedText
 
                 }
 
-                let parsedForIndent = parseSourceMeriyah(parse, sourceText)
+                let parsedForIndent = parseSourceMeriyah(
+                    parse,
+                    sourceText
+                )
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                 sourceText,
-                parsedForIndent.tokens.map(function (t) {
+                parsedForIndent.tokens.map(function (
+                    t
+                ) {
                     return { start: t.start, end: t.end }
 
                 }),
                 parsedForIndent.tokens
-                .filter(function (t) {
+                .filter(function (
+                    t
+                ) {
                     return t.text === '{' || t.text === '}'
 
                 })
-                .map(function (t) {
+                .map(function (
+                    t
+                ) {
                     return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
 
                 }),
@@ -2675,71 +4535,130 @@ async function run(argv) {
                 if (
                     huboCambiosDeIndentacion
                 ) {
-                    await fs.writeFile(inputFilePath, reindentedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        reindentedText,
+                        'utf8'
+                    )
 
                     sourceText = reindentedText
 
                 }
 
-                let conditionIndentFixedText = fixIfSingleVariableConditionIndent(sourceText)
+                let conditionIndentFixedText = fixIfSingleVariableConditionIndent(
+                    sourceText
+                )
 
                 let huboCambiosDeCondicionIndent = conditionIndentFixedText !== sourceText
 
                 if (
                     huboCambiosDeCondicionIndent
                 ) {
-                    await fs.writeFile(inputFilePath, conditionIndentFixedText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        conditionIndentFixedText,
+                        'utf8'
+                    )
 
                     sourceText = conditionIndentFixedText
 
                 }
 
-                let noTrailingWhitespaceText = stripTrailingWhitespace(sourceText)
+                let argsFixed = fixFunctionArgumentsLayoutMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
+
+                let huboCambiosDeArgumentos = argsFixed.fixedText !== sourceText
+
+                if (
+                    huboCambiosDeArgumentos
+                ) {
+                    await fs.writeFile(
+                        inputFilePath,
+                        argsFixed.fixedText,
+                        'utf8'
+                    )
+
+                    sourceText = argsFixed.fixedText
+
+                }
+
+                let noTrailingWhitespaceText = stripTrailingWhitespace(
+                    sourceText
+                )
 
                 let huboCambiosDeEspaciosFinales = noTrailingWhitespaceText !== sourceText
 
                 if (
                     huboCambiosDeEspaciosFinales
                 ) {
-                    await fs.writeFile(inputFilePath, noTrailingWhitespaceText, 'utf8')
+                    await fs.writeFile(
+                        inputFilePath,
+                        noTrailingWhitespaceText,
+                        'utf8'
+                    )
 
                     sourceText = noTrailingWhitespaceText
 
                 }
 
-                let parsed = parseSourceMeriyah(parse, sourceText)
+                let parsed = parseSourceMeriyah(
+                    parse,
+                    sourceText
+                )
 
-                conditionFindings = collectConditionSingleVariableFindingsMeriyah(parsed.ast, inputFilePath)
+                conditionFindings = collectConditionSingleVariableFindingsMeriyah(
+                    parsed.ast,
+                    inputFilePath
+                )
 
-                findings = collectForbiddenFindingsMeriyah(parsed.ast, inputFilePath, forbiddenWords)
+                findings = collectForbiddenFindingsMeriyah(
+                    parsed.ast,
+                    inputFilePath,
+                    forbiddenWords
+                )
 
             }
 
-            findings.forEach(function (finding) {
+            findings.forEach(function (
+                finding
+            ) {
                 issueCount += 1
 
-                let normalizedFilePath = normalize(finding.filePath)
+                let normalizedFilePath = normalize(
+                    finding.filePath
+                )
 
-                let keyword = normalize(finding.keyword)
+                let keyword = normalize(
+                    finding.keyword
+                )
 
                 let ruleIdValue =
                 typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
 
-                let ruleId = normalize(ruleIdValue)
+                let ruleId = normalize(
+                    ruleIdValue
+                )
 
                 process.stdout.write(
-                `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`,
+                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`
                 )
 
             })
 
-            conditionFindings.forEach(function (finding) {
+            conditionFindings.forEach(function (
+                finding
+            ) {
                 issueCount += 1
 
-                let normalizedFilePath = normalize(finding.filePath)
+                let normalizedFilePath = normalize(
+                    finding.filePath
+                )
 
                 process.stdout.write(
-                `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`,
+                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`
                 )
 
             })
@@ -2747,16 +4666,25 @@ async function run(argv) {
         } catch (error) {
             parseErrorCount += 1
 
-            let message = error instanceof Error ? error.message : String(error)
+            let message = error instanceof Error ? error.message : String(
+                error
+            )
 
-            process.stderr.write(`${inputFilePath}  error  ${message}\n`)
+            process.stderr.write(
+                `${inputFilePath}  error  ${message}\n`
+            )
 
         }
     }
 
-    await files.reduce(function (prev, inputFilePath) {
+    await files.reduce(function (
+        prev,
+        inputFilePath
+    ) {
         return prev.then(function () {
-            return analyzeOne(inputFilePath)
+            return analyzeOne(
+                inputFilePath
+            )
 
         })
 
@@ -2775,6 +4703,10 @@ async function run(argv) {
 
 }
 
-let exitCode = await run(process.argv.slice(2))
+let exitCode = await run(
+process.argv.slice(
+    2
+)
+)
 
 process.exitCode = exitCode

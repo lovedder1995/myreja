@@ -1,15 +1,18 @@
 import fs from 'node:fs/promises'
-
 import path from 'node:path'
-
 import process from 'node:process'
 
 export async function importMeriyah() {
     try {
-        return await import(new URL('../../dist/meriyah.mjs', import.meta.url))
+        return await import(new URL(
+            '../../dist/meriyah.mjs',
+            import.meta.url
+        ))
 
     } catch {
-        throw new Error('No se encontró `dist/meriyah.mjs`. Ejecutá `bun run build` y reintentá.')
+        throw new Error(
+            'No se encontró `dist/meriyah.mjs`. Ejecutá `bun run build` y reintentá.'
+        )
 
     }
 }
@@ -19,13 +22,17 @@ export async function importTypescript() {
         return await import('typescript')
 
     } catch {
-        throw new Error('No se encontró `typescript`. Instalalo y reintentá.')
+        throw new Error(
+            'No se encontró `typescript`. Instalalo y reintentá.'
+        )
 
     }
 }
 
 export async function loadForbiddenWords() {
-    let fallback = new Set(['this'])
+    let fallback = new Set(
+        ['this']
+    )
 
     let scriptPath = process.argv[1]
 
@@ -38,12 +45,24 @@ export async function loadForbiddenWords() {
 
     }
 
-    let tokenFilePath = path.resolve(path.dirname(path.resolve(scriptPath)), '..', 'src', 'token.ts')
+    let tokenFilePath = path.resolve(
+    path.dirname(
+    path.resolve(
+        scriptPath
+    )
+    ),
+    '..',
+    'src',
+    'token.ts'
+    )
 
     let content
 
     try {
-        content = await fs.readFile(tokenFilePath, 'utf8')
+        content = await fs.readFile(
+            tokenFilePath,
+            'utf8'
+        )
 
     } catch {
         return fallback
@@ -54,8 +73,16 @@ export async function loadForbiddenWords() {
 
     let entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm
 
-    Array.from(content.matchAll(entryRegExp)).forEach(function (match) {
-        forbidden.add(match[1])
+    Array.from(
+    content.matchAll(
+        entryRegExp
+    )
+    ).forEach(function (
+        match
+    ) {
+        forbidden.add(
+            match[1]
+        )
 
     })
 
@@ -79,14 +106,20 @@ export function printHelp() {
 
 }
 
-export function isPathLike(value) {
+export function isPathLike(
+    value
+) {
     return typeof value === 'string' && value.length > 0
 
 }
 
-export async function pathKind(p) {
+export async function pathKind(
+    p
+) {
     try {
-        let stats = await fs.stat(p)
+        let stats = await fs.stat(
+            p
+        )
 
         let esDirectorio = stats.isDirectory()
 
@@ -114,15 +147,24 @@ export async function pathKind(p) {
     }
 }
 
-export async function collectFiles(inputPath, out) {
-    let kind = await pathKind(inputPath)
+export async function collectFiles(
+    inputPath,
+    out
+) {
+    let kind = await pathKind(
+        inputPath
+    )
 
     let esArchivo = kind === 'file'
 
     if (
         esArchivo
     ) {
-        out.add(path.resolve(inputPath))
+        out.add(
+        path.resolve(
+            inputPath
+        )
+        )
 
         return
 
@@ -136,11 +178,19 @@ export async function collectFiles(inputPath, out) {
 
     }
 
-    let entries = await fs.readdir(inputPath, { withFileTypes: true })
+    let entries = await fs.readdir(
+        inputPath,
+        { withFileTypes: true }
+    )
 
     await Promise.all(
-    entries.map(async function (entry) {
-        let fullPath = path.join(inputPath, entry.name)
+    entries.map(async function (
+        entry
+    ) {
+        let fullPath = path.join(
+            inputPath,
+            entry.name
+        )
 
         let esDirectorio = entry.isDirectory()
 
@@ -156,7 +206,10 @@ export async function collectFiles(inputPath, out) {
 
             }
 
-            await collectFiles(fullPath, out)
+            await collectFiles(
+                fullPath,
+                out
+            )
 
             return
 
@@ -171,7 +224,9 @@ export async function collectFiles(inputPath, out) {
 
         }
 
-        let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(entry.name)
+        let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
+            entry.name
+        )
 
         if (
             noEsExtensionSoportada
@@ -180,7 +235,11 @@ export async function collectFiles(inputPath, out) {
 
         }
 
-        out.add(path.resolve(fullPath))
+        out.add(
+        path.resolve(
+            fullPath
+        )
+        )
 
     }),
     )

@@ -1,4 +1,7 @@
-export function applyReplacements(sourceText, replacements) {
+export function applyReplacements(
+    sourceText,
+    replacements
+) {
     let noHayReemplazos = !replacements.length
 
     if (
@@ -10,11 +13,16 @@ export function applyReplacements(sourceText, replacements) {
 
     let sorted = replacements
     .slice()
-    .sort(function (a, b) {
+    .sort(function (
+        a,
+        b
+    ) {
         return b.start - a.start
 
     })
-    .filter(function (rep) {
+    .filter(function (
+        rep
+    ) {
         return (
         typeof rep?.start === 'number' &&
         typeof rep?.end === 'number' &&
@@ -29,7 +37,9 @@ export function applyReplacements(sourceText, replacements) {
 
     let lastStart = out.length + 1
 
-    sorted.forEach(function (rep) {
+    sorted.forEach(function (
+        rep
+    ) {
         let solapaConReemplazoPrevio = rep.end > lastStart
 
         if (
@@ -39,7 +49,12 @@ export function applyReplacements(sourceText, replacements) {
 
         }
 
-        out = out.slice(0, rep.start) + rep.text + out.slice(rep.end)
+        out = out.slice(
+            0,
+            rep.start
+        ) + rep.text + out.slice(
+            rep.end
+        )
 
         lastStart = rep.start
 
@@ -49,7 +64,9 @@ export function applyReplacements(sourceText, replacements) {
 
 }
 
-export function stripTrailingWhitespace(sourceText) {
+export function stripTrailingWhitespace(
+    sourceText
+) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
     if (
@@ -59,17 +76,29 @@ export function stripTrailingWhitespace(sourceText) {
 
     }
 
-    let out = sourceText.replace(/[ \t]+(?=\r?\n)/g, '')
+    let out = sourceText.replace(
+        /[ \t]+(?=\r?\n)/g,
+        ''
+    )
 
-    out = out.replace(/[ \t]+(?=\r)/g, '')
+    out = out.replace(
+        /[ \t]+(?=\r)/g,
+        ''
+    )
 
-    out = out.replace(/[ \t]+$/g, '')
+    out = out.replace(
+        /[ \t]+$/g,
+        ''
+    )
 
     return out
 
 }
 
-export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
+export function convertTabsToFourSpacesOutsideTokens(
+    sourceText,
+    spans
+) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
     if (
@@ -79,7 +108,9 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     }
 
-    let noHayTabs = !sourceText.includes('\t')
+    let noHayTabs = !sourceText.includes(
+        '\t'
+    )
 
     if (
         noHayTabs
@@ -88,12 +119,17 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     }
 
-    let noHayTramos = !Array.isArray(spans) || spans.length === 0
+    let noHayTramos = !Array.isArray(
+        spans
+    ) || spans.length === 0
 
     if (
         noHayTramos
     ) {
-        return sourceText.replace(/\t/g, '    ')
+        return sourceText.replace(
+            /\t/g,
+            '    '
+        )
 
     }
 
@@ -101,38 +137,65 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     let sorted = spans
     .slice()
-    .filter(function (span) {
+    .filter(function (
+        span
+    ) {
         return (
         span &&
         typeof span.start === 'number' &&
         typeof span.end === 'number' &&
-        Number.isFinite(span.start) &&
-        Number.isFinite(span.end)
+        Number.isFinite(
+            span.start
+        ) &&
+        Number.isFinite(
+            span.end
+        )
         )
 
     })
-    .map(function (span) {
-        let start = Math.max(0, Math.min(len, span.start))
+    .map(function (
+        span
+    ) {
+        let start = Math.max(
+        0,
+        Math.min(
+            len,
+            span.start
+        )
+        )
 
-        let end = Math.max(start, Math.min(len, span.end))
+        let end = Math.max(
+        start,
+        Math.min(
+            len,
+            span.end
+        )
+        )
 
         return { start, end }
 
     })
-    .sort(function (a, b) {
+    .sort(function (
+        a,
+        b
+    ) {
         return a.start - b.start
 
     })
 
     let merged = []
 
-    sorted.forEach(function (span) {
+    sorted.forEach(function (
+        span
+    ) {
         let noHayTramosAcumulados = merged.length === 0
 
         if (
             noHayTramosAcumulados
         ) {
-            merged.push(span)
+            merged.push(
+                span
+            )
 
             return
 
@@ -145,7 +208,9 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
         if (
             empiezaDespuesDelFinal
         ) {
-            merged.push(span)
+            merged.push(
+                span
+            )
 
             return
 
@@ -165,17 +230,28 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
     let cursor = 0
 
-    merged.forEach(function (span) {
+    merged.forEach(function (
+        span
+    ) {
         let hayTextoAntesDelTramo = span.start > cursor
 
         if (
             hayTextoAntesDelTramo
         ) {
-            out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ')
+            out += sourceText.slice(
+                cursor,
+                span.start
+            ).replace(
+                /\t/g,
+                '    '
+            )
 
         }
 
-        out += sourceText.slice(span.start, span.end)
+        out += sourceText.slice(
+            span.start,
+            span.end
+        )
 
         cursor = span.end
 
@@ -186,7 +262,12 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
     if (
         quedaTextoPorProcesar
     ) {
-        out += sourceText.slice(cursor).replace(/\t/g, '    ')
+        out += sourceText.slice(
+            cursor
+        ).replace(
+            /\t/g,
+            '    '
+        )
 
     }
 
@@ -194,8 +275,13 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
 
 }
 
-export function mergeSpans(spans, len) {
-    let noHayTramos = !Array.isArray(spans) || spans.length === 0
+export function mergeSpans(
+    spans,
+    len
+) {
+    let noHayTramos = !Array.isArray(
+        spans
+    ) || spans.length === 0
 
     if (
         noHayTramos
@@ -206,38 +292,65 @@ export function mergeSpans(spans, len) {
 
     let sorted = spans
     .slice()
-    .filter(function (span) {
+    .filter(function (
+        span
+    ) {
         return (
         span &&
         typeof span.start === 'number' &&
         typeof span.end === 'number' &&
-        Number.isFinite(span.start) &&
-        Number.isFinite(span.end)
+        Number.isFinite(
+            span.start
+        ) &&
+        Number.isFinite(
+            span.end
+        )
         )
 
     })
-    .map(function (span) {
-        let start = Math.max(0, Math.min(len, span.start))
+    .map(function (
+        span
+    ) {
+        let start = Math.max(
+        0,
+        Math.min(
+            len,
+            span.start
+        )
+        )
 
-        let end = Math.max(start, Math.min(len, span.end))
+        let end = Math.max(
+        start,
+        Math.min(
+            len,
+            span.end
+        )
+        )
 
         return { start, end }
 
     })
-    .sort(function (a, b) {
+    .sort(function (
+        a,
+        b
+    ) {
         return a.start - b.start
 
     })
 
     let merged = []
 
-    sorted.forEach(function (span) {
+    sorted.forEach(function (
+        span
+    ) {
         let noHayTramosAcumulados = merged.length === 0
 
         if (
             noHayTramosAcumulados
         ) {
-            merged.push(span)
+            merged.push(
+                span
+            )
 
             return
 
@@ -250,7 +363,9 @@ export function mergeSpans(spans, len) {
         if (
             empiezaDespuesDelFinal
         ) {
-            merged.push(span)
+            merged.push(
+                span
+            )
 
             return
 
@@ -270,8 +385,14 @@ export function mergeSpans(spans, len) {
 
 }
 
-function isInsideMergedSpans(index, merged) {
-    function search(lo, hi) {
+function isInsideMergedSpans(
+    index,
+    merged
+) {
+    function search(
+        lo,
+        hi
+    ) {
         let rangoVacio = lo > hi
 
         if (
@@ -290,7 +411,10 @@ function isInsideMergedSpans(index, merged) {
         if (
             estaAntesDelTramo
         ) {
-            return search(lo, mid - 1)
+            return search(
+                lo,
+                mid - 1
+            )
 
         }
 
@@ -299,7 +423,10 @@ function isInsideMergedSpans(index, merged) {
         if (
             estaDespuesDelTramo
         ) {
-            return search(mid + 1, hi)
+            return search(
+                mid + 1,
+                hi
+            )
 
         }
 
@@ -307,11 +434,18 @@ function isInsideMergedSpans(index, merged) {
 
     }
 
-    return search(0, merged.length - 1)
+    return search(
+        0,
+        merged.length - 1
+    )
 
 }
 
-export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
+export function reindentFourSpacesOutsideTokens(
+    sourceText,
+    tokenSpans,
+    braceEvents
+) {
     let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
     if (
@@ -323,22 +457,42 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     let len = sourceText.length
 
-    let mergedTokenSpans = mergeSpans(tokenSpans, len)
+    let mergedTokenSpans = mergeSpans(
+        tokenSpans,
+        len
+    )
 
-    let events = Array.isArray(braceEvents)
+    let events = Array.isArray(
+        braceEvents
+    )
     ? braceEvents
     .slice()
-    .filter(function (e) {
-        return e && typeof e.pos === 'number' && Number.isFinite(e.pos) && (e.delta === 1 || e.delta === -1)
+    .filter(function (
+        e
+    ) {
+        return e && typeof e.pos === 'number' && Number.isFinite(
+            e.pos
+        ) && (e.delta === 1 || e.delta === -1)
 
     })
-    .map(function (e) {
-        let pos = Math.max(0, Math.min(len, e.pos))
+    .map(function (
+        e
+    ) {
+        let pos = Math.max(
+        0,
+        Math.min(
+            len,
+            e.pos
+        )
+        )
 
         return { pos, delta: e.delta }
 
     })
-    .sort(function (a, b) {
+    .sort(function (
+        a,
+        b
+    ) {
         return a.pos - b.pos
 
     })
@@ -350,26 +504,41 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     let eventPrefix = []
 
-    events.forEach(function (e, index) {
-        eventPos.push(e.pos)
+    events.forEach(function (
+        e,
+        index
+    ) {
+        eventPos.push(
+            e.pos
+        )
 
         let esPrimerEvento = index === 0
 
         if (
             esPrimerEvento
         ) {
-            eventPrefix.push(e.delta)
+            eventPrefix.push(
+                e.delta
+            )
 
             return
 
         }
 
-        eventPrefix.push(eventPrefix[index - 1] + e.delta)
+        eventPrefix.push(
+            eventPrefix[index - 1] + e.delta
+        )
 
     })
 
-    function upperBound(arr, value) {
-        function search(lo, hi) {
+    function upperBound(
+        arr,
+        value
+    ) {
+        function search(
+            lo,
+            hi
+        ) {
             let rangoVacio = lo > hi
 
             if (
@@ -386,19 +555,30 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
             if (
                 estaPorDebajoDelValor
             ) {
-                return search(mid + 1, hi)
+                return search(
+                    mid + 1,
+                    hi
+                )
 
             }
 
-            return search(lo, mid - 1)
+            return search(
+                lo,
+                mid - 1
+            )
 
         }
 
-        return search(0, arr.length - 1)
+        return search(
+            0,
+            arr.length - 1
+        )
 
     }
 
-    function depthAtPos(pos) {
+    function depthAtPos(
+        pos
+    ) {
         let noHayEventos = eventPos.length === 0
 
         if (
@@ -408,7 +588,10 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         }
 
-        let idx = upperBound(eventPos, pos)
+        let idx = upperBound(
+            eventPos,
+            pos
+        )
 
         let noHayEventoAnterior = idx <= 0
 
@@ -434,31 +617,48 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     }
 
-    function splitLineSegment(segment) {
-        let terminaConCrLf = segment.endsWith('\r\n')
+    function splitLineSegment(
+        segment
+    ) {
+        let terminaConCrLf = segment.endsWith(
+            '\r\n'
+        )
 
         if (
             terminaConCrLf
         ) {
-            return { lineText: segment.slice(0, -2), lineBreak: '\r\n' }
+            return { lineText: segment.slice(
+                0,
+                -2
+            ), lineBreak: '\r\n' }
 
         }
 
-        let terminaConLf = segment.endsWith('\n')
+        let terminaConLf = segment.endsWith(
+            '\n'
+        )
 
         if (
             terminaConLf
         ) {
-            return { lineText: segment.slice(0, -1), lineBreak: '\n' }
+            return { lineText: segment.slice(
+                0,
+                -1
+            ), lineBreak: '\n' }
 
         }
 
-        let terminaConCr = segment.endsWith('\r')
+        let terminaConCr = segment.endsWith(
+            '\r'
+        )
 
         if (
             terminaConCr
         ) {
-            return { lineText: segment.slice(0, -1), lineBreak: '\r' }
+            return { lineText: segment.slice(
+                0,
+                -1
+            ), lineBreak: '\r' }
 
         }
 
@@ -466,13 +666,17 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     }
 
-    let segments = sourceText.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) || []
+    let segments = sourceText.match(
+        /[^\r\n]*(?:\r\n|\r|\n|$)/g
+    ) || []
 
     let cursor = 0
 
     let previousWasBlankLineOutsideTokens = false
 
-    segments.forEach(function (segment) {
+    segments.forEach(function (
+        segment
+    ) {
         let noHaySegmento = !segment
 
         if (
@@ -482,7 +686,9 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         }
 
-        let parts = splitLineSegment(segment)
+        let parts = splitLineSegment(
+            segment
+        )
 
         let { lineText, lineBreak } = parts
 
@@ -490,7 +696,10 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         cursor += segment.length
 
-        let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans)
+        let estaDentroDeTramosToken = isInsideMergedSpans(
+            lineStart,
+            mergedTokenSpans
+        )
 
         let esLineaVacia = lineText.trim().length === 0
 
@@ -534,7 +743,10 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         }
 
-        let content = lineText.replace(/^[ \t]+/, '')
+        let content = lineText.replace(
+            /^[ \t]+/,
+            ''
+        )
 
         let noHayContenido = content.length === 0
 
@@ -549,9 +761,13 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         }
 
-        let depth = depthAtPos(lineStart)
+        let depth = depthAtPos(
+            lineStart
+        )
 
-        let closeMatch = content.match(/^}+/)
+        let closeMatch = content.match(
+            /^}+/
+        )
 
         let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
 
@@ -566,7 +782,9 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
         }
 
-        out += ' '.repeat(indentLevel * 4) + content + lineBreak
+        out += ' '.repeat(
+            indentLevel * 4
+        ) + content + lineBreak
 
         previousWasBlankLineOutsideTokens = false
 
@@ -576,8 +794,13 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
 }
 
-export function isInsideAnySpan(index, spans) {
-    return spans.some(function (span) {
+export function isInsideAnySpan(
+    index,
+    spans
+) {
+    return spans.some(function (
+        span
+    ) {
         return index >= span.start && index < span.end
 
     })
