@@ -18,7 +18,7 @@ export function createTsFinding(
             line: lc.line + 1,
             column: lc.character,
             keyword,
-            ruleId,
+            ruleId
         }
     )
 
@@ -220,7 +220,9 @@ export function collectForbiddenFindingsTypescript(
         node,
         parent
     ) {
-        let { kind } = node
+        let {
+            kind
+        } = node
 
         let esThisKeyword = kind === ts.SyntaxKind.ThisKeyword
 
@@ -687,9 +689,13 @@ export function collectForbiddenFindingsTypescript(
         if (
             esBinaryExpression
         ) {
-            let { operatorToken } = node
+            let {
+                operatorToken
+            } = node
 
-            let { kind: operatorKind } = operatorToken || {}
+            let {
+                kind: operatorKind
+            } = operatorToken || {}
 
             let esInKeyword = operatorKind === ts.SyntaxKind.InKeyword
 
@@ -890,9 +896,14 @@ export function collectForbiddenFindingsTypescript(
         if (
             esMetaProperty
         ) {
-            let { keywordToken, name: nameNode } = node
+            let {
+                keywordToken,
+                name: nameNode
+            } = node
 
-            let { escapedText: name } = nameNode || {}
+            let {
+                escapedText: name
+            } = nameNode || {}
 
             let esNewKeyword = keywordToken === ts.SyntaxKind.NewKeyword
 
@@ -1005,9 +1016,13 @@ export function collectForbiddenFindingsTypescript(
         if (
             esVariableStatement
         ) {
-            let { declarationList: declList } = node
+            let {
+                declarationList: declList
+            } = node
 
-            let { flags = 0 } = declList || {}
+            let {
+                flags = 0
+            } = declList || {}
 
             let estaConstProhibido = forbiddenWords.has(
                 'const'
@@ -1093,7 +1108,9 @@ export function collectForbiddenFindingsTypescript(
         if (
             esIdentifier
         ) {
-            let { escapedText: name } = node
+            let {
+                escapedText: name
+            } = node
 
             let esNombreString = typeof name === 'string'
 
@@ -1121,7 +1138,9 @@ export function collectForbiddenFindingsTypescript(
             }
         }
 
-        let { modifiers } = node
+        let {
+            modifiers
+        } = node
 
         let hayModificadores = Boolean(
             modifiers && modifiers.length
@@ -1134,7 +1153,9 @@ export function collectForbiddenFindingsTypescript(
                 function (
                     modifier
                 ) {
-                    let { kind: modifierKind } = modifier
+                    let {
+                        kind: modifierKind
+                    } = modifier
 
                     let esPublicKeyword = modifierKind === ts.SyntaxKind.PublicKeyword
 
@@ -1276,7 +1297,9 @@ export function collectForbiddenFindingsTypescript(
 
         }
 
-        let { heritageClauses } = node
+        let {
+            heritageClauses
+        } = node
 
         let hayHeritageClauses = Boolean(
             heritageClauses && heritageClauses.length
@@ -1399,7 +1422,9 @@ export function collectConditionSingleVariableFindingsTypescript(
     function visit(
         node
     ) {
-        let { kind } = node
+        let {
+            kind
+        } = node
 
         let esIfStatement = kind === ts.SyntaxKind.IfStatement
 
@@ -1494,7 +1519,10 @@ export function collectEmptyStatementRangesTypescript(
                 rangoValido
             ) {
                 ranges.push(
-                    { start, end }
+                    {
+                        start,
+                        end
+                    }
                 )
 
             }
@@ -1612,7 +1640,10 @@ export function collectForHeaderSpansFromTsTokens(
                 terminaElEncabezado
             ) {
                 spans.push(
-                    { start, end: tk.end }
+                    {
+                        start,
+                        end: tk.end
+                    }
                 )
 
                 return scanFrom(
@@ -1672,10 +1703,15 @@ export function scanTokensTypescript(
         let end = scanner.getTextPos()
 
         tokens.push(
-            { kind, pos, end, text: sourceText.slice(
+            {
+                kind,
                 pos,
-                end
-            ) }
+                end,
+                text: sourceText.slice(
+                    pos,
+                    end
+                )
+            }
         )
 
         return scanNext()
@@ -1747,7 +1783,11 @@ export function fixSemicolonsTypescript(
             range
         ) {
             replacements.push(
-                { start: range.start, end: range.end, text: '{}' }
+                {
+                    start: range.start,
+                    end: range.end,
+                    text: '{}'
+                }
             )
 
         }
@@ -1797,7 +1837,7 @@ export function fixSemicolonsTypescript(
                         line: lc.line + 1,
                         column: lc.character,
                         keyword: ';',
-                        ruleId: 'formatear/no-semicolon',
+                        ruleId: 'formatear/no-semicolon'
                     }
                 )
 
@@ -1806,7 +1846,11 @@ export function fixSemicolonsTypescript(
             }
 
             replacements.push(
-                { start: t.pos, end: t.end, text: '\n' }
+                {
+                    start: t.pos,
+                    end: t.end,
+                    text: '\n'
+                }
             )
 
         }
@@ -1817,7 +1861,10 @@ export function fixSemicolonsTypescript(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -1858,7 +1905,11 @@ export function fixVarConstToLetTypescript(
             }
 
             replacements.push(
-                { start: t.pos, end: t.end, text: 'let' }
+                {
+                    start: t.pos,
+                    end: t.end,
+                    text: 'let'
+                }
             )
 
         }
@@ -1869,7 +1920,10 @@ export function fixVarConstToLetTypescript(
         replacements
     )
 
-    return { fixedText, unfixableFindings: [] }
+    return {
+        fixedText,
+        unfixableFindings: []
+    }
 
 }
 
@@ -1946,7 +2000,7 @@ export function fixArrowFunctionsToFunctionsTypescript(
                         line: lc.line + 1,
                         column: lc.character,
                         keyword: '=>',
-                        ruleId: 'formatear/no-arrow-function',
+                        ruleId: 'formatear/no-arrow-function'
                     }
                 )
 
@@ -2034,7 +2088,11 @@ export function fixArrowFunctionsToFunctionsTypescript(
             }
 
             replacements.push(
-                { start, end, text: `${functionPrefix}${paramsText} ${bodyText}` }
+                {
+                    start,
+                    end,
+                    text: `${functionPrefix}${paramsText} ${bodyText}`
+                }
             )
 
             return
@@ -2057,7 +2115,10 @@ export function fixArrowFunctionsToFunctionsTypescript(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -2132,7 +2193,7 @@ export function fixMissingBracesIfTypescript(
                     line: lc.line + 1,
                     column: lc.character,
                     keyword: '{',
-                    ruleId: 'formatear/require-braces',
+                    ruleId: 'formatear/require-braces'
                 }
             )
 
@@ -2141,11 +2202,19 @@ export function fixMissingBracesIfTypescript(
         }
 
         replacements.push(
-            { start, end: start, text: '{ ' }
+            {
+                start,
+                end: start,
+                text: '{ '
+            }
         )
 
         replacements.push(
-            { start: end, end, text: ' }' }
+            {
+                start: end,
+                end,
+                text: ' }'
+            }
         )
 
     }
@@ -2192,7 +2261,10 @@ export function fixMissingBracesIfTypescript(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -2207,7 +2279,9 @@ export function fixFunctionArgumentsLayoutTypescript(
     if (
         noEsTextoValido
     ) {
-        return { fixedText: sourceText }
+        return {
+            fixedText: sourceText
+        }
 
     }
 
@@ -2512,9 +2586,10 @@ export function fixFunctionArgumentsLayoutTypescript(
         )
     }
 
-    function findOpenParenIndex(
+    function findOpenTokenIndex(
         fromPos,
-        toPos
+        toPos,
+        openChar
     ) {
         let startIndex = lowerBoundTokens(
             fromPos
@@ -2542,10 +2617,10 @@ export function fixFunctionArgumentsLayoutTypescript(
 
                 }
 
-                let esOpenParen = t.text === '('
+                let esApertura = t.text === openChar
 
                 if (
-                    esOpenParen
+                    esApertura
                 ) {
                     return true
 
@@ -2568,9 +2643,11 @@ export function fixFunctionArgumentsLayoutTypescript(
         return startIndex + localIndex
     }
 
-    function findMatchingCloseParenIndex(
+    function findMatchingCloseTokenIndex(
         openIndex,
-        toPos
+        toPos,
+        openChar,
+        closeChar
     ) {
         let openIndexInvalido = openIndex < 0
 
@@ -2605,20 +2682,20 @@ export function fixFunctionArgumentsLayoutTypescript(
 
                 }
 
-                let esOpenParen = t.text === '('
+                let esApertura = t.text === openChar
 
                 if (
-                    esOpenParen
+                    esApertura
                 ) {
                     depth += 1
                     return false
 
                 }
 
-                let esCloseParen = t.text === ')'
+                let esCierre = t.text === closeChar
 
                 if (
-                    esCloseParen
+                    esCierre
                 ) {
                     depth -= 1
 
@@ -2652,7 +2729,9 @@ export function fixFunctionArgumentsLayoutTypescript(
     function buildListReplacement(
         openToken,
         closeToken,
-        items
+        items,
+        openChar,
+        closeChar
     ) {
         let indent = findLineIndentAtLocal(
             sourceText,
@@ -2827,7 +2906,10 @@ export function fixFunctionArgumentsLayoutTypescript(
                 item,
                 index
             ) {
-                let { start, end } = item
+                let {
+                    start,
+                    end
+                } = item
 
                 let text = sourceText.slice(
                     start,
@@ -2858,11 +2940,15 @@ export function fixFunctionArgumentsLayoutTypescript(
             }
         )
 
-        let out = `(${eol}${lines.join(
+        let out = `${openChar}${eol}${lines.join(
             eol
-        )}${eol}${indent})`
+        )}${eol}${indent}${closeChar}`
 
-        return { start: openToken.pos, end: closeToken.end, text: out }
+        return {
+            start: openToken.pos,
+            end: closeToken.end,
+            text: out
+        }
     }
 
     function getNodeRange(
@@ -2873,7 +2959,10 @@ export function fixFunctionArgumentsLayoutTypescript(
         )
         let end = node.getEnd()
 
-        return { start, end }
+        return {
+            start,
+            end
+        }
     }
 
     function collectItemsFromTsNodeArray(
@@ -2902,7 +2991,10 @@ export function fixFunctionArgumentsLayoutTypescript(
                     return
                 }
 
-                let { start, end } = getNodeRange(
+                let {
+                    start,
+                    end
+                } = getNodeRange(
                     item
                 )
 
@@ -2915,7 +3007,10 @@ export function fixFunctionArgumentsLayoutTypescript(
                 }
 
                 out.push(
-                    { start, end }
+                    {
+                        start,
+                        end
+                    }
                 )
             }
         )
@@ -2928,7 +3023,9 @@ export function fixFunctionArgumentsLayoutTypescript(
     function maybeAddList(
         fromPos,
         toPos,
-        items
+        items,
+        openChar,
+        closeChar
     ) {
         let noHayItems = !Array.isArray(
             items
@@ -2940,9 +3037,10 @@ export function fixFunctionArgumentsLayoutTypescript(
             return
         }
 
-        let openIndex = findOpenParenIndex(
+        let openIndex = findOpenTokenIndex(
             fromPos,
-            toPos
+            toPos,
+            openChar
         )
 
         let noHayParenApertura = openIndex < 0
@@ -2953,9 +3051,11 @@ export function fixFunctionArgumentsLayoutTypescript(
             return
         }
 
-        let closeIndex = findMatchingCloseParenIndex(
+        let closeIndex = findMatchingCloseTokenIndex(
             openIndex,
-            toPos
+            toPos,
+            openChar,
+            closeChar
         )
 
         let noHayParenCierre = closeIndex < 0
@@ -3048,7 +3148,9 @@ export function fixFunctionArgumentsLayoutTypescript(
             buildListReplacement(
                 openToken,
                 closeToken,
-                items
+                items,
+                openChar,
+                closeChar
             )
         )
     }
@@ -3079,7 +3181,9 @@ export function fixFunctionArgumentsLayoutTypescript(
             maybeAddList(
                 node.expression.end,
                 node.end,
-                items
+                items,
+                '(',
+                ')'
             )
         }
 
@@ -3097,11 +3201,15 @@ export function fixFunctionArgumentsLayoutTypescript(
             maybeAddList(
                 node.expression.end,
                 node.end,
-                items
+                items,
+                '(',
+                ')'
             )
         }
 
-        let { kind } = node
+        let {
+            kind
+        } = node
 
         let esFunctionDeclaration = kind === ts.SyntaxKind.FunctionDeclaration
         let esFunctionExpression = kind === ts.SyntaxKind.FunctionExpression
@@ -3163,7 +3271,125 @@ export function fixFunctionArgumentsLayoutTypescript(
             maybeAddList(
                 fromPos,
                 toPos,
-                items
+                items,
+                '(',
+                ')'
+            )
+        }
+
+        let esArrayLiteral = ts.isArrayLiteralExpression(
+            node
+        )
+
+        if (
+            esArrayLiteral
+        ) {
+            let tieneHuecos = node.elements.some(
+                function (
+                    el
+                ) {
+                    return el && el.kind === ts.SyntaxKind.OmittedExpression
+                }
+            )
+
+            let noTieneHuecos = !tieneHuecos
+
+            if (
+                noTieneHuecos
+            ) {
+                let items = collectItemsFromTsNodeArray(
+                    node.elements
+                )
+
+                maybeAddList(
+                    node.getStart(
+                        sourceFile
+                    ),
+                    node.end,
+                    items,
+                    '[',
+                    ']'
+                )
+            }
+        }
+
+        let esObjectLiteral = ts.isObjectLiteralExpression(
+            node
+        )
+
+        if (
+            esObjectLiteral
+        ) {
+            let items = collectItemsFromTsNodeArray(
+                node.properties
+            )
+
+            maybeAddList(
+                node.getStart(
+                    sourceFile
+                ),
+                node.end,
+                items,
+                '{',
+                '}'
+            )
+        }
+
+        let esArrayBindingPattern = ts.isArrayBindingPattern(
+            node
+        )
+
+        if (
+            esArrayBindingPattern
+        ) {
+            let tieneHuecos = node.elements.some(
+                function (
+                    el
+                ) {
+                    return el && el.kind === ts.SyntaxKind.OmittedExpression
+                }
+            )
+
+            let noTieneHuecos = !tieneHuecos
+
+            if (
+                noTieneHuecos
+            ) {
+                let items = collectItemsFromTsNodeArray(
+                    node.elements
+                )
+
+                maybeAddList(
+                    node.getStart(
+                        sourceFile
+                    ),
+                    node.end,
+                    items,
+                    '[',
+                    ']'
+                )
+            }
+        }
+
+        let esObjectBindingPattern = ts.isObjectBindingPattern(
+            node
+        )
+
+        if (
+            esObjectBindingPattern
+        ) {
+            let items = collectItemsFromTsNodeArray(
+                node.elements
+            )
+
+            maybeAddList(
+                node.getStart(
+                    sourceFile
+                ),
+                node.end,
+                items,
+                '{',
+                '}'
             )
         }
 
@@ -3307,5 +3533,7 @@ export function fixFunctionArgumentsLayoutTypescript(
         fixedText
     )
 
-    return { fixedText }
+    return {
+        fixedText
+    }
 }

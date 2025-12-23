@@ -31,7 +31,9 @@ export async function importTypescript() {
 
 export async function loadForbiddenWords() {
     let fallback = new Set(
-        ['this']
+        [
+            'this'
+        ]
     )
 
     let scriptPath = process.argv[1]
@@ -184,7 +186,9 @@ export async function collectFiles(
 
     let entries = await fs.readdir(
         inputPath,
-        { withFileTypes: true }
+        {
+            withFileTypes: true
+        }
     )
 
     await Promise.all(

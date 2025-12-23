@@ -104,7 +104,7 @@ function addFinding(
             line,
             column,
             keyword,
-            ruleId,
+            ruleId
         }
     )
 
@@ -127,7 +127,7 @@ function addFindingAtLoc(
             line,
             column,
             keyword,
-            ruleId,
+            ruleId
         }
     )
 
@@ -210,7 +210,10 @@ function collectEmptyStatementRangesMeriyah(
             esEmptyStatementConRango
         ) {
             ranges.push(
-                { start: node.start, end: node.end }
+                {
+                    start: node.start,
+                    end: node.end
+                }
             )
 
         }
@@ -309,7 +312,9 @@ function collectForHeaderSpansFromMeriyahTokens(
 
         }
 
-        let { start } = openParenToken
+        let {
+            start
+        } = openParenToken
 
         function scanParen(
             k,
@@ -354,7 +359,10 @@ function collectForHeaderSpansFromMeriyahTokens(
                 terminaElEncabezado
             ) {
                 spans.push(
-                    { start, end: token.end }
+                    {
+                        start,
+                        end: token.end
+                    }
                 )
 
                 return scanFrom(
@@ -452,7 +460,9 @@ function collectForbiddenFindingsMeriyah(
 
         }
 
-        let { type: nodeType } = node
+        let {
+            type: nodeType
+        } = node
 
         let esThisExpression = nodeType === 'ThisExpression'
 
@@ -943,7 +953,9 @@ function collectForbiddenFindingsMeriyah(
         if (
             esUnaryExpression
         ) {
-            let { operator: op } = node
+            let {
+                operator: op
+            } = node
 
             let esTypeof = op === 'typeof'
             let esVoid = op === 'void'
@@ -1006,7 +1018,9 @@ function collectForbiddenFindingsMeriyah(
         if (
             esBinaryExpression
         ) {
-            let { operator: op } = node
+            let {
+                operator: op
+            } = node
 
             let esIn = op === 'in'
             let esInstanceof = op === 'instanceof'
@@ -1465,7 +1479,9 @@ function collectConditionSingleVariableFindingsMeriyah(
 
         }
 
-        let { test } = node
+        let {
+            test
+        } = node
 
         let noEsTestValido = !test || typeof test !== 'object'
 
@@ -1527,7 +1543,9 @@ function collectConditionSingleVariableFindingsMeriyah(
         if (
             tieneTipoString
         ) {
-            let { type } = node
+            let {
+                type
+            } = node
 
             let esNodoConCondicion =
             type === 'IfStatement' ||
@@ -1583,7 +1601,13 @@ function parseSourceMeriyah(
     parse,
     sourceText
 ) {
-    let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true }
+    let parseOptions = {
+        loc: true,
+        ranges: true,
+        next: true,
+        jsx: true,
+        webcompat: true
+    }
 
     let tokens = []
 
@@ -1602,7 +1626,7 @@ function parseSourceMeriyah(
                 text: sourceText.slice(
                     start,
                     end
-                ),
+                )
             }
         )
 
@@ -1615,7 +1639,11 @@ function parseSourceMeriyah(
     try {
         ast = parse(
             sourceText,
-            { ...parseOptions, sourceType: 'module', onToken }
+            {
+                ...parseOptions,
+                sourceType: 'module',
+                onToken
+            }
         )
 
     } catch (error) {
@@ -1631,7 +1659,11 @@ function parseSourceMeriyah(
         try {
             ast = parse(
                 sourceText,
-                { ...parseOptions, sourceType: 'script', onToken }
+                {
+                    ...parseOptions,
+                    sourceType: 'script',
+                    onToken
+                }
             )
 
         } catch {
@@ -1646,7 +1678,10 @@ function parseSourceMeriyah(
         }
     }
 
-    return { ast, tokens }
+    return {
+        ast,
+        tokens
+    }
 
 }
 
@@ -1654,7 +1689,13 @@ function parseCommentsMeriyah(
     parse,
     sourceText
 ) {
-    let parseOptions = { loc: true, ranges: true, next: true, jsx: true, webcompat: true }
+    let parseOptions = {
+        loc: true,
+        ranges: true,
+        next: true,
+        jsx: true,
+        webcompat: true
+    }
 
     let comments = []
 
@@ -1665,7 +1706,11 @@ function parseCommentsMeriyah(
     try {
         ast = parse(
             sourceText,
-            { ...parseOptions, sourceType: 'module', onComment: comments }
+            {
+                ...parseOptions,
+                sourceType: 'module',
+                onComment: comments
+            }
         )
 
     } catch (error) {
@@ -1681,7 +1726,11 @@ function parseCommentsMeriyah(
         try {
             ast = parse(
                 sourceText,
-                { ...parseOptions, sourceType: 'script', onComment: comments }
+                {
+                    ...parseOptions,
+                    sourceType: 'script',
+                    onComment: comments
+                }
             )
 
         } catch {
@@ -1696,7 +1745,10 @@ function parseCommentsMeriyah(
         }
     }
 
-    return { ast, comments }
+    return {
+        ast,
+        comments
+    }
 
 }
 
@@ -1980,7 +2032,9 @@ function fixIfSingleVariableConditionIndent(
         function (
             match
         ) {
-            let { index } = match
+            let {
+                index
+            } = match
 
             let tieneIndex = typeof index === 'number' && Number.isFinite(
                 index
@@ -2021,7 +2075,11 @@ function fixIfSingleVariableConditionIndent(
             let repText = `${indentIf}if (${eol}${desiredIndent}${condVar}${eol}${indentIf}) {`
 
             replacements.push(
-                { start: index, end: index + matchText.length, text: repText }
+                {
+                    start: index,
+                    end: index + matchText.length,
+                    text: repText
+                }
             )
 
         }
@@ -2055,7 +2113,9 @@ function fixIfSingleVariableConditionIndent(
         function (
             match
         ) {
-            let { index } = match
+            let {
+                index
+            } = match
 
             let tieneIndex = typeof index === 'number' && Number.isFinite(
                 index
@@ -2107,7 +2167,11 @@ function fixIfSingleVariableConditionIndent(
             let indentEnd = indentStart + indentCond.length
 
             indentReplacements.push(
-                { start: indentStart, end: indentEnd, text: desiredIndent }
+                {
+                    start: indentStart,
+                    end: indentEnd,
+                    text: desiredIndent
+                }
             )
 
         }
@@ -2160,10 +2224,15 @@ function scanCommentsTypescript(
             let end = scanner.getTextPos()
 
             comments.push(
-                { kind, start, end, text: sourceText.slice(
+                {
+                    kind,
                     start,
-                    end
-                ) }
+                    end,
+                    text: sourceText.slice(
+                        start,
+                        end
+                    )
+                }
             )
 
         }
@@ -2185,7 +2254,9 @@ function fixFunctionArgumentsLayoutMeriyah(
     if (
         noEsTextoValido
     ) {
-        return { fixedText: sourceText }
+        return {
+            fixedText: sourceText
+        }
 
     }
 
@@ -2302,9 +2373,10 @@ function fixFunctionArgumentsLayoutMeriyah(
 
     }
 
-    function findOpenParenIndex(
+    function findOpenTokenIndex(
         fromPos,
-        toPos
+        toPos,
+        openChar
     ) {
         let startIndex = lowerBoundTokens(
             fromPos
@@ -2324,10 +2396,10 @@ function fixFunctionArgumentsLayoutMeriyah(
             ) {
                 let t = tokens[i]
 
-                let esParentesisApertura = t && t.type === 'Punctuator' && t.text === '('
+                let esApertura = t && t.type === 'Punctuator' && t.text === openChar
 
                 if (
-                    esParentesisApertura
+                    esApertura
                 ) {
                     return i
                 }
@@ -2346,9 +2418,11 @@ function fixFunctionArgumentsLayoutMeriyah(
 
     }
 
-    function findMatchingCloseParenIndex(
+    function findMatchingCloseTokenIndex(
         openIndex,
-        toPos
+        toPos,
+        openChar,
+        closeChar
     ) {
         let openIndexInvalido = openIndex < 0
 
@@ -2384,17 +2458,17 @@ function fixFunctionArgumentsLayoutMeriyah(
                     )
                 }
 
-                let esParentesisApertura = t.type === 'Punctuator' && t.text === '('
-                let esParentesisCierre = t.type === 'Punctuator' && t.text === ')'
+                let esApertura = t.type === 'Punctuator' && t.text === openChar
+                let esCierre = t.type === 'Punctuator' && t.text === closeChar
 
-                let inc = esParentesisApertura ? 1 : 0
-                let dec = esParentesisCierre ? 1 : 0
+                let inc = esApertura ? 1 : 0
+                let dec = esCierre ? 1 : 0
 
                 let nextDepth = depth + inc - dec
 
                 let nextDepthEsCero = nextDepth === 0
 
-                let esCierreFinal = esParentesisCierre && nextDepthEsCero
+                let esCierreFinal = esCierre && nextDepthEsCero
 
                 if (
                     esCierreFinal
@@ -2445,7 +2519,10 @@ function fixFunctionArgumentsLayoutMeriyah(
                     return
                 }
 
-                let { start, end } = item
+                let {
+                    start,
+                    end
+                } = item
 
                 let rangoInvalido = typeof start !== 'number' || typeof end !== 'number' || end < start
 
@@ -2456,7 +2533,10 @@ function fixFunctionArgumentsLayoutMeriyah(
                 }
 
                 out.push(
-                    { start, end }
+                    {
+                        start,
+                        end
+                    }
                 )
 
             }
@@ -2477,7 +2557,9 @@ function fixFunctionArgumentsLayoutMeriyah(
     function buildListReplacement(
         openToken,
         closeToken,
-        items
+        items,
+        openChar,
+        closeChar
     ) {
         let indent = findLineIndentAt(
             openToken.start
@@ -2680,11 +2762,15 @@ function fixFunctionArgumentsLayoutMeriyah(
             }
         )
 
-        let out = `(${eol}${lines.join(
+        let out = `${openChar}${eol}${lines.join(
             eol
-        )}${eol}${indent})`
+        )}${eol}${indent}${closeChar}`
 
-        return { start: openToken.start, end: closeToken.end, text: out }
+        return {
+            start: openToken.start,
+            end: closeToken.end,
+            text: out
+        }
 
     }
 
@@ -2693,7 +2779,9 @@ function fixFunctionArgumentsLayoutMeriyah(
     function maybeAddList(
         fromPos,
         toPos,
-        items
+        items,
+        openChar,
+        closeChar
     ) {
         let noHayItems = !Array.isArray(
             items
@@ -2705,9 +2793,10 @@ function fixFunctionArgumentsLayoutMeriyah(
             return
         }
 
-        let openIndex = findOpenParenIndex(
+        let openIndex = findOpenTokenIndex(
             fromPos,
-            toPos
+            toPos,
+            openChar
         )
 
         let openIndexInvalido = openIndex < 0
@@ -2718,9 +2807,11 @@ function fixFunctionArgumentsLayoutMeriyah(
             return
         }
 
-        let closeIndex = findMatchingCloseParenIndex(
+        let closeIndex = findMatchingCloseTokenIndex(
             openIndex,
-            toPos
+            toPos,
+            openChar,
+            closeChar
         )
 
         let closeIndexInvalido = closeIndex < 0
@@ -2822,7 +2913,9 @@ function fixFunctionArgumentsLayoutMeriyah(
             buildListReplacement(
                 openToken,
                 closeToken,
-                items
+                items,
+                openChar,
+                closeChar
             )
         )
 
@@ -2867,7 +2960,9 @@ function fixFunctionArgumentsLayoutMeriyah(
         if (
             esCallExpression
         ) {
-            let { callee } = node
+            let {
+                callee
+            } = node
 
             let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
 
@@ -2878,7 +2973,9 @@ function fixFunctionArgumentsLayoutMeriyah(
             maybeAddList(
                 fromPos,
                 node.end,
-                items
+                items,
+                '(',
+                ')'
             )
         }
 
@@ -2887,7 +2984,9 @@ function fixFunctionArgumentsLayoutMeriyah(
         if (
             esNewExpression
         ) {
-            let { callee } = node
+            let {
+                callee
+            } = node
 
             let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
 
@@ -2903,7 +3002,9 @@ function fixFunctionArgumentsLayoutMeriyah(
                 maybeAddList(
                     fromPos,
                     node.end,
-                    items
+                    items,
+                    '(',
+                    ')'
                 )
             }
         }
@@ -2926,7 +3027,101 @@ function fixFunctionArgumentsLayoutMeriyah(
             maybeAddList(
                 node.start,
                 bodyStart,
-                items
+                items,
+                '(',
+                ')'
+            )
+        }
+
+        let esArrayExpression = nodeType === 'ArrayExpression'
+
+        if (
+            esArrayExpression
+        ) {
+            let {
+                elements
+            } = node
+
+            let tieneHuecos = Array.isArray(
+                elements
+            ) && elements.some(
+                function (
+                    el
+                ) {
+                    return el === null
+                }
+            )
+
+            let noTieneHuecos = !tieneHuecos
+
+            if (
+                noTieneHuecos
+            ) {
+                let items = collectItemsFromNodeArray(
+                    elements
+                )
+
+                maybeAddList(
+                    node.start,
+                    node.end,
+                    items,
+                    '[',
+                    ']'
+                )
+            }
+        }
+
+        let esArrayPattern = nodeType === 'ArrayPattern'
+
+        if (
+            esArrayPattern
+        ) {
+            let items = collectItemsFromNodeArray(
+                node.elements
+            )
+
+            maybeAddList(
+                node.start,
+                node.end,
+                items,
+                '[',
+                ']'
+            )
+        }
+
+        let esObjectExpression = nodeType === 'ObjectExpression'
+
+        if (
+            esObjectExpression
+        ) {
+            let items = collectItemsFromNodeArray(
+                node.properties
+            )
+
+            maybeAddList(
+                node.start,
+                node.end,
+                items,
+                '{',
+                '}'
+            )
+        }
+
+        let esObjectPattern = nodeType === 'ObjectPattern'
+
+        if (
+            esObjectPattern
+        ) {
+            let items = collectItemsFromNodeArray(
+                node.properties
+            )
+
+            maybeAddList(
+                node.start,
+                node.end,
+                items,
+                '{',
+                '}'
             )
         }
 
@@ -3083,7 +3278,9 @@ function fixFunctionArgumentsLayoutMeriyah(
         fixedText
     )
 
-    return { fixedText }
+    return {
+        fixedText
+    }
 
 }
 
@@ -3270,7 +3467,11 @@ function fixCommentsText(
                     )
 
                     replacements.push(
-                        { start, end, text: repText }
+                        {
+                            start,
+                            end,
+                            text: repText
+                        }
                     )
 
                 }
@@ -3320,7 +3521,11 @@ function fixCommentsText(
                 }
 
                 replacements.push(
-                    { start: wsStart, end: startLineEnd, text: repText }
+                    {
+                        start: wsStart,
+                        end: startLineEnd,
+                        text: repText
+                    }
                 )
 
                 return
@@ -3364,11 +3569,19 @@ function fixCommentsText(
                 )
 
                 replacements.push(
-                    { start, end, text: repText }
+                    {
+                        start,
+                        end,
+                        text: repText
+                    }
                 )
 
                 replacements.push(
-                    { start: end, end: afterNonWs, text: `${eol}${indent}` }
+                    {
+                        start: end,
+                        end: afterNonWs,
+                        text: `${eol}${indent}`
+                    }
                 )
 
                 return
@@ -3391,7 +3604,11 @@ function fixCommentsText(
                     )
 
                     replacements.push(
-                        { start, end, text: repText }
+                        {
+                            start,
+                            end,
+                            text: repText
+                        }
                     )
 
                 }
@@ -3450,10 +3667,16 @@ function fixCommentsMeriyah(
         function (
             c
         ) {
-            return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(
-                c.start,
-                c.end
-            ) }
+            return {
+                start: c.start,
+                end: c.end,
+                type: c.type,
+                value: c.value,
+                text: sourceText.slice(
+                    c.start,
+                    c.end
+                )
+            }
 
         }
     )
@@ -3463,7 +3686,9 @@ function fixCommentsMeriyah(
         normalized
     )
 
-    return { fixedText }
+    return {
+        fixedText
+    }
 
 }
 
@@ -3487,13 +3712,19 @@ function fixCommentsTypescript(
             function (
                 c
             ) {
-                return { start: c.start, end: c.end, text: c.text }
+                return {
+                    start: c.start,
+                    end: c.end,
+                    text: c.text
+                }
 
             }
         )
     )
 
-    return { fixedText }
+    return {
+        fixedText
+    }
 
 }
 
@@ -3502,7 +3733,10 @@ function fixSemicolonsMeriyah(
     parse,
     sourceText
 ) {
-    let { ast, tokens } = parseSourceMeriyah(
+    let {
+        ast,
+        tokens
+    } = parseSourceMeriyah(
         parse,
         sourceText
     )
@@ -3535,7 +3769,11 @@ function fixSemicolonsMeriyah(
             range
         ) {
             replacements.push(
-                { start: range.start, end: range.end, text: '{}' }
+                {
+                    start: range.start,
+                    end: range.end,
+                    text: '{}'
+                }
             )
 
         }
@@ -3588,7 +3826,11 @@ function fixSemicolonsMeriyah(
             }
 
             replacements.push(
-                { start: t.start, end: t.end, text: '\n' }
+                {
+                    start: t.start,
+                    end: t.end,
+                    text: '\n'
+                }
             )
 
         }
@@ -3599,7 +3841,10 @@ function fixSemicolonsMeriyah(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -3608,7 +3853,9 @@ function fixVarConstToLetMeriyah(
     parse,
     sourceText
 ) {
-    let { tokens } = parseSourceMeriyah(
+    let {
+        tokens
+    } = parseSourceMeriyah(
         parse,
         sourceText
     )
@@ -3649,7 +3896,11 @@ function fixVarConstToLetMeriyah(
             }
 
             replacements.push(
-                { start: t.start, end: t.end, text: 'let' }
+                {
+                    start: t.start,
+                    end: t.end,
+                    text: 'let'
+                }
             )
 
         }
@@ -3660,7 +3911,10 @@ function fixVarConstToLetMeriyah(
         replacements
     )
 
-    return { fixedText, unfixableFindings: [] }
+    return {
+        fixedText,
+        unfixableFindings: []
+    }
 
 }
 
@@ -3669,7 +3923,10 @@ function fixArrowFunctionsToFunctionsMeriyah(
     parse,
     sourceText
 ) {
-    let { ast, tokens } = parseSourceMeriyah(
+    let {
+        ast,
+        tokens
+    } = parseSourceMeriyah(
         parse,
         sourceText
     )
@@ -3820,7 +4077,7 @@ function fixArrowFunctionsToFunctionsMeriyah(
             {
                 start: node.start,
                 end: node.end,
-                text: `${functionPrefix}${paramsText} ${bodyText}`,
+                text: `${functionPrefix}${paramsText} ${bodyText}`
             }
         )
 
@@ -3928,7 +4185,10 @@ function fixArrowFunctionsToFunctionsMeriyah(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -3937,7 +4197,9 @@ function fixMissingBracesIfMeriyah(
     parse,
     sourceText
 ) {
-    let { ast } = parseSourceMeriyah(
+    let {
+        ast
+    } = parseSourceMeriyah(
         parse,
         sourceText
     )
@@ -3985,11 +4247,19 @@ function fixMissingBracesIfMeriyah(
         }
 
         replacements.push(
-            { start: stmt.start, end: stmt.start, text: '{ ' }
+            {
+                start: stmt.start,
+                end: stmt.start,
+                text: '{ '
+            }
         )
 
         replacements.push(
-            { start: stmt.end, end: stmt.end, text: ' }' }
+            {
+                start: stmt.end,
+                end: stmt.end,
+                text: ' }'
+            }
         )
 
     }
@@ -4108,7 +4378,10 @@ function fixMissingBracesIfMeriyah(
         replacements
     )
 
-    return { fixedText, unfixableFindings }
+    return {
+        fixedText,
+        unfixableFindings
+    }
 
 }
 
@@ -4303,7 +4576,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { start: t.pos, end: t.end }
+                            return {
+                                start: t.pos,
+                                end: t.end
+                            }
 
                         }
                     )
@@ -4497,7 +4773,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { start: t.pos, end: t.end }
+                            return {
+                                start: t.pos,
+                                end: t.end
+                            }
 
                         }
                     ),
@@ -4514,7 +4793,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
+                            return {
+                                pos: t.pos,
+                                delta: t.text === '{' ? 1 : -1
+                            }
 
                         }
                     )
@@ -4650,7 +4932,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { start: t.start, end: t.end }
+                            return {
+                                start: t.start,
+                                end: t.end
+                            }
 
                         }
                     )
@@ -4838,7 +5123,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { start: t.start, end: t.end }
+                            return {
+                                start: t.start,
+                                end: t.end
+                            }
 
                         }
                     ),
@@ -4855,7 +5143,10 @@ async function run(
                         function (
                             t
                         ) {
-                            return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
+                            return {
+                                pos: t.start,
+                                delta: t.text === '{' ? 1 : -1
+                            }
 
                         }
                     )

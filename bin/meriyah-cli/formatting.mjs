@@ -181,7 +181,10 @@ export function convertTabsToFourSpacesOutsideTokens(
                 )
             )
 
-            return { start, end }
+            return {
+                start,
+                end
+            }
 
         }
     )
@@ -346,7 +349,10 @@ export function mergeSpans(
                 )
             )
 
-            return { start, end }
+            return {
+                start,
+                end
+            }
 
         }
     )
@@ -513,7 +519,10 @@ export function reindentFourSpacesOutsideTokens(
                 )
             )
 
-            return { pos, delta: e.delta }
+            return {
+                pos,
+                delta: e.delta
+            }
 
         }
     )
@@ -659,10 +668,13 @@ export function reindentFourSpacesOutsideTokens(
         if (
             terminaConCrLf
         ) {
-            return { lineText: segment.slice(
-                0,
-                -2
-            ), lineBreak: '\r\n' }
+            return {
+                lineText: segment.slice(
+                    0,
+                    -2
+                ),
+                lineBreak: '\r\n'
+            }
 
         }
 
@@ -673,10 +685,13 @@ export function reindentFourSpacesOutsideTokens(
         if (
             terminaConLf
         ) {
-            return { lineText: segment.slice(
-                0,
-                -1
-            ), lineBreak: '\n' }
+            return {
+                lineText: segment.slice(
+                    0,
+                    -1
+                ),
+                lineBreak: '\n'
+            }
 
         }
 
@@ -687,14 +702,20 @@ export function reindentFourSpacesOutsideTokens(
         if (
             terminaConCr
         ) {
-            return { lineText: segment.slice(
-                0,
-                -1
-            ), lineBreak: '\r' }
+            return {
+                lineText: segment.slice(
+                    0,
+                    -1
+                ),
+                lineBreak: '\r'
+            }
 
         }
 
-        return { lineText: segment, lineBreak: '' }
+        return {
+            lineText: segment,
+            lineBreak: ''
+        }
 
     }
 
@@ -723,7 +744,10 @@ export function reindentFourSpacesOutsideTokens(
                 segment
             )
 
-            let { lineText, lineBreak } = parts
+            let {
+                lineText,
+                lineBreak
+            } = parts
 
             let lineStart = cursor
 
