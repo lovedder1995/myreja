@@ -4,6 +4,6 @@ src/token.ts
 src/chars.ts
 src/lexer/charClassifier.ts
 src/unicode.ts
-bin/meriyah.mjs
+bin/
 package-lock.json
 CHANGELOG.md

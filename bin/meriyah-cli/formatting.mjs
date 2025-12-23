@@ -1,452 +1,585 @@
 export function applyReplacements(sourceText, replacements) {
-  let noHayReemplazos = !replacements.length;
+    let noHayReemplazos = !replacements.length
 
-  if (noHayReemplazos) {
-    return sourceText;
-  }
+    if (
+        noHayReemplazos
+    ) {
+        return sourceText
 
-  let sorted = replacements
+    }
+
+    let sorted = replacements
     .slice()
     .sort(function (a, b) {
-      return b.start - a.start;
+        return b.start - a.start
+
     })
     .filter(function (rep) {
-      return (
+        return (
         typeof rep?.start === 'number' &&
         typeof rep?.end === 'number' &&
         rep.start >= 0 &&
         rep.end >= rep.start &&
         typeof rep?.text === 'string'
-      );
-    });
+        )
 
-  let out = sourceText;
+    })
 
-  let lastStart = out.length + 1;
+    let out = sourceText
 
-  sorted.forEach(function (rep) {
-    let solapaConReemplazoPrevio = rep.end > lastStart;
+    let lastStart = out.length + 1
 
-    if (solapaConReemplazoPrevio) {
-      return;
-    }
+    sorted.forEach(function (rep) {
+        let solapaConReemplazoPrevio = rep.end > lastStart
 
-    out = out.slice(0, rep.start) + rep.text + out.slice(rep.end);
+        if (
+            solapaConReemplazoPrevio
+        ) {
+            return
 
-    lastStart = rep.start;
-  });
+        }
 
-  return out;
+        out = out.slice(0, rep.start) + rep.text + out.slice(rep.end)
+
+        lastStart = rep.start
+
+    })
+
+    return out
+
 }
 
 export function stripTrailingWhitespace(sourceText) {
-  let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0;
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
-  if (noEsTextoValido) {
-    return sourceText;
-  }
+    if (
+        noEsTextoValido
+    ) {
+        return sourceText
 
-  let out = sourceText.replace(/[ \t]+(?=\r?\n)/g, '');
+    }
 
-  out = out.replace(/[ \t]+(?=\r)/g, '');
+    let out = sourceText.replace(/[ \t]+(?=\r?\n)/g, '')
 
-  out = out.replace(/[ \t]+$/g, '');
+    out = out.replace(/[ \t]+(?=\r)/g, '')
 
-  return out;
+    out = out.replace(/[ \t]+$/g, '')
+
+    return out
+
 }
 
 export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
-  let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0;
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
-  if (noEsTextoValido) {
-    return sourceText;
-  }
+    if (
+        noEsTextoValido
+    ) {
+        return sourceText
 
-  let noHayTabs = !sourceText.includes('\t');
+    }
 
-  if (noHayTabs) {
-    return sourceText;
-  }
+    let noHayTabs = !sourceText.includes('\t')
 
-  let noHayTramos = !Array.isArray(spans) || spans.length === 0;
+    if (
+        noHayTabs
+    ) {
+        return sourceText
 
-  if (noHayTramos) {
-    return sourceText.replace(/\t/g, '    ');
-  }
+    }
 
-  let len = sourceText.length;
+    let noHayTramos = !Array.isArray(spans) || spans.length === 0
 
-  let sorted = spans
+    if (
+        noHayTramos
+    ) {
+        return sourceText.replace(/\t/g, '    ')
+
+    }
+
+    let len = sourceText.length
+
+    let sorted = spans
     .slice()
     .filter(function (span) {
-      return (
+        return (
         span &&
         typeof span.start === 'number' &&
         typeof span.end === 'number' &&
         Number.isFinite(span.start) &&
         Number.isFinite(span.end)
-      );
+        )
+
     })
     .map(function (span) {
-      let start = Math.max(0, Math.min(len, span.start));
+        let start = Math.max(0, Math.min(len, span.start))
 
-      let end = Math.max(start, Math.min(len, span.end));
+        let end = Math.max(start, Math.min(len, span.end))
 
-      return { start, end };
+        return { start, end }
+
     })
     .sort(function (a, b) {
-      return a.start - b.start;
-    });
+        return a.start - b.start
 
-  let merged = [];
+    })
 
-  sorted.forEach(function (span) {
-    let noHayTramosAcumulados = merged.length === 0;
+    let merged = []
 
-    if (noHayTramosAcumulados) {
-      merged.push(span);
+    sorted.forEach(function (span) {
+        let noHayTramosAcumulados = merged.length === 0
 
-      return;
+        if (
+            noHayTramosAcumulados
+        ) {
+            merged.push(span)
+
+            return
+
+        }
+
+        let last = merged[merged.length - 1]
+
+        let empiezaDespuesDelFinal = span.start > last.end
+
+        if (
+            empiezaDespuesDelFinal
+        ) {
+            merged.push(span)
+
+            return
+
+        }
+
+        let extiendeElFinal = span.end > last.end
+
+        if (
+            extiendeElFinal
+        ) {
+            last.end = span.end
+
+        }
+    })
+
+    let out = ''
+
+    let cursor = 0
+
+    merged.forEach(function (span) {
+        let hayTextoAntesDelTramo = span.start > cursor
+
+        if (
+            hayTextoAntesDelTramo
+        ) {
+            out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ')
+
+        }
+
+        out += sourceText.slice(span.start, span.end)
+
+        cursor = span.end
+
+    })
+
+    let quedaTextoPorProcesar = cursor < len
+
+    if (
+        quedaTextoPorProcesar
+    ) {
+        out += sourceText.slice(cursor).replace(/\t/g, '    ')
+
     }
 
-    let last = merged[merged.length - 1];
+    return out
 
-    let empiezaDespuesDelFinal = span.start > last.end;
-
-    if (empiezaDespuesDelFinal) {
-      merged.push(span);
-
-      return;
-    }
-
-    let extiendeElFinal = span.end > last.end;
-
-    if (extiendeElFinal) {
-      last.end = span.end;
-    }
-  });
-
-  let out = '';
-
-  let cursor = 0;
-
-  merged.forEach(function (span) {
-    let hayTextoAntesDelTramo = span.start > cursor;
-
-    if (hayTextoAntesDelTramo) {
-      out += sourceText.slice(cursor, span.start).replace(/\t/g, '    ');
-    }
-
-    out += sourceText.slice(span.start, span.end);
-
-    cursor = span.end;
-  });
-
-  let quedaTextoPorProcesar = cursor < len;
-
-  if (quedaTextoPorProcesar) {
-    out += sourceText.slice(cursor).replace(/\t/g, '    ');
-  }
-
-  return out;
 }
 
 export function mergeSpans(spans, len) {
-  let noHayTramos = !Array.isArray(spans) || spans.length === 0;
+    let noHayTramos = !Array.isArray(spans) || spans.length === 0
 
-  if (noHayTramos) {
-    return [];
-  }
+    if (
+        noHayTramos
+    ) {
+        return []
 
-  let sorted = spans
+    }
+
+    let sorted = spans
     .slice()
     .filter(function (span) {
-      return (
+        return (
         span &&
         typeof span.start === 'number' &&
         typeof span.end === 'number' &&
         Number.isFinite(span.start) &&
         Number.isFinite(span.end)
-      );
+        )
+
     })
     .map(function (span) {
-      let start = Math.max(0, Math.min(len, span.start));
+        let start = Math.max(0, Math.min(len, span.start))
 
-      let end = Math.max(start, Math.min(len, span.end));
+        let end = Math.max(start, Math.min(len, span.end))
 
-      return { start, end };
+        return { start, end }
+
     })
     .sort(function (a, b) {
-      return a.start - b.start;
-    });
+        return a.start - b.start
 
-  let merged = [];
+    })
 
-  sorted.forEach(function (span) {
-    let noHayTramosAcumulados = merged.length === 0;
+    let merged = []
 
-    if (noHayTramosAcumulados) {
-      merged.push(span);
+    sorted.forEach(function (span) {
+        let noHayTramosAcumulados = merged.length === 0
 
-      return;
-    }
+        if (
+            noHayTramosAcumulados
+        ) {
+            merged.push(span)
 
-    let last = merged[merged.length - 1];
+            return
 
-    let empiezaDespuesDelFinal = span.start > last.end;
+        }
 
-    if (empiezaDespuesDelFinal) {
-      merged.push(span);
+        let last = merged[merged.length - 1]
 
-      return;
-    }
+        let empiezaDespuesDelFinal = span.start > last.end
 
-    let extiendeElFinal = span.end > last.end;
+        if (
+            empiezaDespuesDelFinal
+        ) {
+            merged.push(span)
 
-    if (extiendeElFinal) {
-      last.end = span.end;
-    }
-  });
+            return
 
-  return merged;
+        }
+
+        let extiendeElFinal = span.end > last.end
+
+        if (
+            extiendeElFinal
+        ) {
+            last.end = span.end
+
+        }
+    })
+
+    return merged
+
 }
 
 function isInsideMergedSpans(index, merged) {
-  function search(lo, hi) {
-    let rangoVacio = lo > hi;
+    function search(lo, hi) {
+        let rangoVacio = lo > hi
 
-    if (rangoVacio) {
-      return false;
+        if (
+            rangoVacio
+        ) {
+            return false
+
+        }
+
+        let mid = (lo + hi) >> 1
+
+        let span = merged[mid]
+
+        let estaAntesDelTramo = index < span.start
+
+        if (
+            estaAntesDelTramo
+        ) {
+            return search(lo, mid - 1)
+
+        }
+
+        let estaDespuesDelTramo = index >= span.end
+
+        if (
+            estaDespuesDelTramo
+        ) {
+            return search(mid + 1, hi)
+
+        }
+
+        return true
+
     }
 
-    let mid = (lo + hi) >> 1;
+    return search(0, merged.length - 1)
 
-    let span = merged[mid];
-
-    let estaAntesDelTramo = index < span.start;
-
-    if (estaAntesDelTramo) {
-      return search(lo, mid - 1);
-    }
-
-    let estaDespuesDelTramo = index >= span.end;
-
-    if (estaDespuesDelTramo) {
-      return search(mid + 1, hi);
-    }
-
-    return true;
-  }
-
-  return search(0, merged.length - 1);
 }
 
 export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEvents) {
-  let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0;
+    let noEsTextoValido = typeof sourceText !== 'string' || sourceText.length === 0
 
-  if (noEsTextoValido) {
-    return sourceText;
-  }
+    if (
+        noEsTextoValido
+    ) {
+        return sourceText
 
-  let len = sourceText.length;
+    }
 
-  let mergedTokenSpans = mergeSpans(tokenSpans, len);
+    let len = sourceText.length
 
-  let events = Array.isArray(braceEvents)
+    let mergedTokenSpans = mergeSpans(tokenSpans, len)
+
+    let events = Array.isArray(braceEvents)
     ? braceEvents
-        .slice()
-        .filter(function (e) {
-          return e && typeof e.pos === 'number' && Number.isFinite(e.pos) && (e.delta === 1 || e.delta === -1);
-        })
-        .map(function (e) {
-          let pos = Math.max(0, Math.min(len, e.pos));
+    .slice()
+    .filter(function (e) {
+        return e && typeof e.pos === 'number' && Number.isFinite(e.pos) && (e.delta === 1 || e.delta === -1)
 
-          return { pos, delta: e.delta };
-        })
-        .sort(function (a, b) {
-          return a.pos - b.pos;
-        })
-    : [];
+    })
+    .map(function (e) {
+        let pos = Math.max(0, Math.min(len, e.pos))
 
-  let out = '';
+        return { pos, delta: e.delta }
 
-  let eventPos = [];
+    })
+    .sort(function (a, b) {
+        return a.pos - b.pos
 
-  let eventPrefix = [];
+    })
+    : []
 
-  events.forEach(function (e, index) {
-    eventPos.push(e.pos);
+    let out = ''
 
-    let esPrimerEvento = index === 0;
+    let eventPos = []
 
-    if (esPrimerEvento) {
-      eventPrefix.push(e.delta);
+    let eventPrefix = []
 
-      return;
+    events.forEach(function (e, index) {
+        eventPos.push(e.pos)
+
+        let esPrimerEvento = index === 0
+
+        if (
+            esPrimerEvento
+        ) {
+            eventPrefix.push(e.delta)
+
+            return
+
+        }
+
+        eventPrefix.push(eventPrefix[index - 1] + e.delta)
+
+    })
+
+    function upperBound(arr, value) {
+        function search(lo, hi) {
+            let rangoVacio = lo > hi
+
+            if (
+                rangoVacio
+            ) {
+                return lo
+
+            }
+
+            let mid = (lo + hi) >> 1
+
+            let estaPorDebajoDelValor = arr[mid] < value
+
+            if (
+                estaPorDebajoDelValor
+            ) {
+                return search(mid + 1, hi)
+
+            }
+
+            return search(lo, mid - 1)
+
+        }
+
+        return search(0, arr.length - 1)
+
     }
 
-    eventPrefix.push(eventPrefix[index - 1] + e.delta);
-  });
+    function depthAtPos(pos) {
+        let noHayEventos = eventPos.length === 0
 
-  function upperBound(arr, value) {
-    function search(lo, hi) {
-      let rangoVacio = lo > hi;
+        if (
+            noHayEventos
+        ) {
+            return 0
 
-      if (rangoVacio) {
-        return lo;
-      }
+        }
 
-      let mid = (lo + hi) >> 1;
+        let idx = upperBound(eventPos, pos)
 
-      let estaPorDebajoDelValor = arr[mid] < value;
+        let noHayEventoAnterior = idx <= 0
 
-      if (estaPorDebajoDelValor) {
-        return search(mid + 1, hi);
-      }
+        if (
+            noHayEventoAnterior
+        ) {
+            return 0
 
-      return search(lo, mid - 1);
+        }
+
+        let depth = eventPrefix[idx - 1]
+
+        let profundidadNegativa = depth < 0
+
+        if (
+            profundidadNegativa
+        ) {
+            return 0
+
+        }
+
+        return depth
+
     }
 
-    return search(0, arr.length - 1);
-  }
+    function splitLineSegment(segment) {
+        let terminaConCrLf = segment.endsWith('\r\n')
 
-  function depthAtPos(pos) {
-    let noHayEventos = eventPos.length === 0;
+        if (
+            terminaConCrLf
+        ) {
+            return { lineText: segment.slice(0, -2), lineBreak: '\r\n' }
 
-    if (noHayEventos) {
-      return 0;
+        }
+
+        let terminaConLf = segment.endsWith('\n')
+
+        if (
+            terminaConLf
+        ) {
+            return { lineText: segment.slice(0, -1), lineBreak: '\n' }
+
+        }
+
+        let terminaConCr = segment.endsWith('\r')
+
+        if (
+            terminaConCr
+        ) {
+            return { lineText: segment.slice(0, -1), lineBreak: '\r' }
+
+        }
+
+        return { lineText: segment, lineBreak: '' }
+
     }
 
-    let idx = upperBound(eventPos, pos);
+    let segments = sourceText.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) || []
 
-    let noHayEventoAnterior = idx <= 0;
+    let cursor = 0
 
-    if (noHayEventoAnterior) {
-      return 0;
-    }
+    let previousWasBlankLineOutsideTokens = false
 
-    let depth = eventPrefix[idx - 1];
+    segments.forEach(function (segment) {
+        let noHaySegmento = !segment
 
-    let profundidadNegativa = depth < 0;
+        if (
+            noHaySegmento
+        ) {
+            return
 
-    if (profundidadNegativa) {
-      return 0;
-    }
+        }
 
-    return depth;
-  }
+        let parts = splitLineSegment(segment)
 
-  function splitLineSegment(segment) {
-    let terminaConCrLf = segment.endsWith('\r\n');
+        let { lineText, lineBreak } = parts
 
-    if (terminaConCrLf) {
-      return { lineText: segment.slice(0, -2), lineBreak: '\r\n' };
-    }
+        let lineStart = cursor
 
-    let terminaConLf = segment.endsWith('\n');
+        cursor += segment.length
 
-    if (terminaConLf) {
-      return { lineText: segment.slice(0, -1), lineBreak: '\n' };
-    }
+        let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans)
 
-    let terminaConCr = segment.endsWith('\r');
+        let esLineaVacia = lineText.trim().length === 0
 
-    if (terminaConCr) {
-      return { lineText: segment.slice(0, -1), lineBreak: '\r' };
-    }
+        if (
+            esLineaVacia
+        ) {
+            if (
+                estaDentroDeTramosToken
+            ) {
+                out += lineText + lineBreak
 
-    return { lineText: segment, lineBreak: '' };
-  }
+                previousWasBlankLineOutsideTokens = false
 
-  let segments = sourceText.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) || [];
+                return
 
-  let cursor = 0;
+            }
 
-  let previousWasBlankLineOutsideTokens = false;
+            if (
+                previousWasBlankLineOutsideTokens
+            ) {
+                return
 
-  segments.forEach(function (segment) {
-    let noHaySegmento = !segment;
+            }
 
-    if (noHaySegmento) {
-      return;
-    }
+            out += lineBreak
 
-    let parts = splitLineSegment(segment);
+            previousWasBlankLineOutsideTokens = true
 
-    let { lineText, lineBreak } = parts;
+            return
 
-    let lineStart = cursor;
+        }
 
-    cursor += segment.length;
+        if (
+            estaDentroDeTramosToken
+        ) {
+            out += lineText + lineBreak
 
-    let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans);
+            previousWasBlankLineOutsideTokens = false
 
-    let esLineaVacia = lineText.trim().length === 0;
+            return
 
-    if (esLineaVacia) {
-      if (estaDentroDeTramosToken) {
-        out += lineText + lineBreak;
+        }
 
-        previousWasBlankLineOutsideTokens = false;
+        let content = lineText.replace(/^[ \t]+/, '')
 
-        return;
-      }
+        let noHayContenido = content.length === 0
 
-      if (previousWasBlankLineOutsideTokens) {
-        return;
-      }
+        if (
+            noHayContenido
+        ) {
+            out += lineBreak
 
-      out += lineBreak;
+            previousWasBlankLineOutsideTokens = false
 
-      previousWasBlankLineOutsideTokens = true;
+            return
 
-      return;
-    }
+        }
 
-    if (estaDentroDeTramosToken) {
-      out += lineText + lineBreak;
+        let depth = depthAtPos(lineStart)
 
-      previousWasBlankLineOutsideTokens = false;
+        let closeMatch = content.match(/^}+/)
 
-      return;
-    }
+        let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
 
-    let content = lineText.replace(/^[ \t]+/, '');
+        let indentLevel = depth - leadingCloseCount
 
-    let noHayContenido = content.length === 0;
+        let nivelDeSangriaNegativo = indentLevel < 0
 
-    if (noHayContenido) {
-      out += lineBreak;
+        if (
+            nivelDeSangriaNegativo
+        ) {
+            indentLevel = 0
 
-      previousWasBlankLineOutsideTokens = false;
+        }
 
-      return;
-    }
+        out += ' '.repeat(indentLevel * 4) + content + lineBreak
 
-    let depth = depthAtPos(lineStart);
+        previousWasBlankLineOutsideTokens = false
 
-    let closeMatch = content.match(/^}+/);
+    })
 
-    let leadingCloseCount = closeMatch ? closeMatch[0].length : 0;
+    return out
 
-    let indentLevel = depth - leadingCloseCount;
-
-    let nivelDeSangriaNegativo = indentLevel < 0;
-
-    if (nivelDeSangriaNegativo) {
-      indentLevel = 0;
-    }
-
-    out += ' '.repeat(indentLevel * 4) + content + lineBreak;
-
-    previousWasBlankLineOutsideTokens = false;
-  });
-
-  return out;
 }
 
 export function isInsideAnySpan(index, spans) {
-  return spans.some(function (span) {
-    return index >= span.start && index < span.end;
-  });
+    return spans.some(function (span) {
+        return index >= span.start && index < span.end
+
+    })
+
 }

@@ -1,6 +1,6 @@
 {
   "name": "meriyah",
-  "version": "2025.12.23.1",
+  "version": "2025.12.23.2",
   "description": "A 100% compliant, self-hosted javascript parser with high focus on both performance and stability",
   "main": "dist/meriyah.cjs",
   "module": "dist/meriyah.min.mjs",
@@ -126,6 +126,6 @@
   },
   "lint-staged": {
     "*.{ts,mts,cts,js,mjs,cjs}": "eslint --fix --ignore-pattern bin/ --no-warn-ignored",
-    "*": "prettier --write --ignore-unknown"
+    "{*,!(bin)/**}": "prettier --write --ignore-unknown"
   }
 }
