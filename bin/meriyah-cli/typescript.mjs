@@ -20,6 +20,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esPropertyAccessExpression = ts.isPropertyAccessExpression(parent);
+
   let esNombreDePropertyAccessExpression = esPropertyAccessExpression && parent.name === node;
 
   if (esNombreDePropertyAccessExpression) {
@@ -27,6 +28,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esPropertyAssignment = ts.isPropertyAssignment(parent);
+
   let esNombreDePropertyAssignment = esPropertyAssignment && parent.name === node;
 
   if (esNombreDePropertyAssignment) {
@@ -34,6 +36,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esMethodDeclaration = ts.isMethodDeclaration(parent);
+
   let esNombreDeMethodDeclaration = esMethodDeclaration && parent.name === node;
 
   if (esNombreDeMethodDeclaration) {
@@ -41,6 +44,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esMethodSignature = ts.isMethodSignature(parent);
+
   let esNombreDeMethodSignature = esMethodSignature && parent.name === node;
 
   if (esNombreDeMethodSignature) {
@@ -48,6 +52,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esPropertyDeclaration = ts.isPropertyDeclaration(parent);
+
   let esNombreDePropertyDeclaration = esPropertyDeclaration && parent.name === node;
 
   if (esNombreDePropertyDeclaration) {
@@ -55,6 +60,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esPropertySignature = ts.isPropertySignature(parent);
+
   let esNombreDePropertySignature = esPropertySignature && parent.name === node;
 
   if (esNombreDePropertySignature) {
@@ -62,6 +68,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esGetAccessorDeclaration = ts.isGetAccessorDeclaration(parent);
+
   let esNombreDeGetAccessorDeclaration = esGetAccessorDeclaration && parent.name === node;
 
   if (esNombreDeGetAccessorDeclaration) {
@@ -69,6 +76,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esSetAccessorDeclaration = ts.isSetAccessorDeclaration(parent);
+
   let esNombreDeSetAccessorDeclaration = esSetAccessorDeclaration && parent.name === node;
 
   if (esNombreDeSetAccessorDeclaration) {
@@ -76,6 +84,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esShorthandPropertyAssignment = ts.isShorthandPropertyAssignment(parent);
+
   let esNombreDeShorthandPropertyAssignment = esShorthandPropertyAssignment && parent.name === node;
 
   if (esNombreDeShorthandPropertyAssignment) {
@@ -83,6 +92,7 @@ export function isSkippableTsIdentifierContext(parent, node, ts) {
   }
 
   let esEnumMember = ts.isEnumMember(parent);
+
   let esNombreDeEnumMember = esEnumMember && parent.name === node;
 
   if (esNombreDeEnumMember) {
@@ -126,7 +136,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let hayElseStatement = Boolean(node.elseStatement);
+
       let estaElseProhibido = forbiddenWords.has('else');
+
       let debeMarcarElse = hayElseStatement && estaElseProhibido;
 
       if (debeMarcarElse) {
@@ -145,8 +157,11 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
     }
 
     let esForStatement = kind === ts.SyntaxKind.ForStatement;
+
     let esForInStatement = kind === ts.SyntaxKind.ForInStatement;
+
     let esForOfStatement = kind === ts.SyntaxKind.ForOfStatement;
+
     let esAlgunFor = esForStatement || esForInStatement || esForOfStatement;
 
     if (esAlgunFor) {
@@ -157,6 +172,7 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let estaInProhibido = forbiddenWords.has('in');
+
       let debeMarcarIn = esForInStatement && estaInProhibido;
 
       if (debeMarcarIn) {
@@ -164,6 +180,7 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let estaOfProhibido = forbiddenWords.has('of');
+
       let debeMarcarOf = esForOfStatement && estaOfProhibido;
 
       if (debeMarcarOf) {
@@ -251,7 +268,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let hayFinallyBlock = Boolean(node.finallyBlock);
+
       let estaFinallyProhibido = forbiddenWords.has('finally');
+
       let debeMarcarFinally = hayFinallyBlock && estaFinallyProhibido;
 
       if (debeMarcarFinally) {
@@ -327,7 +346,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       let { kind: operatorKind } = operatorToken || {};
 
       let esInKeyword = operatorKind === ts.SyntaxKind.InKeyword;
+
       let estaInProhibido = forbiddenWords.has('in');
+
       let debeMarcarIn = esInKeyword && estaInProhibido;
 
       if (debeMarcarIn) {
@@ -335,7 +356,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let esInstanceOfKeyword = operatorKind === ts.SyntaxKind.InstanceOfKeyword;
+
       let estaInstanceofProhibido = forbiddenWords.has('instanceof');
+
       let debeMarcarInstanceof = esInstanceOfKeyword && estaInstanceofProhibido;
 
       if (debeMarcarInstanceof) {
@@ -344,7 +367,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
     }
 
     let esFunctionDeclaration = kind === ts.SyntaxKind.FunctionDeclaration;
+
     let esFunctionExpression = kind === ts.SyntaxKind.FunctionExpression;
+
     let esAlgunaFuncion = esFunctionDeclaration || esFunctionExpression;
 
     if (esAlgunaFuncion) {
@@ -356,7 +381,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
     }
 
     let esClassDeclaration = kind === ts.SyntaxKind.ClassDeclaration;
+
     let esClassExpression = kind === ts.SyntaxKind.ClassExpression;
+
     let esAlgunaClase = esClassDeclaration || esClassExpression;
 
     if (esAlgunaClase) {
@@ -425,8 +452,11 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       let { escapedText: name } = nameNode || {};
 
       let esNewKeyword = keywordToken === ts.SyntaxKind.NewKeyword;
+
       let esNombreTarget = name === 'target';
+
       let estaTargetProhibido = forbiddenWords.has('target');
+
       let debeMarcarTarget = esNewKeyword && esNombreTarget && estaTargetProhibido;
 
       if (debeMarcarTarget) {
@@ -434,8 +464,11 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let esImportKeyword = keywordToken === ts.SyntaxKind.ImportKeyword;
+
       let esNombreMeta = name === 'meta';
+
       let estaMetaProhibido = forbiddenWords.has('meta');
+
       let debeMarcarMeta = esImportKeyword && esNombreMeta && estaMetaProhibido;
 
       if (debeMarcarMeta) {
@@ -481,7 +514,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       let { flags = 0 } = declList || {};
 
       let estaConstProhibido = forbiddenWords.has('const');
+
       let tieneFlagConst = (flags & ts.NodeFlags.Const) !== 0;
+
       let debeMarcarConst = estaConstProhibido && tieneFlagConst;
 
       if (debeMarcarConst) {
@@ -489,7 +524,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let estaLetProhibido = forbiddenWords.has('let');
+
       let tieneFlagLet = (flags & ts.NodeFlags.Let) !== 0;
+
       let debeMarcarLet = estaLetProhibido && tieneFlagLet;
 
       if (debeMarcarLet) {
@@ -497,7 +534,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       }
 
       let estaVarProhibido = forbiddenWords.has('var');
+
       let tieneFlagConstOLet = (flags & (ts.NodeFlags.Const | ts.NodeFlags.Let)) !== 0;
+
       let debeMarcarVar = estaVarProhibido && !tieneFlagConstOLet;
 
       if (debeMarcarVar) {
@@ -521,8 +560,11 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
       let { escapedText: name } = node;
 
       let esNombreString = typeof name === 'string';
+
       let esNombreProhibido = esNombreString && forbiddenWords.has(name);
+
       let esContextoOmitible = isSkippableTsIdentifierContext(parent, node, ts);
+
       let debeMarcarIdentificador = esNombreProhibido && !esContextoOmitible;
 
       if (debeMarcarIdentificador) {
@@ -612,7 +654,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
     if (hayHeritageClauses) {
       heritageClauses.forEach(function (clause) {
         let esExtendsKeyword = clause.token === ts.SyntaxKind.ExtendsKeyword;
+
         let estaExtendsProhibido = forbiddenWords.has('extends');
+
         let debeMarcarExtends = esExtendsKeyword && estaExtendsProhibido;
 
         if (debeMarcarExtends) {
@@ -620,7 +664,9 @@ export function collectForbiddenFindingsTypescript(sourceFile, filePath, forbidd
         }
 
         let esImplementsKeyword = clause.token === ts.SyntaxKind.ImplementsKeyword;
+
         let estaImplementsProhibido = forbiddenWords.has('implements');
+
         let debeMarcarImplements = esImplementsKeyword && estaImplementsProhibido;
 
         if (debeMarcarImplements) {

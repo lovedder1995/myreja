@@ -301,6 +301,6 @@ export const descKeywordTable: { [key: string]: Token } =  {
   as: Token.AsKeyword,
   arguments: Token.Arguments,
   target: Token.Target, // Prohibida
-  meta: Token.Meta, // Prohibida
+  meta: Token.Meta,
   accessor: Token.AccessorKeyword, // Prohibida
 }

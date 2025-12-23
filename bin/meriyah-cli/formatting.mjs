@@ -47,7 +47,9 @@ export function stripTrailingWhitespace(sourceText) {
   }
 
   let out = sourceText.replace(/[ \t]+(?=\r?\n)/g, '');
+
   out = out.replace(/[ \t]+(?=\r)/g, '');
+
   out = out.replace(/[ \t]+$/g, '');
 
   return out;
@@ -87,6 +89,7 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
     })
     .map(function (span) {
       let start = Math.max(0, Math.min(len, span.start));
+
       let end = Math.max(start, Math.min(len, span.end));
 
       return { start, end };
@@ -135,6 +138,7 @@ export function convertTabsToFourSpacesOutsideTokens(sourceText, spans) {
     }
 
     out += sourceText.slice(span.start, span.end);
+
     cursor = span.end;
   });
 
@@ -167,6 +171,7 @@ export function mergeSpans(spans, len) {
     })
     .map(function (span) {
       let start = Math.max(0, Math.min(len, span.start));
+
       let end = Math.max(start, Math.min(len, span.end));
 
       return { start, end };
@@ -215,6 +220,7 @@ function isInsideMergedSpans(index, merged) {
     }
 
     let mid = (lo + hi) >> 1;
+
     let span = merged[mid];
 
     let estaAntesDelTramo = index < span.start;
@@ -265,6 +271,7 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
   let out = '';
 
   let eventPos = [];
+
   let eventPrefix = [];
 
   events.forEach(function (e, index) {
@@ -354,6 +361,7 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
   let segments = sourceText.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) || [];
 
   let cursor = 0;
+
   let previousWasBlankLineOutsideTokens = false;
 
   segments.forEach(function (segment) {
@@ -364,17 +372,21 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
     }
 
     let parts = splitLineSegment(segment);
+
     let { lineText, lineBreak } = parts;
 
     let lineStart = cursor;
+
     cursor += segment.length;
 
     let estaDentroDeTramosToken = isInsideMergedSpans(lineStart, mergedTokenSpans);
+
     let esLineaVacia = lineText.trim().length === 0;
 
     if (esLineaVacia) {
       if (estaDentroDeTramosToken) {
         out += lineText + lineBreak;
+
         previousWasBlankLineOutsideTokens = false;
 
         return;
@@ -385,6 +397,7 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
       }
 
       out += lineBreak;
+
       previousWasBlankLineOutsideTokens = true;
 
       return;
@@ -392,6 +405,7 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     if (estaDentroDeTramosToken) {
       out += lineText + lineBreak;
+
       previousWasBlankLineOutsideTokens = false;
 
       return;
@@ -403,13 +417,16 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
 
     if (noHayContenido) {
       out += lineBreak;
+
       previousWasBlankLineOutsideTokens = false;
 
       return;
     }
 
     let depth = depthAtPos(lineStart);
+
     let closeMatch = content.match(/^}+/);
+
     let leadingCloseCount = closeMatch ? closeMatch[0].length : 0;
 
     let indentLevel = depth - leadingCloseCount;
@@ -421,6 +438,7 @@ export function reindentFourSpacesOutsideTokens(sourceText, tokenSpans, braceEve
     }
 
     out += ' '.repeat(indentLevel * 4) + content + lineBreak;
+
     previousWasBlankLineOutsideTokens = false;
   });
 
