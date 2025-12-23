@@ -15,8 +15,8 @@ export function applyReplacements(
     .slice()
     .sort(
         function (
-        a,
-        b
+            a,
+            b
         ) {
             return b.start - a.start
 
@@ -24,7 +24,7 @@ export function applyReplacements(
     )
     .filter(
         function (
-        rep
+            rep
         ) {
             return (
             typeof rep?.start === 'number' &&
@@ -43,7 +43,7 @@ export function applyReplacements(
 
     sorted.forEach(
         function (
-        rep
+            rep
         ) {
             let solapaConReemplazoPrevio = rep.end > lastStart
 
@@ -55,10 +55,10 @@ export function applyReplacements(
             }
 
             out = out.slice(
-            0,
-            rep.start
+                0,
+                rep.start
             ) + rep.text + out.slice(
-            rep.end
+                rep.end
             )
 
             lastStart = rep.start
@@ -145,17 +145,17 @@ export function convertTabsToFourSpacesOutsideTokens(
     .slice()
     .filter(
         function (
-        span
+            span
         ) {
             return (
             span &&
             typeof span.start === 'number' &&
             typeof span.end === 'number' &&
             Number.isFinite(
-            span.start
+                span.start
             ) &&
             Number.isFinite(
-            span.end
+                span.end
             )
             )
 
@@ -163,22 +163,22 @@ export function convertTabsToFourSpacesOutsideTokens(
     )
     .map(
         function (
-        span
+            span
         ) {
             let start = Math.max(
-            0,
-            Math.min(
-            len,
-            span.start
-            )
+                0,
+                Math.min(
+                    len,
+                    span.start
+                )
             )
 
             let end = Math.max(
-            start,
-            Math.min(
-            len,
-            span.end
-            )
+                start,
+                Math.min(
+                    len,
+                    span.end
+                )
             )
 
             return { start, end }
@@ -187,8 +187,8 @@ export function convertTabsToFourSpacesOutsideTokens(
     )
     .sort(
         function (
-        a,
-        b
+            a,
+            b
         ) {
             return a.start - b.start
 
@@ -199,7 +199,7 @@ export function convertTabsToFourSpacesOutsideTokens(
 
     sorted.forEach(
         function (
-        span
+            span
         ) {
             let noHayTramosAcumulados = merged.length === 0
 
@@ -207,7 +207,7 @@ export function convertTabsToFourSpacesOutsideTokens(
                 noHayTramosAcumulados
             ) {
                 merged.push(
-                span
+                    span
                 )
 
                 return
@@ -222,7 +222,7 @@ export function convertTabsToFourSpacesOutsideTokens(
                 empiezaDespuesDelFinal
             ) {
                 merged.push(
-                span
+                    span
                 )
 
                 return
@@ -246,7 +246,7 @@ export function convertTabsToFourSpacesOutsideTokens(
 
     merged.forEach(
         function (
-        span
+            span
         ) {
             let hayTextoAntesDelTramo = span.start > cursor
 
@@ -254,18 +254,18 @@ export function convertTabsToFourSpacesOutsideTokens(
                 hayTextoAntesDelTramo
             ) {
                 out += sourceText.slice(
-                cursor,
-                span.start
+                    cursor,
+                    span.start
                 ).replace(
-                /\t/g,
-                '    '
+                    /\t/g,
+                    '    '
                 )
 
             }
 
             out += sourceText.slice(
-            span.start,
-            span.end
+                span.start,
+                span.end
             )
 
             cursor = span.end
@@ -310,17 +310,17 @@ export function mergeSpans(
     .slice()
     .filter(
         function (
-        span
+            span
         ) {
             return (
             span &&
             typeof span.start === 'number' &&
             typeof span.end === 'number' &&
             Number.isFinite(
-            span.start
+                span.start
             ) &&
             Number.isFinite(
-            span.end
+                span.end
             )
             )
 
@@ -328,22 +328,22 @@ export function mergeSpans(
     )
     .map(
         function (
-        span
+            span
         ) {
             let start = Math.max(
-            0,
-            Math.min(
-            len,
-            span.start
-            )
+                0,
+                Math.min(
+                    len,
+                    span.start
+                )
             )
 
             let end = Math.max(
-            start,
-            Math.min(
-            len,
-            span.end
-            )
+                start,
+                Math.min(
+                    len,
+                    span.end
+                )
             )
 
             return { start, end }
@@ -352,8 +352,8 @@ export function mergeSpans(
     )
     .sort(
         function (
-        a,
-        b
+            a,
+            b
         ) {
             return a.start - b.start
 
@@ -364,7 +364,7 @@ export function mergeSpans(
 
     sorted.forEach(
         function (
-        span
+            span
         ) {
             let noHayTramosAcumulados = merged.length === 0
 
@@ -372,7 +372,7 @@ export function mergeSpans(
                 noHayTramosAcumulados
             ) {
                 merged.push(
-                span
+                    span
                 )
 
                 return
@@ -387,7 +387,7 @@ export function mergeSpans(
                 empiezaDespuesDelFinal
             ) {
                 merged.push(
-                span
+                    span
                 )
 
                 return
@@ -493,24 +493,24 @@ export function reindentFourSpacesOutsideTokens(
     .slice()
     .filter(
         function (
-        e
+            e
         ) {
             return e && typeof e.pos === 'number' && Number.isFinite(
-            e.pos
+                e.pos
             ) && (e.delta === 1 || e.delta === -1)
 
         }
     )
     .map(
         function (
-        e
+            e
         ) {
             let pos = Math.max(
-            0,
-            Math.min(
-            len,
-            e.pos
-            )
+                0,
+                Math.min(
+                    len,
+                    e.pos
+                )
             )
 
             return { pos, delta: e.delta }
@@ -519,8 +519,8 @@ export function reindentFourSpacesOutsideTokens(
     )
     .sort(
         function (
-        a,
-        b
+            a,
+            b
         ) {
             return a.pos - b.pos
 
@@ -536,11 +536,11 @@ export function reindentFourSpacesOutsideTokens(
 
     events.forEach(
         function (
-        e,
-        index
+            e,
+            index
         ) {
             eventPos.push(
-            e.pos
+                e.pos
             )
 
             let esPrimerEvento = index === 0
@@ -549,7 +549,7 @@ export function reindentFourSpacesOutsideTokens(
                 esPrimerEvento
             ) {
                 eventPrefix.push(
-                e.delta
+                    e.delta
                 )
 
                 return
@@ -557,7 +557,7 @@ export function reindentFourSpacesOutsideTokens(
             }
 
             eventPrefix.push(
-            eventPrefix[index - 1] + e.delta
+                eventPrefix[index - 1] + e.delta
             )
 
         }
@@ -708,7 +708,7 @@ export function reindentFourSpacesOutsideTokens(
 
     segments.forEach(
         function (
-        segment
+            segment
         ) {
             let noHaySegmento = !segment
 
@@ -720,7 +720,7 @@ export function reindentFourSpacesOutsideTokens(
             }
 
             let parts = splitLineSegment(
-            segment
+                segment
             )
 
             let { lineText, lineBreak } = parts
@@ -730,8 +730,8 @@ export function reindentFourSpacesOutsideTokens(
             cursor += segment.length
 
             let estaDentroDeTramosToken = isInsideMergedSpans(
-            lineStart,
-            mergedTokenSpans
+                lineStart,
+                mergedTokenSpans
             )
 
             let esLineaVacia = lineText.trim().length === 0
@@ -777,8 +777,8 @@ export function reindentFourSpacesOutsideTokens(
             }
 
             let content = lineText.replace(
-            /^[ \t]+/,
-            ''
+                /^[ \t]+/,
+                ''
             )
 
             let noHayContenido = content.length === 0
@@ -795,11 +795,11 @@ export function reindentFourSpacesOutsideTokens(
             }
 
             let depth = depthAtPos(
-            lineStart
+                lineStart
             )
 
             let closeMatch = content.match(
-            /^}+/
+                /^}+/
             )
 
             let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
@@ -816,7 +816,7 @@ export function reindentFourSpacesOutsideTokens(
             }
 
             out += ' '.repeat(
-            indentLevel * 4
+                indentLevel * 4
             ) + content + lineBreak
 
             previousWasBlankLineOutsideTokens = false
@@ -834,7 +834,7 @@ export function isInsideAnySpan(
 ) {
     return spans.some(
         function (
-        span
+            span
         ) {
             return index >= span.start && index < span.end
 

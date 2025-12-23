@@ -161,12 +161,12 @@ function collectEmptyStatementRangesMeriyah(
         ) {
             node.forEach(
                 function (
-                item
+                    item
                 ) {
                     visit(
-                    item,
-                    parent,
-                    key
+                        item,
+                        parent,
+                        key
                     )
 
                 }
@@ -185,12 +185,12 @@ function collectEmptyStatementRangesMeriyah(
                 node
             ).forEach(
                 function (
-                child
+                    child
                 ) {
                     visit(
-                    child,
-                    node,
-                    undefined
+                        child,
+                        node,
+                        undefined
                     )
 
                 }
@@ -219,7 +219,7 @@ function collectEmptyStatementRangesMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let childKey = pair[0]
 
@@ -233,9 +233,9 @@ function collectEmptyStatementRangesMeriyah(
                 }
 
                 visit(
-                pair[1],
-                node,
-                childKey
+                    pair[1],
+                    node,
+                    childKey
                 )
 
             }
@@ -413,12 +413,12 @@ function collectForbiddenFindingsMeriyah(
         ) {
             node.forEach(
                 function (
-                item
+                    item
                 ) {
                     visit(
-                    item,
-                    parent,
-                    key
+                        item,
+                        parent,
+                        key
                     )
 
                 }
@@ -437,12 +437,12 @@ function collectForbiddenFindingsMeriyah(
                 node
             ).forEach(
                 function (
-                child
+                    child
                 ) {
                     visit(
-                    child,
-                    node,
-                    undefined
+                        child,
+                        node,
+                        undefined
                     )
 
                 }
@@ -1413,7 +1413,7 @@ function collectForbiddenFindingsMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let childKey = pair[0]
 
@@ -1427,9 +1427,9 @@ function collectForbiddenFindingsMeriyah(
                 }
 
                 visit(
-                pair[1],
-                node,
-                childKey
+                    pair[1],
+                    node,
+                    childKey
                 )
 
             }
@@ -1549,7 +1549,7 @@ function collectConditionSingleVariableFindingsMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let key = pair[0]
 
@@ -1563,7 +1563,7 @@ function collectConditionSingleVariableFindingsMeriyah(
                 }
 
                 visit(
-                pair[1]
+                    pair[1]
                 )
 
             }
@@ -1600,8 +1600,8 @@ function parseSourceMeriyah(
                 end,
                 loc,
                 text: sourceText.slice(
-                start,
-                end
+                    start,
+                    end
                 ),
             }
         )
@@ -1637,7 +1637,7 @@ function parseSourceMeriyah(
         } catch {
             let err = moduleError instanceof Error ? moduleError : new Error(
                 String(
-                moduleError
+                    moduleError
                 )
             )
 
@@ -1687,7 +1687,7 @@ function parseCommentsMeriyah(
         } catch {
             let err = moduleError instanceof Error ? moduleError : new Error(
                 String(
-                moduleError
+                    moduleError
                 )
             )
 
@@ -1749,8 +1749,8 @@ function findLineStartIndex(
     let i = Math.max(
         0,
         Math.min(
-        len,
-        index
+            len,
+            index
         )
     )
 
@@ -1793,8 +1793,8 @@ function findLineEndIndex(
     let i = Math.max(
         0,
         Math.min(
-        len,
-        index
+            len,
+            index
         )
     )
 
@@ -1921,8 +1921,8 @@ function buildLineCommentBlockFromValue(
 
     lines.forEach(
         function (
-        line,
-        index
+            line,
+            index
         ) {
             let esPrimera = index === 0
 
@@ -1938,9 +1938,9 @@ function buildLineCommentBlockFromValue(
             }
 
             out.push(
-            `${prefix}//${normalizeLineCommentValue(
-            line
-            )}`
+                `${prefix}//${normalizeLineCommentValue(
+                    line
+                )}`
             )
 
         }
@@ -1974,16 +1974,16 @@ function fixIfSingleVariableConditionIndent(
 
     Array.from(
         sourceText.matchAll(
-        singleLineRe
+            singleLineRe
         )
     ).forEach(
         function (
-        match
+            match
         ) {
             let { index } = match
 
             let tieneIndex = typeof index === 'number' && Number.isFinite(
-            index
+                index
             )
 
             let noTieneIndex = !tieneIndex
@@ -2021,7 +2021,7 @@ function fixIfSingleVariableConditionIndent(
             let repText = `${indentIf}if (${eol}${desiredIndent}${condVar}${eol}${indentIf}) {`
 
             replacements.push(
-            { start: index, end: index + matchText.length, text: repText }
+                { start: index, end: index + matchText.length, text: repText }
             )
 
         }
@@ -2036,7 +2036,7 @@ function fixIfSingleVariableConditionIndent(
 
     let matches = Array.from(
         convertedText.matchAll(
-        re
+            re
         )
     )
 
@@ -2053,12 +2053,12 @@ function fixIfSingleVariableConditionIndent(
 
     matches.forEach(
         function (
-        match
+            match
         ) {
             let { index } = match
 
             let tieneIndex = typeof index === 'number' && Number.isFinite(
-            index
+                index
             )
 
             let noTieneIndex = !tieneIndex
@@ -2107,7 +2107,7 @@ function fixIfSingleVariableConditionIndent(
             let indentEnd = indentStart + indentCond.length
 
             indentReplacements.push(
-            { start: indentStart, end: indentEnd, text: desiredIndent }
+                { start: indentStart, end: indentEnd, text: desiredIndent }
             )
 
         }
@@ -2161,8 +2161,8 @@ function scanCommentsTypescript(
 
             comments.push(
                 { kind, start, end, text: sourceText.slice(
-                start,
-                end
+                    start,
+                    end
                 ) }
             )
 
@@ -2189,14 +2189,11 @@ function fixFunctionArgumentsLayoutMeriyah(
 
     }
 
-    let { ast, tokens } = parseSourceMeriyah(
-        parse,
-        sourceText
-    )
-
-    let eol = detectEol(
-        sourceText
-    )
+    let fixedText = sourceText
+    let maxPasadas = 8
+    let ast
+    let tokens
+    let eol
 
     function findLineIndentAt(
         index
@@ -2438,7 +2435,7 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         nodeArray.forEach(
             function (
-            item
+                item
             ) {
                 let noEsNodo = !item || typeof item !== 'object'
 
@@ -2459,7 +2456,7 @@ function fixFunctionArgumentsLayoutMeriyah(
                 }
 
                 out.push(
-                { start, end }
+                    { start, end }
                 )
 
             }
@@ -2518,7 +2515,7 @@ function fixFunctionArgumentsLayoutMeriyah(
                 )
                 .filter(
                     function (
-                    line
+                        line
                     ) {
                         return line.trim().length > 0
                     }
@@ -2526,11 +2523,11 @@ function fixFunctionArgumentsLayoutMeriyah(
 
                 let minIndent = tailLines.reduce(
                     function (
-                    acc,
-                    line
+                        acc,
+                        line
                     ) {
                         let current = getLeadingWhitespaceLength(
-                        line
+                            line
                         )
 
                         let esMenor = current < acc
@@ -2558,8 +2555,8 @@ function fixFunctionArgumentsLayoutMeriyah(
 
                 parts = parts.map(
                     function (
-                    line,
-                    index
+                        line,
+                        index
                     ) {
                         let isFirst = index === 0
 
@@ -2570,16 +2567,16 @@ function fixFunctionArgumentsLayoutMeriyah(
                         }
 
                         let leading = getLeadingWhitespaceLength(
-                        line
+                            line
                         )
 
                         let cut = Math.min(
-                        minIndent,
-                        leading
+                            minIndent,
+                            leading
                         )
 
                         return line.slice(
-                        cut
+                            cut
                         ).trimEnd()
                     }
                 )
@@ -2591,7 +2588,7 @@ function fixFunctionArgumentsLayoutMeriyah(
 
             return parts.map(
                 function (
-                line
+                    line
                 ) {
                     return line.trimEnd()
                 }
@@ -2609,7 +2606,7 @@ function fixFunctionArgumentsLayoutMeriyah(
                 /\r\n|\n|\r/
             ).map(
                 function (
-                line
+                    line
                 ) {
                     return `${desiredIndent}${line}`
                 }
@@ -2631,8 +2628,8 @@ function fixFunctionArgumentsLayoutMeriyah(
 
             return parts.map(
                 function (
-                line,
-                index
+                    line,
+                    index
                 ) {
                     let esUltima = index === lastIndex
 
@@ -2651,12 +2648,12 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         let lines = items.map(
             function (
-            item,
-            index
+                item,
+                index
             ) {
                 let text = sourceText.slice(
-                item.start,
-                item.end
+                    item.start,
+                    item.end
                 ).trim()
 
                 let esUltimo = index === items.length - 1
@@ -2664,18 +2661,18 @@ function fixFunctionArgumentsLayoutMeriyah(
                 let debeTenerComa = !esUltimo
 
                 let normalized = normalizeMultilineItemText(
-                text
+                    text
                 )
 
                 let indented = indentTextBlock(
-                normalized
+                    normalized
                 )
 
                 if (
                     debeTenerComa
                 ) {
                     return appendCommaToLastLine(
-                    indented
+                        indented
                     )
                 }
 
@@ -2823,9 +2820,9 @@ function fixFunctionArgumentsLayoutMeriyah(
 
         candidates.push(
             buildListReplacement(
-            openToken,
-            closeToken,
-            items
+                openToken,
+                closeToken,
+                items
             )
         )
 
@@ -2851,10 +2848,10 @@ function fixFunctionArgumentsLayoutMeriyah(
         ) {
             node.forEach(
                 function (
-                item
+                    item
                 ) {
                     visit(
-                    item
+                        item
                     )
 
                 }
@@ -2937,7 +2934,7 @@ function fixFunctionArgumentsLayoutMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let childKey = pair[0]
 
@@ -2950,7 +2947,7 @@ function fixFunctionArgumentsLayoutMeriyah(
                 }
 
                 visit(
-                pair[1]
+                    pair[1]
                 )
 
             }
@@ -2958,56 +2955,132 @@ function fixFunctionArgumentsLayoutMeriyah(
 
     }
 
-    visit(
-        ast
-    )
-
-    let noHayReemplazos = candidates.length === 0
-
-    if (
-        noHayReemplazos
+    function runPass(
+        pasada,
+        currentText
     ) {
-        return { fixedText: sourceText }
+        let llegoAlMax = pasada >= maxPasadas
 
+        if (
+            llegoAlMax
+        ) {
+            return currentText
+        }
+
+        sourceText = currentText
+        candidates = []
+
+        let parsed = parseSourceMeriyah(
+            parse,
+            sourceText
+        )
+
+        ast = parsed.ast
+        tokens = parsed.tokens
+
+        eol = detectEol(
+            sourceText
+        )
+
+        visit(
+            ast
+        )
+
+        let reemplazos = candidates.filter(
+            function (
+                rep
+            ) {
+                return sourceText.slice(
+                    rep.start,
+                    rep.end
+                ) !== rep.text
+            }
+        )
+
+        let noHayReemplazos = reemplazos.length === 0
+
+        if (
+            noHayReemplazos
+        ) {
+            return currentText
+        }
+
+        let sorted = reemplazos
+        .slice()
+        .sort(
+            function (
+                a,
+                b
+            ) {
+                return a.start - b.start
+            }
+        )
+
+        let nonOverlapping = []
+
+        sorted.forEach(
+            function (
+                rep
+            ) {
+                let ultimo = nonOverlapping[nonOverlapping.length - 1]
+
+                let noHayUltimo = !ultimo
+
+                if (
+                    noHayUltimo
+                ) {
+                    nonOverlapping.push(
+                        rep
+                    )
+                    return
+                }
+
+                let noSolapa = rep.start >= ultimo.end
+
+                if (
+                    noSolapa
+                ) {
+                    nonOverlapping.push(
+                        rep
+                    )
+                    return
+                }
+
+                let lenUltimo = ultimo.end - ultimo.start
+                let lenRep = rep.end - rep.start
+
+                let repEsMasInterno = lenRep < lenUltimo
+
+                if (
+                    repEsMasInterno
+                ) {
+                    nonOverlapping[nonOverlapping.length - 1] = rep
+                }
+            }
+        )
+
+        let nextText = applyReplacements(
+            sourceText,
+            nonOverlapping
+        )
+
+        let noHuboCambios = nextText === sourceText
+
+        if (
+            noHuboCambios
+        ) {
+            return currentText
+        }
+
+        return runPass(
+            pasada + 1,
+            nextText
+        )
     }
 
-    let sorted = candidates
-    .slice()
-    .sort(
-        function (
-        a,
-        b
-        ) {
-            return a.start - b.start
-        }
-    )
-
-    let nonOverlapping = []
-    let lastEnd = -1
-
-    sorted.forEach(
-        function (
-        rep
-        ) {
-            let solapa = rep.start < lastEnd
-
-            if (
-                solapa
-            ) {
-                return
-            }
-
-            nonOverlapping.push(
-            rep
-            )
-            lastEnd = rep.end
-
-        }
-    )
-
-    let fixedText = applyReplacements(
-        sourceText,
-        nonOverlapping
+    fixedText = runPass(
+        0,
+        fixedText
     )
 
     return { fixedText }
@@ -3026,7 +3099,7 @@ function fixCommentsText(
 
     comments.forEach(
         function (
-        comment
+            comment
         ) {
             let start = comment?.start
 
@@ -3037,11 +3110,11 @@ function fixCommentsText(
             let endEsNumero = typeof end === 'number'
 
             let startEsFinito = startEsNumero && Number.isFinite(
-            start
+                start
             )
 
             let endEsFinito = endEsNumero && Number.isFinite(
-            end
+                end
             )
 
             let hayRango = startEsFinito && endEsFinito
@@ -3058,47 +3131,47 @@ function fixCommentsText(
             }
 
             let startLineStart = findLineStartIndex(
-            sourceText,
-            start
+                sourceText,
+                start
             )
 
             let startLineEnd = findLineEndIndex(
-            sourceText,
-            start
+                sourceText,
+                start
             )
 
             let endLineEnd = findLineEndIndex(
-            sourceText,
-            end
+                sourceText,
+                end
             )
 
             let indent = findLineIndent(
-            sourceText,
-            startLineStart,
-            startLineEnd
+                sourceText,
+                startLineStart,
+                startLineEnd
             )
 
             let prefix = sourceText.slice(
-            startLineStart,
-            start
+                startLineStart,
+                start
             )
 
             let suffix = sourceText.slice(
-            end,
-            endLineEnd
+                end,
+                endLineEnd
             )
 
             let hayCodigoAntes = /\S/.test(
-            prefix
+                prefix
             )
 
             let hayCodigoDespues = /\S/.test(
-            suffix
+                suffix
             )
 
             let rawText = sourceText.slice(
-            start,
-            end
+                start,
+                end
             )
 
             let tieneTexto = typeof comment.text === 'string' && comment.text.length > 0
@@ -3113,7 +3186,7 @@ function fixCommentsText(
             let esMultiLine = comment.type === 'MultiLine'
 
             let esBloquePorTexto = rawText.startsWith(
-            '/*'
+                '/*'
             )
 
             let esComentarioDeBloque = esMultiLine || esBloquePorTexto
@@ -3135,17 +3208,17 @@ function fixCommentsText(
                 debeDerivarValue
             ) {
                 let esBloqueCerrado = rawText.startsWith(
-                '/*'
+                    '/*'
                 ) && rawText.endsWith(
-                '*/'
+                    '*/'
                 )
 
                 if (
                     esBloqueCerrado
                 ) {
                     value = rawText.slice(
-                    2,
-                    -2
+                        2,
+                        -2
                     )
 
                 }
@@ -3156,14 +3229,14 @@ function fixCommentsText(
                     noEsBloqueCerrado
                 ) {
                     let esLinea = rawText.startsWith(
-                    '//'
+                        '//'
                     )
 
                     if (
                         esLinea
                     ) {
                         value = rawText.slice(
-                        2
+                            2
                         )
 
                     }
@@ -3171,7 +3244,7 @@ function fixCommentsText(
             }
 
             let esMultilinea = /[\r\n]/.test(
-            rawText
+                rawText
             )
 
             if (
@@ -3190,14 +3263,14 @@ function fixCommentsText(
                     esComentarioDeBloque
                 ) {
                     let repText = buildLineCommentBlockFromValue(
-                    value,
-                    indent,
-                    eol,
-                    true
+                        value,
+                        indent,
+                        eol,
+                        true
                     )
 
                     replacements.push(
-                    { start, end, text: repText }
+                        { start, end, text: repText }
                     )
 
                 }
@@ -3212,13 +3285,13 @@ function fixCommentsText(
                 comentarioAlFinalDeLinea
             ) {
                 let matchTrailing = /[ \t]*$/.exec(
-                prefix
+                    prefix
                 )
 
                 let trailingWs = ''
 
                 let tieneTrailing = Boolean(
-                matchTrailing
+                    matchTrailing
                 )
 
                 if (
@@ -3231,23 +3304,23 @@ function fixCommentsText(
                 let wsStart = start - trailingWs.length
 
                 let repText = `${eol}${indent}//${normalizeLineCommentValue(
-                value
+                    value
                 )}`
 
                 if (
                     esComentarioDeBloque
                 ) {
                     repText = `${eol}${buildLineCommentBlockFromValue(
-                    value,
-                    indent,
-                    eol,
-                    false
+                        value,
+                        indent,
+                        eol,
+                        false
                     )}`
 
                 }
 
                 replacements.push(
-                { start: wsStart, end: startLineEnd, text: repText }
+                    { start: wsStart, end: startLineEnd, text: repText }
                 )
 
                 return
@@ -3260,18 +3333,18 @@ function fixCommentsText(
                 comentarioDeBloqueConCodigoDespues
             ) {
                 let between = sourceText.slice(
-                end,
-                startLineEnd
+                    end,
+                    startLineEnd
                 )
 
                 let matchLeading = /^[ \t]*/.exec(
-                between
+                    between
                 )
 
                 let leadingWs = ''
 
                 let tieneLeading = Boolean(
-                matchLeading
+                    matchLeading
                 )
 
                 if (
@@ -3284,18 +3357,18 @@ function fixCommentsText(
                 let afterNonWs = end + leadingWs.length
 
                 let repText = buildLineCommentBlockFromValue(
-                value,
-                indent,
-                eol,
-                true
+                    value,
+                    indent,
+                    eol,
+                    true
                 )
 
                 replacements.push(
-                { start, end, text: repText }
+                    { start, end, text: repText }
                 )
 
                 replacements.push(
-                { start: end, end: afterNonWs, text: `${eol}${indent}` }
+                    { start: end, end: afterNonWs, text: `${eol}${indent}` }
                 )
 
                 return
@@ -3311,14 +3384,14 @@ function fixCommentsText(
                     esComentarioDeBloque
                 ) {
                     let repText = buildLineCommentBlockFromValue(
-                    value,
-                    indent,
-                    eol,
-                    true
+                        value,
+                        indent,
+                        eol,
+                        true
                     )
 
                     replacements.push(
-                    { start, end, text: repText }
+                        { start, end, text: repText }
                     )
 
                 }
@@ -3355,7 +3428,7 @@ function fixCommentsMeriyah(
     let normalized = comments
     .filter(
         function (
-        c
+            c
         ) {
             return (
             c &&
@@ -3363,10 +3436,10 @@ function fixCommentsMeriyah(
             typeof c.start === 'number' &&
             typeof c.end === 'number' &&
             Number.isFinite(
-            c.start
+                c.start
             ) &&
             Number.isFinite(
-            c.end
+                c.end
             ) &&
             c.end > c.start
             )
@@ -3375,12 +3448,12 @@ function fixCommentsMeriyah(
     )
     .map(
         function (
-        c
+            c
         ) {
             return { start: c.start, end: c.end, type: c.type, value: c.value, text: sourceText.slice(
                 c.start,
                 c.end
-                ) }
+            ) }
 
         }
     )
@@ -3410,12 +3483,14 @@ function fixCommentsTypescript(
 
     let fixedText = fixCommentsText(
         sourceText,
-        trivia.map(function (
-        c
-        ) {
-            return { start: c.start, end: c.end, text: c.text }
+        trivia.map(
+            function (
+                c
+            ) {
+                return { start: c.start, end: c.end, text: c.text }
 
-        })
+            }
+        )
     )
 
     return { fixedText }
@@ -3444,10 +3519,10 @@ function fixSemicolonsMeriyah(
 
     emptyStatementRanges.forEach(
         function (
-        r
+            r
         ) {
             emptyStartSet.add(
-            r.start
+                r.start
             )
 
         }
@@ -3457,10 +3532,10 @@ function fixSemicolonsMeriyah(
 
     emptyStatementRanges.forEach(
         function (
-        range
+            range
         ) {
             replacements.push(
-            { start: range.start, end: range.end, text: '{}' }
+                { start: range.start, end: range.end, text: '{}' }
             )
 
         }
@@ -3470,7 +3545,7 @@ function fixSemicolonsMeriyah(
 
     tokens.forEach(
         function (
-        t
+            t
         ) {
             let noEsPuntoYComa = t.text !== ';'
 
@@ -3482,7 +3557,7 @@ function fixSemicolonsMeriyah(
             }
 
             let esVacioDeSentencia = emptyStartSet.has(
-            t.start
+                t.start
             )
 
             if (
@@ -3493,19 +3568,19 @@ function fixSemicolonsMeriyah(
             }
 
             let estaEnCabeceraDeFor = isInsideAnySpan(
-            t.start,
-            forHeaderSpans
+                t.start,
+                forHeaderSpans
             )
 
             if (
                 estaEnCabeceraDeFor
             ) {
                 addFindingAtLoc(
-                unfixableFindings,
-                filePath,
-                ';',
-                t.loc,
-                'formatear/no-semicolon'
+                    unfixableFindings,
+                    filePath,
+                    ';',
+                    t.loc,
+                    'formatear/no-semicolon'
                 )
 
                 return
@@ -3513,7 +3588,7 @@ function fixSemicolonsMeriyah(
             }
 
             replacements.push(
-            { start: t.start, end: t.end, text: '\n' }
+                { start: t.start, end: t.end, text: '\n' }
             )
 
         }
@@ -3542,7 +3617,7 @@ function fixVarConstToLetMeriyah(
 
     tokens.forEach(
         function (
-        t
+            t
         ) {
             let noEsKeyword = t.type !== 'Keyword'
 
@@ -3574,7 +3649,7 @@ function fixVarConstToLetMeriyah(
             }
 
             replacements.push(
-            { start: t.start, end: t.end, text: 'let' }
+                { start: t.start, end: t.end, text: 'let' }
             )
 
         }
@@ -3605,7 +3680,7 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
     let arrowTokens = tokens.filter(
         function (
-        t
+            t
         ) {
             return t.type === 'Punctuator' && t.text === '=>'
 
@@ -3635,7 +3710,7 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
         let arrowToken = arrowTokens.find(
             function (
-            t
+                t
             ) {
                 return typeof t.start === 'number' && t.start >= node.start && t.end <= node.end
 
@@ -3772,10 +3847,10 @@ function fixArrowFunctionsToFunctionsMeriyah(
         ) {
             node.forEach(
                 function (
-                item
+                    item
                 ) {
                     visit(
-                    item
+                        item
                     )
 
                 }
@@ -3794,10 +3869,10 @@ function fixArrowFunctionsToFunctionsMeriyah(
                 node
             ).forEach(
                 function (
-                child
+                    child
                 ) {
                     visit(
-                    child
+                        child
                     )
 
                 }
@@ -3822,7 +3897,7 @@ function fixArrowFunctionsToFunctionsMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let childKey = pair[0]
 
@@ -3836,7 +3911,7 @@ function fixArrowFunctionsToFunctionsMeriyah(
                 }
 
                 visit(
-                pair[1]
+                    pair[1]
                 )
 
             }
@@ -3940,10 +4015,10 @@ function fixMissingBracesIfMeriyah(
         ) {
             node.forEach(
                 function (
-                item
+                    item
                 ) {
                     visit(
-                    item
+                        item
                     )
 
                 }
@@ -3962,10 +4037,10 @@ function fixMissingBracesIfMeriyah(
                 node
             ).forEach(
                 function (
-                child
+                    child
                 ) {
                     visit(
-                    child
+                        child
                     )
 
                 }
@@ -4002,7 +4077,7 @@ function fixMissingBracesIfMeriyah(
             node
         ).forEach(
             function (
-            pair
+                pair
             ) {
                 let childKey = pair[0]
 
@@ -4016,7 +4091,7 @@ function fixMissingBracesIfMeriyah(
                 }
 
                 visit(
-                pair[1]
+                    pair[1]
                 )
 
             }
@@ -4090,26 +4165,28 @@ async function run(
     let fileSet = new Set()
 
     await Promise.all(
-        inputPaths.map(async function (
-        inputPath
-        ) {
-            await collectFiles(
-            inputPath,
-            fileSet
-            )
+        inputPaths.map(
+            async function (
+                inputPath
+            ) {
+                await collectFiles(
+                    inputPath,
+                    fileSet
+                )
 
-        })
+            }
+        )
     )
 
     let files = Array.from(
         fileSet
     ).sort(
         function (
-        a,
-        b
+            a,
+            b
         ) {
             return a.localeCompare(
-            b
+                b
             )
 
         }
@@ -4168,10 +4245,10 @@ async function run(
         )
         .filter(
             function (
-            ch
+                ch
             ) {
                 let code = ch.charCodeAt(
-                0
+                    0
                 )
 
                 return !(code <= 31 || code === 127)
@@ -4222,12 +4299,14 @@ async function run(
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                     sourceText,
-                    tokensForTabs.map(function (
-                    t
-                    ) {
-                        return { start: t.pos, end: t.end }
+                    tokensForTabs.map(
+                        function (
+                            t
+                        ) {
+                            return { start: t.pos, end: t.end }
 
-                    })
+                        }
+                    )
                 )
 
                 let huboCambiosDeTabs = tabFixedText !== sourceText
@@ -4269,16 +4348,16 @@ async function run(
 
                 fixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
                         )
 
                     }
@@ -4330,16 +4409,16 @@ async function run(
 
                 arrowFixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
                         )
 
                     }
@@ -4369,16 +4448,16 @@ async function run(
 
                 bracesFixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
                         )
 
                     }
@@ -4414,25 +4493,31 @@ async function run(
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                     sourceText,
-                    tokensForIndent.map(function (
-                    t
-                    ) {
-                        return { start: t.pos, end: t.end }
+                    tokensForIndent.map(
+                        function (
+                            t
+                        ) {
+                            return { start: t.pos, end: t.end }
 
-                    }),
+                        }
+                    ),
                     tokensForIndent
-                    .filter(function (
-                    t
-                    ) {
-                        return t.text === '{' || t.text === '}'
+                    .filter(
+                        function (
+                            t
+                        ) {
+                            return t.text === '{' || t.text === '}'
 
-                    })
-                    .map(function (
-                    t
-                    ) {
-                        return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
+                        }
+                    )
+                    .map(
+                        function (
+                            t
+                        ) {
+                            return { pos: t.pos, delta: t.text === '{' ? 1 : -1 }
 
-                    })
+                        }
+                    )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -4561,12 +4646,14 @@ async function run(
 
                 let tabFixedText = convertTabsToFourSpacesOutsideTokens(
                     sourceText,
-                    parsedForTabs.tokens.map(function (
-                    t
-                    ) {
-                        return { start: t.start, end: t.end }
+                    parsedForTabs.tokens.map(
+                        function (
+                            t
+                        ) {
+                            return { start: t.start, end: t.end }
 
-                    })
+                        }
+                    )
                 )
 
                 let huboCambiosDeTabs = tabFixedText !== sourceText
@@ -4607,16 +4694,16 @@ async function run(
 
                 fixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente ';' en la cabecera de un for  formatear/no-semicolon\n`
                         )
 
                     }
@@ -4666,16 +4753,16 @@ async function run(
 
                 arrowFixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente una función de flecha  formatear/no-arrow-function\n`
                         )
 
                     }
@@ -4704,16 +4791,16 @@ async function run(
 
                 bracesFixed.unfixableFindings.forEach(
                     function (
-                    finding
+                        finding
                     ) {
                         issueCount += 1
 
                         let normalizedFilePath = normalize(
-                        finding.filePath
+                            finding.filePath
                         )
 
                         process.stdout.write(
-                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se puede corregir automáticamente el uso de llaves en un if  formatear/require-braces\n`
                         )
 
                     }
@@ -4747,25 +4834,31 @@ async function run(
 
                 let reindentedText = reindentFourSpacesOutsideTokens(
                     sourceText,
-                    parsedForIndent.tokens.map(function (
-                    t
-                    ) {
-                        return { start: t.start, end: t.end }
+                    parsedForIndent.tokens.map(
+                        function (
+                            t
+                        ) {
+                            return { start: t.start, end: t.end }
 
-                    }),
+                        }
+                    ),
                     parsedForIndent.tokens
-                    .filter(function (
-                    t
-                    ) {
-                        return t.text === '{' || t.text === '}'
+                    .filter(
+                        function (
+                            t
+                        ) {
+                            return t.text === '{' || t.text === '}'
 
-                    })
-                    .map(function (
-                    t
-                    ) {
-                        return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
+                        }
+                    )
+                    .map(
+                        function (
+                            t
+                        ) {
+                            return { pos: t.start, delta: t.text === '{' ? 1 : -1 }
 
-                    })
+                        }
+                    )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -4862,27 +4955,27 @@ async function run(
 
             findings.forEach(
                 function (
-                finding
+                    finding
                 ) {
                     issueCount += 1
 
                     let normalizedFilePath = normalize(
-                    finding.filePath
+                        finding.filePath
                     )
 
                     let keyword = normalize(
-                    finding.keyword
+                        finding.keyword
                     )
 
                     let ruleIdValue =
                     typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
 
                     let ruleId = normalize(
-                    ruleIdValue
+                        ruleIdValue
                     )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar la palabra «${keyword}»  ${ruleId}\n`
                     )
 
                 }
@@ -4890,16 +4983,16 @@ async function run(
 
             conditionFindings.forEach(
                 function (
-                finding
+                    finding
                 ) {
                     issueCount += 1
 
                     let normalizedFilePath = normalize(
-                    finding.filePath
+                        finding.filePath
                     )
 
                     process.stdout.write(
-                    `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`
                     )
 
                 }
@@ -4921,15 +5014,17 @@ async function run(
 
     await files.reduce(
         function (
-        prev,
-        inputFilePath
+            prev,
+            inputFilePath
         ) {
-            return prev.then(function () {
-                return analyzeOne(
-                inputFilePath
-                )
+            return prev.then(
+                function () {
+                    return analyzeOne(
+                        inputFilePath
+                    )
 
-            })
+                }
+            )
 
         },
         Promise.resolve()
@@ -4950,7 +5045,7 @@ async function run(
 
 let exitCode = await run(
     process.argv.slice(
-    2
+        2
     )
 )
 

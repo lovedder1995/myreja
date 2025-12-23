@@ -47,9 +47,9 @@ export async function loadForbiddenWords() {
 
     let tokenFilePath = path.resolve(
         path.dirname(
-        path.resolve(
-        scriptPath
-        )
+            path.resolve(
+                scriptPath
+            )
         ),
         '..',
         'src',
@@ -75,14 +75,14 @@ export async function loadForbiddenWords() {
 
     Array.from(
         content.matchAll(
-        entryRegExp
+            entryRegExp
         )
     ).forEach(
         function (
-        match
+            match
         ) {
             forbidden.add(
-            match[1]
+                match[1]
             )
 
         }
@@ -166,7 +166,7 @@ export async function collectFiles(
     ) {
         out.add(
             path.resolve(
-            inputPath
+                inputPath
             )
         )
 
@@ -188,64 +188,66 @@ export async function collectFiles(
     )
 
     await Promise.all(
-        entries.map(async function (
-        entry
-        ) {
-            let fullPath = path.join(
-            inputPath,
-            entry.name
-            )
-
-            let esDirectorio = entry.isDirectory()
-
-            if (
-                esDirectorio
+        entries.map(
+            async function (
+                entry
             ) {
-                let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+                let fullPath = path.join(
+                    inputPath,
+                    entry.name
+                )
+
+                let esDirectorio = entry.isDirectory()
 
                 if (
-                    esSaltado
+                    esDirectorio
+                ) {
+                    let esSaltado = entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage'
+
+                    if (
+                        esSaltado
+                    ) {
+                        return
+
+                    }
+
+                    await collectFiles(
+                        fullPath,
+                        out
+                    )
+
+                    return
+
+                }
+
+                let noEsArchivo = !entry.isFile()
+
+                if (
+                    noEsArchivo
                 ) {
                     return
 
                 }
 
-                await collectFiles(
-                fullPath,
-                out
+                let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
+                    entry.name
                 )
 
-                return
+                if (
+                    noEsExtensionSoportada
+                ) {
+                    return
+
+                }
+
+                out.add(
+                    path.resolve(
+                        fullPath
+                    )
+                )
 
             }
-
-            let noEsArchivo = !entry.isFile()
-
-            if (
-                noEsArchivo
-            ) {
-                return
-
-            }
-
-            let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
-            entry.name
-            )
-
-            if (
-                noEsExtensionSoportada
-            ) {
-                return
-
-            }
-
-            out.add(
-            path.resolve(
-            fullPath
-            )
-            )
-
-        })
+        )
     )
 
 }
