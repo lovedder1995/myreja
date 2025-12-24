@@ -106,6 +106,7 @@ export async function loadForbiddenWords() {
 export function printHelp() {
     process.stdout.write(
         `Uso:
+          meriyah --reglas
           meriyah --formatear <archivo|directorio> [...]
         `
     )

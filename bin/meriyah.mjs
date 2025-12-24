@@ -22,6 +22,354 @@ import {
     scanTokensTypescript,
 } from './meriyah-cli/typescript.mjs'
 
+function getReglas() {
+    return [
+        {
+            id: 'formatear/no-trailing-whitespace',
+            descripcion: 'No dejar espacios o tabs al final de línea',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/no-tabs',
+            descripcion: 'Reemplazar tabs por 4 espacios fuera de tokens',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/indent-4-spaces',
+            descripcion: 'Indentar con 4 espacios y colapsar líneas en blanco consecutivas',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/function-args-layout',
+            descripcion: 'Ajustar el layout de argumentos de función',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/comments',
+            descripcion: 'Normalizar algunos formatos de comentarios',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/if-single-variable-indent',
+            descripcion: 'Normalizar indentación en if con condición de una sola variable',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/no-this',
+            descripcion: 'No usar `this` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-if',
+            descripcion: 'No usar `if` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-else',
+            descripcion: 'No usar `else` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-return',
+            descripcion: 'No usar `return` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-var',
+            descripcion: 'No usar `var` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-let',
+            descripcion: 'No usar `let` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-const',
+            descripcion: 'No usar `const` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-for',
+            descripcion: 'No usar `for` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-in',
+            descripcion: 'No usar `in` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-of',
+            descripcion: 'No usar `of` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-while',
+            descripcion: 'No usar `while` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-do',
+            descripcion: 'No usar `do` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-switch',
+            descripcion: 'No usar `switch` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-case',
+            descripcion: 'No usar `case` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-default',
+            descripcion: 'No usar `default` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-break',
+            descripcion: 'No usar `break` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-continue',
+            descripcion: 'No usar `continue` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-try',
+            descripcion: 'No usar `try` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-finally',
+            descripcion: 'No usar `finally` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-catch',
+            descripcion: 'No usar `catch` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-throw',
+            descripcion: 'No usar `throw` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-new',
+            descripcion: 'No usar `new` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-typeof',
+            descripcion: 'No usar `typeof` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-void',
+            descripcion: 'No usar `void` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-delete',
+            descripcion: 'No usar `delete` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-instanceof',
+            descripcion: 'No usar `instanceof` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-function',
+            descripcion: 'No usar `function` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-async',
+            descripcion: 'No usar `async` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-await',
+            descripcion: 'No usar `await` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-yield',
+            descripcion: 'No usar `yield` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-class',
+            descripcion: 'No usar `class` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-extends',
+            descripcion: 'No usar `extends` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-super',
+            descripcion: 'No usar `super` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-import',
+            descripcion: 'No usar `import` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-export',
+            descripcion: 'No usar `export` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-target',
+            descripcion: 'No usar `new.target` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-meta',
+            descripcion: 'No usar `import.meta` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-with',
+            descripcion: 'No usar `with` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-debugger',
+            descripcion: 'No usar `debugger` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-<identificador>',
+            descripcion: 'No usar identificadores prohibidos (según configuración)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/condition-single-variable',
+            descripcion: 'La condición debe ser una sola variable',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-semicolon',
+            descripcion: 'No usar `;` (en algunos casos no es autocorregible)',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/no-arrow-function',
+            descripcion: 'No usar funciones flecha (en algunos casos no es autocorregible)',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/no-ternary',
+            descripcion: 'No usar el operador ternario',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/require-braces',
+            descripcion: 'Requerir llaves en cuerpos de `if`',
+            autocorregible: true
+        },
+        {
+            id: 'formatear/no-interface',
+            descripcion: 'No usar `interface` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-enum',
+            descripcion: 'No usar `enum` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-as',
+            descripcion: 'No usar `as` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-constructor',
+            descripcion: 'No usar `constructor` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-public',
+            descripcion: 'No usar `public` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-private',
+            descripcion: 'No usar `private` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-protected',
+            descripcion: 'No usar `protected` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-static',
+            descripcion: 'No usar `static` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-accessor',
+            descripcion: 'No usar `accessor` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        },
+        {
+            id: 'formatear/no-implements',
+            descripcion: 'No usar `implements` (si está marcado como palabra prohibida)',
+            autocorregible: false
+        }
+    ]
+}
+
+function printReglas() {
+    let reglas = getReglas()
+    reglas = reglas.slice().sort(
+        function (
+            a,
+            b
+        ) {
+            return a.id.localeCompare(
+                b.id
+            )
+
+        }
+    )
+
+    reglas.forEach(
+        function (
+            regla
+        ) {
+            let autocorregible = 'no'
+            let esAutocorregible = Boolean(
+                regla.autocorregible
+            )
+
+            if (
+                esAutocorregible
+            ) {
+                autocorregible = 'sí'
+
+            }
+
+            process.stdout.write(
+                `${regla.id}\t${autocorregible}\t${regla.descripcion}\n`
+            )
+
+        }
+    )
+}
+
 function isSkippableIdentifierContext(
     parent,
     key
@@ -4673,6 +5021,19 @@ async function run(
         pidioAyuda
     ) {
         printHelp()
+
+        return 0
+
+    }
+
+    let pidioReglas = argv.includes(
+        '--reglas'
+    )
+
+    if (
+        pidioReglas
+    ) {
+        printReglas()
 
         return 0
 
