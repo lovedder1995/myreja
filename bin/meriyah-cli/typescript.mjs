@@ -1,4 +1,4 @@
-import { applyReplacements, isInsideAnySpan } from './formatting.mjs'
+import { applyReplacements, fixCommentsText, isInsideAnySpan } from './formatting.mjs'
 
 export function createTsFinding(
     findings,
@@ -240,6 +240,27 @@ export function collectForbiddenFindingsTypescript(
                     'this',
                     node,
                     'formatear/no-this'
+                )
+
+            }
+        }
+
+        let esSetAccessor = kind === ts.SyntaxKind.SetAccessor
+
+        if (
+            esSetAccessor
+        ) {
+            let estaSetProhibido = forbiddenWords.has(
+                'set'
+            )
+
+            if (
+                estaSetProhibido
+            ) {
+                addKeywordNode(
+                    'set',
+                    node,
+                    'formatear/no-set'
                 )
 
             }
@@ -2220,6 +2241,112 @@ export function fixTernaryOperatorsTypescript(
     return {
         fixedText: sourceText,
         unfixableFindings
+    }
+
+}
+
+function scanCommentsTypescript(
+    ts,
+    sourceText,
+    isTsx
+) {
+    let languageVariant = ts.LanguageVariant.Standard
+    let esJsx = Boolean(
+        isTsx
+    )
+
+    if (
+        esJsx
+    ) {
+        languageVariant = ts.LanguageVariant.JSX
+
+    }
+
+    let scanner = ts.createScanner(
+        ts.ScriptTarget.Latest,
+        false,
+        languageVariant,
+        sourceText
+    )
+
+    let comments = []
+
+    function scanNext() {
+        let kind = scanner.scan()
+
+        let finDeArchivo = kind === ts.SyntaxKind.EndOfFileToken
+
+        if (
+            finDeArchivo
+        ) {
+            return comments
+
+        }
+
+        let esComentario =
+        kind === ts.SyntaxKind.SingleLineCommentTrivia ||
+        kind === ts.SyntaxKind.MultiLineCommentTrivia
+
+        if (
+            esComentario
+        ) {
+            let start = scanner.getTokenPos()
+
+            let end = scanner.getTextPos()
+
+            comments.push(
+                {
+                    kind,
+                    start,
+                    end,
+                    text: sourceText.slice(
+                        start,
+                        end
+                    )
+                }
+            )
+
+        }
+
+        return scanNext()
+    }
+
+    return scanNext()
+
+}
+
+export function fixCommentsTypescript(
+    _filePath,
+    ts,
+    sourceText,
+    ext
+) {
+    let isTsx = ext === '.tsx'
+
+    let trivia = scanCommentsTypescript(
+        ts,
+        sourceText,
+        isTsx
+    )
+
+    let fixedText = fixCommentsText(
+        sourceText,
+        trivia.map(
+            function (
+                c
+            ) {
+                return {
+                    start: c.start,
+                    end: c.end,
+                    text: c.text
+                }
+
+            }
+        )
+    )
+
+    return {
+        fixedText
     }
 
 }

@@ -882,3 +882,615 @@ export function isInsideAnySpan(
     )
 
 }
+
+export function detectEol(
+    sourceText
+) {
+    let hayCrLf = sourceText.includes(
+        '\r\n'
+    )
+
+    if (
+        hayCrLf
+    ) {
+        return '\r\n'
+
+    }
+
+    let hayLf = sourceText.includes(
+        '\n'
+    )
+
+    if (
+        hayLf
+    ) {
+        return '\n'
+
+    }
+
+    let hayCr = sourceText.includes(
+        '\r'
+    )
+
+    if (
+        hayCr
+    ) {
+        return '\r'
+
+    }
+
+    return '\n'
+
+}
+
+export function findLineStartIndex(
+    sourceText,
+    index
+) {
+    let len = sourceText.length
+
+    let i = Math.max(
+        0,
+        Math.min(
+            len,
+            index
+        )
+    )
+
+    let searchFrom = i - 1
+
+    let lastNl = sourceText.lastIndexOf(
+        '\n',
+        searchFrom
+    )
+
+    let lastCr = sourceText.lastIndexOf(
+        '\r',
+        searchFrom
+    )
+
+    let lastBreak = Math.max(
+        lastNl,
+        lastCr
+    )
+
+    let noHayBreak = lastBreak < 0
+
+    if (
+        noHayBreak
+    ) {
+        return 0
+
+    }
+
+    return lastBreak + 1
+
+}
+
+export function findLineEndIndex(
+    sourceText,
+    index
+) {
+    let len = sourceText.length
+
+    let i = Math.max(
+        0,
+        Math.min(
+            len,
+            index
+        )
+    )
+
+    let nextNl = sourceText.indexOf(
+        '\n',
+        i
+    )
+
+    let nextCr = sourceText.indexOf(
+        '\r',
+        i
+    )
+
+    let hayNl = nextNl >= 0
+
+    let hayCr = nextCr >= 0
+
+    let hayAmbos = hayNl && hayCr
+
+    if (
+        hayAmbos
+    ) {
+        return Math.min(
+            nextNl,
+            nextCr
+        )
+
+    }
+
+    if (
+        hayNl
+    ) {
+        return nextNl
+
+    }
+
+    if (
+        hayCr
+    ) {
+        return nextCr
+
+    }
+
+    return len
+
+}
+
+export function findLineIndent(
+    sourceText,
+    lineStartIndex,
+    lineEndIndex
+) {
+    let lineText = sourceText.slice(
+        lineStartIndex,
+        lineEndIndex
+    )
+
+    let match = /^[ \t]*/.exec(
+        lineText
+    )
+
+    let tieneMatch = Boolean(
+        match
+    )
+
+    if (
+        tieneMatch
+    ) {
+        return match[0]
+
+    }
+
+    return ''
+
+}
+
+export function normalizeLineCommentValue(
+    value
+) {
+    let str = ''
+    let valueEsString = typeof value === 'string'
+
+    if (
+        valueEsString
+    ) {
+        str = value
+
+    }
+
+    str = str.replace(
+        /[ \t]+$/g,
+        ''
+    )
+
+    let esVacio = str.length === 0
+
+    if (
+        esVacio
+    ) {
+        return ''
+
+    }
+
+    let empiezaConEspacio = str.startsWith(
+        ' '
+    )
+
+    if (
+        empiezaConEspacio
+    ) {
+        return str
+
+    }
+
+    return ` ${str}`
+
+}
+
+export function buildLineCommentBlockFromValue(
+    value,
+    indent,
+    eol,
+    omitFirstIndent
+) {
+    let raw = ''
+    let valueEsString = typeof value === 'string'
+
+    if (
+        valueEsString
+    ) {
+        raw = value
+
+    }
+
+    let lines = raw.split(
+        /\r\n|\r|\n/
+    )
+
+    let out = []
+
+    lines.forEach(
+        function (
+            line,
+            index
+        ) {
+            let esPrimera = index === 0
+
+            let debeOmitir = esPrimera && omitFirstIndent
+
+            let prefix = indent
+
+            if (
+                debeOmitir
+            ) {
+                prefix = ''
+
+            }
+
+            out.push(
+                `${prefix}//${normalizeLineCommentValue(
+                    line
+                )}`
+            )
+
+        }
+    )
+
+    return out.join(
+        eol
+    )
+
+}
+
+export function fixCommentsText(
+    sourceText,
+    comments
+) {
+    let eol = detectEol(
+        sourceText
+    )
+
+    let replacements = []
+
+    comments.forEach(
+        function (
+            comment
+        ) {
+            let start = comment?.start
+
+            let end = comment?.end
+
+            let startEsNumero = typeof start === 'number'
+
+            let endEsNumero = typeof end === 'number'
+
+            let startEsFinito = startEsNumero && Number.isFinite(
+                start
+            )
+
+            let endEsFinito = endEsNumero && Number.isFinite(
+                end
+            )
+
+            let hayRango = startEsFinito && endEsFinito
+
+            let rangoDesordenado = hayRango && end <= start
+
+            let rangoInvalido = !hayRango || rangoDesordenado
+
+            if (
+                rangoInvalido
+            ) {
+                return
+
+            }
+
+            let startLineStart = findLineStartIndex(
+                sourceText,
+                start
+            )
+
+            let startLineEnd = findLineEndIndex(
+                sourceText,
+                start
+            )
+
+            let endLineEnd = findLineEndIndex(
+                sourceText,
+                end
+            )
+
+            let indent = findLineIndent(
+                sourceText,
+                startLineStart,
+                startLineEnd
+            )
+
+            let prefix = sourceText.slice(
+                startLineStart,
+                start
+            )
+
+            let suffix = sourceText.slice(
+                end,
+                endLineEnd
+            )
+
+            let hayCodigoAntes = /\S/.test(
+                prefix
+            )
+
+            let hayCodigoDespues = /\S/.test(
+                suffix
+            )
+
+            let rawText = sourceText.slice(
+                start,
+                end
+            )
+
+            let tieneTexto = typeof comment.text === 'string' && comment.text.length > 0
+
+            if (
+                tieneTexto
+            ) {
+                rawText = comment.text
+
+            }
+
+            let esMultiLine = comment.type === 'MultiLine'
+
+            let esBloquePorTexto = rawText.startsWith(
+                '/*'
+            )
+
+            let esComentarioDeBloque = esMultiLine || esBloquePorTexto
+
+            let value = ''
+
+            let tieneValue = typeof comment.value === 'string'
+
+            if (
+                tieneValue
+            ) {
+                value = comment.value
+
+            }
+
+            let debeDerivarValue = !tieneValue
+
+            if (
+                debeDerivarValue
+            ) {
+                let esBloqueCerrado = rawText.startsWith(
+                    '/*'
+                ) && rawText.endsWith(
+                    '*/'
+                )
+
+                if (
+                    esBloqueCerrado
+                ) {
+                    value = rawText.slice(
+                        2,
+                        -2
+                    )
+
+                }
+
+                let noEsBloqueCerrado = !esBloqueCerrado
+
+                if (
+                    noEsBloqueCerrado
+                ) {
+                    let esLinea = rawText.startsWith(
+                        '//'
+                    )
+
+                    if (
+                        esLinea
+                    ) {
+                        value = rawText.slice(
+                            2
+                        )
+
+                    }
+                }
+            }
+
+            let esMultilinea = /[\r\n]/.test(
+                rawText
+            )
+
+            if (
+                esMultilinea
+            ) {
+                let comparteLineaConCodigo = hayCodigoAntes || hayCodigoDespues
+
+                if (
+                    comparteLineaConCodigo
+                ) {
+                    return
+
+                }
+
+                if (
+                    esComentarioDeBloque
+                ) {
+                    let repText = buildLineCommentBlockFromValue(
+                        value,
+                        indent,
+                        eol,
+                        true
+                    )
+
+                    replacements.push(
+                        {
+                            start,
+                            end,
+                            text: repText
+                        }
+                    )
+
+                }
+
+                return
+
+            }
+
+            let comentarioAlFinalDeLinea = hayCodigoAntes && !hayCodigoDespues
+
+            if (
+                comentarioAlFinalDeLinea
+            ) {
+                let matchTrailing = /[ \t]*$/.exec(
+                    prefix
+                )
+
+                let trailingWs = ''
+
+                let tieneTrailing = Boolean(
+                    matchTrailing
+                )
+
+                if (
+                    tieneTrailing
+                ) {
+                    trailingWs = matchTrailing[0]
+
+                }
+
+                let wsStart = start - trailingWs.length
+
+                let repText = `${eol}${indent}//${normalizeLineCommentValue(
+                    value
+                )}`
+
+                if (
+                    esComentarioDeBloque
+                ) {
+                    repText = `${eol}${buildLineCommentBlockFromValue(
+                        value,
+                        indent,
+                        eol,
+                        false
+                    )}`
+
+                }
+
+                replacements.push(
+                    {
+                        start: wsStart,
+                        end: startLineEnd,
+                        text: repText
+                    }
+                )
+
+                return
+
+            }
+
+            let comentarioDeBloqueConCodigoDespues = esComentarioDeBloque && !hayCodigoAntes && hayCodigoDespues
+
+            if (
+                comentarioDeBloqueConCodigoDespues
+            ) {
+                let between = sourceText.slice(
+                    end,
+                    startLineEnd
+                )
+
+                let matchLeading = /^[ \t]*/.exec(
+                    between
+                )
+
+                let leadingWs = ''
+
+                let tieneLeading = Boolean(
+                    matchLeading
+                )
+
+                if (
+                    tieneLeading
+                ) {
+                    leadingWs = matchLeading[0]
+
+                }
+
+                let afterNonWs = end + leadingWs.length
+
+                let repText = buildLineCommentBlockFromValue(
+                    value,
+                    indent,
+                    eol,
+                    true
+                )
+
+                replacements.push(
+                    {
+                        start,
+                        end,
+                        text: repText
+                    }
+                )
+
+                replacements.push(
+                    {
+                        start: end,
+                        end: afterNonWs,
+                        text: `${eol}${indent}`
+                    }
+                )
+
+                return
+
+            }
+
+            let comentarioSoloEnLinea = !hayCodigoAntes && !hayCodigoDespues
+
+            if (
+                comentarioSoloEnLinea
+            ) {
+                if (
+                    esComentarioDeBloque
+                ) {
+                    let repText = buildLineCommentBlockFromValue(
+                        value,
+                        indent,
+                        eol,
+                        true
+                    )
+
+                    replacements.push(
+                        {
+                            start,
+                            end,
+                            text: repText
+                        }
+                    )
+
+                }
+
+                return
+
+            }
+        }
+    )
+
+    let fixedText = applyReplacements(
+        sourceText,
+        replacements
+    )
+
+    return fixedText
+
+}
