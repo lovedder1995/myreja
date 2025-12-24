@@ -1,6 +1,6 @@
 {
   "name": "meriyah",
-  "version": "2025.12.24.2",
+  "version": "2025.12.24.3",
   "description": "A 100% compliant, self-hosted javascript parser with high focus on both performance and stability",
   "main": "dist/meriyah.cjs",
   "module": "dist/meriyah.min.mjs",
@@ -68,6 +68,7 @@
     "fix": "bun run fix:eslint && bun run fix:prettier",
     "fix:eslint": "eslint --fix",
     "fix:prettier": "prettier . --write --ignore-path .prettierignore",
+    "reglas": "bun bin/meriyah.mjs --reglas",
     "formatear": "bun bin/meriyah.mjs --formatear",
     "test": "vitest",
     "test:watch": "vitest --watch",

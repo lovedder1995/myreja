@@ -1,6 +1,7 @@
+// No usar punto y coma
 import { applyReplacements, isInsideAnySpan } from '../formatting.mjs'
-import { addFindingAtLoc } from './meriyah_findings.mjs'
-import { parseSourceMeriyah } from './meriyah_parse.mjs'
+import { addFindingAtLoc } from '../utils/meriyah_findings.mjs'
+import { parseSourceMeriyah } from '../utils/meriyah_parse.mjs'
 
 function collectEmptyStatementRangesMeriyah(
     ast

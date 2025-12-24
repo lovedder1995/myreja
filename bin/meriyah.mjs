@@ -26,245 +26,49 @@ import { collectConditionSingleVariableFindingsMeriyah } from './meriyah-cli/reg
 import { collectForbiddenFindingsMeriyah } from './meriyah-cli/reglas/forbidden_words_meriyah.mjs'
 import { fixFunctionArgumentsLayoutMeriyah } from './meriyah-cli/reglas/function_args_layout_meriyah.mjs'
 import { fixIfSingleVariableConditionIndent } from './meriyah-cli/reglas/if_single_variable_indent_meriyah.mjs'
-import { parseSourceMeriyah } from './meriyah-cli/reglas/meriyah_parse.mjs'
+import { parseSourceMeriyah } from './meriyah-cli/utils/meriyah_parse.mjs'
 import { fixArrowFunctionsToFunctionsMeriyah } from './meriyah-cli/reglas/no_arrow_function_meriyah.mjs'
 import { fixSemicolonsMeriyah } from './meriyah-cli/reglas/no_semicolon_meriyah.mjs'
 import { fixTernaryOperatorsMeriyah } from './meriyah-cli/reglas/no_ternary_meriyah.mjs'
 import { fixVarConstToLetMeriyah } from './meriyah-cli/reglas/no_var_const_meriyah.mjs'
 import { fixMissingBracesIfMeriyah } from './meriyah-cli/reglas/require_braces_meriyah.mjs'
 
-function getReglas() {
-    return [
-        {
-            id: 'formatear/no-trailing-whitespace',
-            descripcion: 'No dejar espacios o tabs al final de línea',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/no-tabs',
-            descripcion: 'Reemplazar tabs por 4 espacios fuera de tokens',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/indent-4-spaces',
-            descripcion: 'Indentar con 4 espacios y colapsar líneas en blanco consecutivas',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/function-args-layout',
-            descripcion: 'Ajustar el layout de argumentos de función',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/comments',
-            descripcion: 'Normalizar algunos formatos de comentarios',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/if-single-variable-indent',
-            descripcion: 'Normalizar indentación en if con condición de una sola variable',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/no-this',
-            descripcion: 'No usar `this`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-else',
-            descripcion: 'No usar `else`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-var',
-            descripcion: 'No usar `var`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-const',
-            descripcion: 'No usar `const`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-for',
-            descripcion: 'No usar `for`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-in',
-            descripcion: 'No usar `in`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-of',
-            descripcion: 'No usar `of`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-package',
-            descripcion: 'No usar `package`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-while',
-            descripcion: 'No usar `while`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-do',
-            descripcion: 'No usar `do`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-switch',
-            descripcion: 'No usar `switch`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-case',
-            descripcion: 'No usar `case`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-break',
-            descripcion: 'No usar `break`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-continue',
-            descripcion: 'No usar `continue`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-finally',
-            descripcion: 'No usar `finally`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-void',
-            descripcion: 'No usar `void`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-yield',
-            descripcion: 'No usar `yield`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-class',
-            descripcion: 'No usar `class`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-extends',
-            descripcion: 'No usar `extends`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-super',
-            descripcion: 'No usar `super`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-target',
-            descripcion: 'No usar `new.target`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-with',
-            descripcion: 'No usar `with`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-<identificador>',
-            descripcion: 'No usar identificadores prohibidos (según configuración)',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/condition-single-variable',
-            descripcion: 'La condición debe ser una sola variable',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-semicolon',
-            descripcion: 'No usar `;` (en algunos casos no es autocorregible)',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/no-arrow-function',
-            descripcion: 'No usar funciones flecha (en algunos casos no es autocorregible)',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/no-ternary',
-            descripcion: 'No usar el operador ternario',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/require-braces',
-            descripcion: 'Requerir llaves en cuerpos de `if`',
-            autocorregible: true
-        },
-        {
-            id: 'formatear/no-interface',
-            descripcion: 'No usar `interface`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-enum',
-            descripcion: 'No usar `enum`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-constructor',
-            descripcion: 'No usar `constructor`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-public',
-            descripcion: 'No usar `public`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-private',
-            descripcion: 'No usar `private`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-protected',
-            descripcion: 'No usar `protected`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-static',
-            descripcion: 'No usar `static`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-accessor',
-            descripcion: 'No usar `accessor`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-set',
-            descripcion: 'No usar `set`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-implements',
-            descripcion: 'No usar `implements`',
-            autocorregible: false
-        },
-        {
-            id: 'formatear/no-eval',
-            descripcion: 'No usar `eval`',
-            autocorregible: false
+async function getReglas() {
+    let reglasDir = new URL('./meriyah-cli/reglas/', import.meta.url)
+    let files = await fs.readdir(reglasDir)
+
+    let reglas = []
+
+    for (let file of files) {
+        if (!file.endsWith('.mjs')) {
+            continue
         }
-    ]
+
+        let filePath = new URL(file, reglasDir)
+        let content = await fs.readFile(filePath, 'utf8')
+
+        let lines = content.split('\n')
+        let firstLine = lines[0].trim()
+
+        let descripcion = 'Sin descripción'
+        if (firstLine.startsWith('//')) {
+            descripcion = firstLine.replace(/^\/\/\s*/, '').trim()
+        }
+
+        let id = 'formatear/' + file.replace('_meriyah.mjs', '').replace(/_/g, '-')
+
+        reglas.push({
+            id: id,
+            descripcion: descripcion,
+            autocorregible: true
+        })
+    }
+
+    return reglas
 }
 
-function printReglas() {
-    let reglas = getReglas()
+async function printReglas() {
+    let reglas = await getReglas()
     reglas = reglas.slice().sort(
         function (
             a,
@@ -326,7 +130,7 @@ async function run(
     if (
         pidioReglas
     ) {
-        printReglas()
+        await printReglas()
 
         return 0
 
@@ -453,21 +257,21 @@ async function run(
         return Array.from(
             str
         )
-        .filter(
-            function (
-                ch
-            ) {
-                let code = ch.charCodeAt(
-                    0
-                )
+            .filter(
+                function (
+                    ch
+                ) {
+                    let code = ch.charCodeAt(
+                        0
+                    )
 
-                return !(code <= 31 || code === 127)
+                    return !(code <= 31 || code === 127)
 
-            }
-        )
-        .join(
-            ''
-        )
+                }
+            )
+            .join(
+                ''
+            )
 
     }
 
@@ -757,35 +561,35 @@ async function run(
                         }
                     ),
                     tokensForIndent
-                    .filter(
-                        function (
-                            t
-                        ) {
-                            return t.text === '{' || t.text === '}'
-
-                        }
-                    )
-                    .map(
-                        function (
-                            t
-                        ) {
-                            let delta = -1
-                            let esApertura = t.text === '{'
-
-                            if (
-                                esApertura
+                        .filter(
+                            function (
+                                t
                             ) {
-                                delta = 1
+                                return t.text === '{' || t.text === '}'
 
                             }
+                        )
+                        .map(
+                            function (
+                                t
+                            ) {
+                                let delta = -1
+                                let esApertura = t.text === '{'
 
-                            return {
-                                pos: t.pos,
-                                delta
+                                if (
+                                    esApertura
+                                ) {
+                                    delta = 1
+
+                                }
+
+                                return {
+                                    pos: t.pos,
+                                    delta
+                                }
+
                             }
-
-                        }
-                    )
+                        )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -1155,35 +959,35 @@ async function run(
                         }
                     ),
                     parsedForIndent.tokens
-                    .filter(
-                        function (
-                            t
-                        ) {
-                            return t.text === '{' || t.text === '}'
-
-                        }
-                    )
-                    .map(
-                        function (
-                            t
-                        ) {
-                            let delta = -1
-                            let esApertura = t.text === '{'
-
-                            if (
-                                esApertura
+                        .filter(
+                            function (
+                                t
                             ) {
-                                delta = 1
+                                return t.text === '{' || t.text === '}'
 
                             }
+                        )
+                        .map(
+                            function (
+                                t
+                            ) {
+                                let delta = -1
+                                let esApertura = t.text === '{'
 
-                            return {
-                                pos: t.start,
-                                delta
+                                if (
+                                    esApertura
+                                ) {
+                                    delta = 1
+
+                                }
+
+                                return {
+                                    pos: t.start,
+                                    delta
+                                }
+
                             }
-
-                        }
-                    )
+                        )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText

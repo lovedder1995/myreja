@@ -1,4 +1,5 @@
-import { addFinding, isSkippableIdentifierContext } from './meriyah_findings.mjs'
+// Verificar palabras prohibidas
+import { addFinding, isSkippableIdentifierContext } from '../utils/meriyah_findings.mjs'
 
 export function collectForbiddenFindingsMeriyah(
     ast,

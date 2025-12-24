@@ -1,3 +1,4 @@
+// Ajustar el layout de argumentos de función
 import {
     applyReplacements,
     detectEol,
@@ -5,7 +6,7 @@ import {
     findLineIndent,
     findLineStartIndex
 } from '../formatting.mjs'
-import { parseSourceMeriyah } from './meriyah_parse.mjs'
+import { parseSourceMeriyah } from '../utils/meriyah_parse.mjs'
 
 export function fixFunctionArgumentsLayoutMeriyah(
     filePath,

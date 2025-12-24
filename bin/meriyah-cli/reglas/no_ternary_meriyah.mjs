@@ -1,5 +1,6 @@
-import { addFinding } from './meriyah_findings.mjs'
-import { parseSourceMeriyah } from './meriyah_parse.mjs'
+// No usar operador ternario
+import { addFinding } from '../utils/meriyah_findings.mjs'
+import { parseSourceMeriyah } from '../utils/meriyah_parse.mjs'
 
 export function fixTernaryOperatorsMeriyah(
     filePath,

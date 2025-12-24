@@ -1,4 +1,5 @@
-import { addFinding } from './meriyah_findings.mjs'
+// Verificar condiciones de una sola variable
+import { addFinding } from '../utils/meriyah_findings.mjs'
 
 export function collectConditionSingleVariableFindingsMeriyah(
     ast,

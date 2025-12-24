@@ -1,3 +1,4 @@
+// Normalizar indentación en if con condición de una sola variable
 import { applyReplacements, detectEol } from '../formatting.mjs'
 
 export function fixIfSingleVariableConditionIndent(

@@ -1,6 +1,7 @@
+// Requerir llaves en if
 import { applyReplacements } from '../formatting.mjs'
-import { addFinding } from './meriyah_findings.mjs'
-import { parseSourceMeriyah } from './meriyah_parse.mjs'
+import { addFinding } from '../utils/meriyah_findings.mjs'
+import { parseSourceMeriyah } from '../utils/meriyah_parse.mjs'
 
 export function fixMissingBracesIfMeriyah(
     filePath,

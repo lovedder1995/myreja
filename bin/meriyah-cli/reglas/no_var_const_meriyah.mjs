@@ -1,5 +1,6 @@
+// No usar var ni const, usar let
 import { applyReplacements } from '../formatting.mjs'
-import { parseSourceMeriyah } from './meriyah_parse.mjs'
+import { parseSourceMeriyah } from '../utils/meriyah_parse.mjs'
 
 export function fixVarConstToLetMeriyah(
     filePath,

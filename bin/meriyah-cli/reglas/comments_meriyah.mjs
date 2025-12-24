@@ -1,5 +1,6 @@
+// Normalizar algunos formatos de comentarios
 import { fixCommentsText } from '../formatting.mjs'
-import { parseCommentsMeriyah } from './meriyah_parse.mjs'
+import { parseCommentsMeriyah } from '../utils/meriyah_parse.mjs'
 
 export function fixCommentsMeriyah(
     _filePath,
