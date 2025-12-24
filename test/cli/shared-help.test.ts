@@ -5,13 +5,13 @@ describe('meriyah-cli/shared.mjs', function () {
     it(
         'printHelp incluye la opción --reglas',
         async function () {
-            const mod = await import(
+            let mod = await import(
                 '../../bin/meriyah-cli/shared.mjs'
             )
 
             let buffer = ''
 
-            const writeSpy = vi.spyOn(
+            let writeSpy = vi.spyOn(
                 process.stdout,
                 'write'
             ).mockImplementation(
@@ -30,7 +30,7 @@ describe('meriyah-cli/shared.mjs', function () {
             try {
                 mod.printHelp()
 
-            } finally {
+            } catch {
                 writeSpy.mockRestore()
 
             }

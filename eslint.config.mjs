@@ -9,6 +9,9 @@ import tseslint from 'typescript-eslint';
 import eslintPluginInternal from './scripts/internal-eslint-plugin/index.mjs';
 
 export default [
+  {
+    ignores: ['bin/**', 'test/cli/**'],
+  },
   eslintJs.configs.recommended,
   ...tseslint.configs.recommended,
   eslintPluginInternal,

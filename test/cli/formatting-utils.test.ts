@@ -7,13 +7,13 @@ describe(
         it(
             'stripTrailingWhitespace elimina espacios y tabs al final de línea',
             async function () {
-                const mod = await import(
+                let mod = await import(
                     '../../bin/meriyah-cli/formatting.mjs'
                 )
 
-                const input = 'a  \n\tb\t\r\nc \t'
+                let input = 'a  \n\tb\t\r\nc \t'
 
-                const out = mod.stripTrailingWhitespace(
+                let out = mod.stripTrailingWhitespace(
                     input
                 )
 
@@ -28,13 +28,13 @@ describe(
         it(
             'applyReplacements aplica reemplazos sin solaparse',
             async function () {
-                const mod = await import(
+                let mod = await import(
                     '../../bin/meriyah-cli/formatting.mjs'
                 )
 
-                const sourceText = '0123456789'
+                let sourceText = '0123456789'
 
-                const out = mod.applyReplacements(
+                let out = mod.applyReplacements(
                     sourceText,
                     [
                         {
@@ -66,13 +66,13 @@ describe(
         it(
             'convertTabsToFourSpacesOutsideTokens preserva spans',
             async function () {
-                const mod = await import(
+                let mod = await import(
                     '../../bin/meriyah-cli/formatting.mjs'
                 )
 
-                const sourceText = 'a\tb\tc'
+                let sourceText = 'a\tb\tc'
 
-                const out = mod.convertTabsToFourSpacesOutsideTokens(
+                let out = mod.convertTabsToFourSpacesOutsideTokens(
                     sourceText,
                     [
                         {

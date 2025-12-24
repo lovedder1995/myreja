@@ -22,14 +22,14 @@ describe(
         it(
             'formatea un archivo TypeScript sin errores',
             async function () {
-                const tempDir = await fs.mkdtemp(
+                let tempDir = await fs.mkdtemp(
                     path.join(
                         os.tmpdir(),
                         'meriyah-cli-'
                     )
                 )
 
-                const filePath = path.join(
+                let filePath = path.join(
                     tempDir,
                     'file.ts'
                 )
@@ -41,9 +41,9 @@ describe(
                         'utf8'
                     )
 
-                    const cliPath = getCliPath()
+                    let cliPath = getCliPath()
 
-                    const result = spawnSync(
+                    let result = spawnSync(
                         process.execPath,
                         [
                             cliPath,
@@ -60,7 +60,7 @@ describe(
                         0
                     )
 
-                    const out = await fs.readFile(
+                    let out = await fs.readFile(
                         filePath,
                         'utf8'
                     )
@@ -70,7 +70,7 @@ describe(
                         'let x    = 1\n'
                     )
 
-                } finally {
+                } catch {
                     await fs.rm(
                         tempDir,
                         {

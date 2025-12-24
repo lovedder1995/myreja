@@ -14,146 +14,146 @@ function getCliPath() {
 }
 
 describe(
-    'meriyah CLI - --reglas',
-    function () {
-        it(
-            'sin flags imprime ayuda y sale con status 2',
-            function () {
-                const cliPath = getCliPath()
+'meriyah CLI - --reglas',
+function () {
+    it(
+        'sin flags imprime ayuda y sale con status 2',
+        function () {
+            let cliPath = getCliPath()
 
-                const result = spawnSync(
-                    process.execPath,
-                    [
-                        cliPath
-                    ],
-                    {
-                        encoding: 'utf8'
-                    }
+            let result = spawnSync(
+                process.execPath,
+                [
+                    cliPath
+                ],
+                {
+                    encoding: 'utf8'
+                }
+            )
+
+            assert.equal(
+                result.status,
+                2
+            )
+
+            assert.equal(
+                result.stderr,
+                ''
+            )
+
+            assert.ok(
+                result.stdout.includes(
+                    'Uso:'
                 )
+            )
 
-                assert.equal(
-                    result.status,
-                    2
+        }
+    )
+
+    it(
+        'imprime reglas y devuelve exit code 0',
+        function () {
+            let cliPath = getCliPath()
+
+            let result = spawnSync(
+                process.execPath,
+                [
+                    cliPath,
+                    '--reglas'
+                ],
+                {
+                    encoding: 'utf8'
+                }
+            )
+
+            assert.equal(
+                result.status,
+                0
+            )
+
+            assert.equal(
+                result.stderr,
+                ''
+            )
+
+            assert.ok(
+                result.stdout.includes(
+                    'formatear/no-this\t'
                 )
+            )
 
-                assert.equal(
-                    result.stderr,
-                    ''
+            assert.ok(
+                result.stdout.includes(
+                    'formatear/no-ternary\t'
                 )
+            )
 
-                assert.ok(
-                    result.stdout.includes(
-                        'Uso:'
-                    )
+            assert.ok(
+                result.stdout.includes(
+                    'formatear/no-interface\t'
                 )
+            )
 
-            }
-        )
+        }
+    )
 
-        it(
-            'imprime reglas y devuelve exit code 0',
-            function () {
-                const cliPath = getCliPath()
+    it(
+        'imprime las reglas ordenadas por id',
+        function () {
+            let cliPath = getCliPath()
 
-                const result = spawnSync(
-                    process.execPath,
-                    [
-                        cliPath,
-                        '--reglas'
-                    ],
-                    {
-                        encoding: 'utf8'
-                    }
-                )
+            let result = spawnSync(
+                process.execPath,
+                [
+                    cliPath,
+                    '--reglas'
+                ],
+                {
+                    encoding: 'utf8'
+                }
+            )
 
-                assert.equal(
-                    result.status,
-                    0
-                )
+            assert.equal(
+                result.status,
+                0
+            )
 
-                assert.equal(
-                    result.stderr,
-                    ''
-                )
+            let ids = result.stdout
+            .split(
+                /\r?\n/g
+            )
+            .filter(
+                Boolean
+            )
+            .map(
+                function (
+                    line
+                ) {
+                    return line.split(
+                        '\t'
+                    )[0]
+                }
+            )
 
-                assert.ok(
-                    result.stdout.includes(
-                        'formatear/no-this\t'
-                    )
-                )
-
-                assert.ok(
-                    result.stdout.includes(
-                        'formatear/no-ternary\t'
-                    )
-                )
-
-                assert.ok(
-                    result.stdout.includes(
-                        'formatear/no-interface\t'
-                    )
-                )
-
-            }
-        )
-
-        it(
-            'imprime las reglas ordenadas por id',
-            function () {
-                const cliPath = getCliPath()
-
-                const result = spawnSync(
-                    process.execPath,
-                    [
-                        cliPath,
-                        '--reglas'
-                    ],
-                    {
-                        encoding: 'utf8'
-                    }
-                )
-
-                assert.equal(
-                    result.status,
-                    0
-                )
-
-                const ids = result.stdout
-                    .split(
-                        /\r?\n/g
-                    )
-                    .filter(
-                        Boolean
-                    )
-                    .map(
-                        function (
-                            line
-                        ) {
-                            return line.split(
-                                '\t'
-                            )[0]
-                        }
-                    )
-
-                const sorted = ids.slice().sort(
-                    function (
-                        a,
+            let sorted = ids.slice().sort(
+                function (
+                    a,
+                    b
+                ) {
+                    return a.localeCompare(
                         b
-                    ) {
-                        return a.localeCompare(
-                            b
-                        )
+                    )
 
-                    }
-                )
+                }
+            )
 
-                assert.deepEqual(
-                    ids,
-                    sorted
-                )
+            assert.deepEqual(
+                ids,
+                sorted
+            )
 
-            }
-        )
+        }
+    )
 
-    }
+}
 )
