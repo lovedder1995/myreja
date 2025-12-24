@@ -423,21 +423,17 @@ async function run(
         parse = meriyahModule.parse
 
     } catch (error) {
-        let message
-let condicionTernario105642 = error instanceof Error
-if (
-    condicionTernario105642
-) {
+        let message = String(
+            error
+        )
+
+        let esError = error instanceof Error
+
+        if (
+            esError
+        ) {
             message = error.message
-}
-let condicionTernario105642Negada = !condicionTernario105642
-if (
-    condicionTernario105642Negada
-) {
-            message = String(
-                error
-            )
-}
+        }
 
         process.stderr.write(
             `${message}\n`
@@ -1296,18 +1292,14 @@ if (
                         finding.keyword
                     )
 
-                    let ruleIdValue
-                    let condicionTernario129924 = typeof finding.ruleId === 'string' && finding.ruleId.length > 0
+                    let ruleIdValue = 'formatear/unknown'
+
+                    let findingTieneRuleId = typeof finding.ruleId === 'string' && finding.ruleId.length > 0
+
                     if (
-                        condicionTernario129924
+                        findingTieneRuleId
                     ) {
                         ruleIdValue = finding.ruleId
-                    }
-                    let condicionTernario129924Negada = !condicionTernario129924
-                    if (
-                        condicionTernario129924Negada
-                    ) {
-                        ruleIdValue = 'formatear/unknown'
                     }
 
                     let ruleId = normalize(
@@ -1341,21 +1333,17 @@ if (
         } catch (error) {
             parseErrorCount += 1
 
-            let message
-let condicionTernario130996 = error instanceof Error
-if (
-    condicionTernario130996
-) {
+            let message = String(
+                error
+            )
+
+            let esError = error instanceof Error
+
+            if (
+                esError
+            ) {
                 message = error.message
-}
-let condicionTernario130996Negada = !condicionTernario130996
-if (
-    condicionTernario130996Negada
-) {
-                message = String(
-                    error
-                )
-}
+            }
 
             process.stderr.write(
                 `${inputFilePath}  error  ${message}\n`
@@ -1391,18 +1379,16 @@ if (
 
     }
 
-    let condicionTernario131672 = issueCount > 0
-if (
-    condicionTernario131672
-) {
+    let huboIssues = issueCount > 0
+
+    if (
+        huboIssues
+    ) {
         return 1
-}
-let condicionTernario131672Negada = !condicionTernario131672
-if (
-    condicionTernario131672Negada
-) {
-        return 0
-}
+
+    }
+
+    return 0
 
 }
 
@@ -1413,4 +1399,3 @@ let exitCode = await run(
 )
 
 process.exitCode = exitCode
-

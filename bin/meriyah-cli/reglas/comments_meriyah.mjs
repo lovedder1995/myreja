@@ -11,21 +11,17 @@ export function fixCommentsMeriyah(
         sourceText
     )
 
-    let comments
-let condicionTernario76069 = Array.isArray(
-    parsed.comments
-)
-if (
-    condicionTernario76069
-) {
+    let comments = []
+
+    let hayParsedComments = Array.isArray(
+        parsed.comments
+    )
+
+    if (
+        hayParsedComments
+    ) {
         comments = parsed.comments
-}
-let condicionTernario76069Negada = !condicionTernario76069
-if (
-    condicionTernario76069Negada
-) {
-        comments = []
-}
+    }
 
     let normalized = comments
     .filter(

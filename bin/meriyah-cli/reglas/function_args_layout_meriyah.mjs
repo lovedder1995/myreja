@@ -224,32 +224,23 @@ export function fixFunctionArgumentsLayoutMeriyah(
                 let esApertura = t.type === 'Punctuator' && t.text === openChar
                 let esCierre = t.type === 'Punctuator' && t.text === closeChar
 
-                let inc
-let condicionTernario50604 = esApertura
-if (
-    condicionTernario50604
-) {
+                let inc = 0
+
+                if (
+                    esApertura
+                ) {
                     inc = 1
-}
-let condicionTernario50604Negada = !condicionTernario50604
-if (
-    condicionTernario50604Negada
-) {
-                    inc = 0
-}
-                let dec
-let condicionTernario50649 = esCierre
-if (
-    condicionTernario50649
-) {
+
+                }
+
+                let dec = 0
+
+                if (
+                    esCierre
+                ) {
                     dec = 1
-}
-let condicionTernario50649Negada = !condicionTernario50649
-if (
-    condicionTernario50649Negada
-) {
-                    dec = 0
-}
+
+                }
 
                 let nextDepth = depth + inc - dec
 
@@ -361,18 +352,13 @@ if (
                 line
             )
 
-            let condicionTernario52802 = match
-if (
-    condicionTernario52802
-) {
+            if (
+                match
+            ) {
                 return match[0].length
-}
-let condicionTernario52802Negada = !condicionTernario52802
-if (
-    condicionTernario52802Negada
-) {
-                return 0
-}
+            }
+
+            return 0
         }
 
         function normalizeMultilineItemText(
@@ -751,19 +737,15 @@ if (
             return
         }
 
-        let nodeType
-let condicionTernario60841 = typeof node.type === 'string'
-if (
-    condicionTernario60841
-) {
+        let nodeType = ''
+
+        let tieneNodeType = typeof node.type === 'string'
+
+        if (
+            tieneNodeType
+        ) {
             nodeType = node.type
-}
-let condicionTernario60841Negada = !condicionTernario60841
-if (
-    condicionTernario60841Negada
-) {
-            nodeType = ''
-}
+        }
 
         let esCallExpression = nodeType === 'CallExpression'
 
@@ -774,19 +756,15 @@ if (
                 callee
             } = node
 
-            let fromPos
-let condicionTernario61094 = typeof callee?.end === 'number'
-if (
-    condicionTernario61094
-) {
+            let fromPos = node.start
+
+            let calleeTieneEnd = typeof callee?.end === 'number'
+
+            if (
+                calleeTieneEnd
+            ) {
                 fromPos = callee.end
-}
-let condicionTernario61094Negada = !condicionTernario61094
-if (
-    condicionTernario61094Negada
-) {
-                fromPos = node.start
-}
+            }
 
             let items = collectItemsFromNodeArray(
                 node.arguments
@@ -810,19 +788,15 @@ if (
                 callee
             } = node
 
-            let fromPos
-let condicionTernario61618 = typeof callee?.end === 'number'
-if (
-    condicionTernario61618
-) {
+            let fromPos = node.start
+
+            let calleeTieneEnd = typeof callee?.end === 'number'
+
+            if (
+                calleeTieneEnd
+            ) {
                 fromPos = callee.end
-}
-let condicionTernario61618Negada = !condicionTernario61618
-if (
-    condicionTernario61618Negada
-) {
-                fromPos = node.start
-}
+            }
 
             let items = collectItemsFromNodeArray(
                 node.arguments
@@ -856,19 +830,15 @@ if (
                 node.params
             )
 
-            let bodyStart
-let condicionTernario62586 = typeof node.body?.start === 'number'
-if (
-    condicionTernario62586
-) {
+            let bodyStart = node.end
+
+            let bodyTieneStart = typeof node.body?.start === 'number'
+
+            if (
+                bodyTieneStart
+            ) {
                 bodyStart = node.body.start
-}
-let condicionTernario62586Negada = !condicionTernario62586
-if (
-    condicionTernario62586Negada
-) {
-                bodyStart = node.end
-}
+            }
 
             maybeAddList(
                 node.start,

@@ -105,18 +105,12 @@ export function fixArrowFunctionsToFunctionsMeriyah(
 
         }
 
-        let functionPrefix
-        let condicionTernario82891 = node.async === true
+        let functionPrefix = 'function '
+
         if (
-            condicionTernario82891
+            esAsync
         ) {
             functionPrefix = 'async function '
-        }
-        let condicionTernario82891Negada = !condicionTernario82891
-        if (
-            condicionTernario82891Negada
-        ) {
-            functionPrefix = 'function '
         }
 
         let bodyText
@@ -287,4 +281,3 @@ export function fixArrowFunctionsToFunctionsMeriyah(
     }
 
 }
-
