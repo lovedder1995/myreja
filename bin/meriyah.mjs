@@ -34,35 +34,84 @@ import { fixVarConstToLetMeriyah } from './meriyah-cli/reglas/no_var_const_meriy
 import { fixMissingBracesIfMeriyah } from './meriyah-cli/reglas/require_braces_meriyah.mjs'
 
 async function getReglas() {
-    let reglasDir = new URL('./meriyah-cli/reglas/', import.meta.url)
-    let files = await fs.readdir(reglasDir)
+    let reglasDir = new URL(
+        './meriyah-cli/reglas/',
+        import.meta.url
+    )
+    let files = await fs.readdir(
+        reglasDir
+    )
 
-    let reglas = []
+    let reglasPromises = files.map(
+        async function (
+            file
+        ) {
+            let noEsMjs = !file.endsWith(
+                '.mjs'
+            )
 
-    for (let file of files) {
-        if (!file.endsWith('.mjs')) {
-            continue
+            if (
+                noEsMjs
+            ) {
+                return null
+            }
+
+            let filePath = new URL(
+                file,
+                reglasDir
+            )
+            let content = await fs.readFile(
+                filePath,
+                'utf8'
+            )
+
+            let lines = content.split(
+                '\n'
+            )
+            let firstLine = lines[0].trim()
+
+            let descripcion = 'Sin descripción'
+            let tieneComentario = firstLine.startsWith(
+                '//'
+            )
+
+            if (
+                tieneComentario
+            ) {
+                descripcion = firstLine.replace(
+                    /^\/\/\s*/,
+                    ''
+                ).trim()
+            }
+
+            let id = 'formatear/' + file.replace(
+                '_meriyah.mjs',
+                ''
+            ).replace(
+                /_/g,
+                '-'
+            )
+
+            return {
+                id: id,
+                descripcion: descripcion,
+                autocorregible: true
+            }
+
         }
+    )
 
-        let filePath = new URL(file, reglasDir)
-        let content = await fs.readFile(filePath, 'utf8')
+    let reglasConNulos = await Promise.all(
+        reglasPromises
+    )
 
-        let lines = content.split('\n')
-        let firstLine = lines[0].trim()
-
-        let descripcion = 'Sin descripción'
-        if (firstLine.startsWith('//')) {
-            descripcion = firstLine.replace(/^\/\/\s*/, '').trim()
+    let reglas = reglasConNulos.filter(
+        function (
+            r
+        ) {
+            return r !== null
         }
-
-        let id = 'formatear/' + file.replace('_meriyah.mjs', '').replace(/_/g, '-')
-
-        reglas.push({
-            id: id,
-            descripcion: descripcion,
-            autocorregible: true
-        })
-    }
+    )
 
     return reglas
 }
@@ -257,21 +306,21 @@ async function run(
         return Array.from(
             str
         )
-            .filter(
-                function (
-                    ch
-                ) {
-                    let code = ch.charCodeAt(
-                        0
-                    )
+        .filter(
+            function (
+                ch
+            ) {
+                let code = ch.charCodeAt(
+                    0
+                )
 
-                    return !(code <= 31 || code === 127)
+                return !(code <= 31 || code === 127)
 
-                }
-            )
-            .join(
-                ''
-            )
+            }
+        )
+        .join(
+            ''
+        )
 
     }
 
@@ -561,35 +610,35 @@ async function run(
                         }
                     ),
                     tokensForIndent
-                        .filter(
-                            function (
-                                t
+                    .filter(
+                        function (
+                            t
+                        ) {
+                            return t.text === '{' || t.text === '}'
+
+                        }
+                    )
+                    .map(
+                        function (
+                            t
+                        ) {
+                            let delta = -1
+                            let esApertura = t.text === '{'
+
+                            if (
+                                esApertura
                             ) {
-                                return t.text === '{' || t.text === '}'
+                                delta = 1
 
                             }
-                        )
-                        .map(
-                            function (
-                                t
-                            ) {
-                                let delta = -1
-                                let esApertura = t.text === '{'
 
-                                if (
-                                    esApertura
-                                ) {
-                                    delta = 1
-
-                                }
-
-                                return {
-                                    pos: t.pos,
-                                    delta
-                                }
-
+                            return {
+                                pos: t.pos,
+                                delta
                             }
-                        )
+
+                        }
+                    )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
@@ -959,35 +1008,35 @@ async function run(
                         }
                     ),
                     parsedForIndent.tokens
-                        .filter(
-                            function (
-                                t
+                    .filter(
+                        function (
+                            t
+                        ) {
+                            return t.text === '{' || t.text === '}'
+
+                        }
+                    )
+                    .map(
+                        function (
+                            t
+                        ) {
+                            let delta = -1
+                            let esApertura = t.text === '{'
+
+                            if (
+                                esApertura
                             ) {
-                                return t.text === '{' || t.text === '}'
+                                delta = 1
 
                             }
-                        )
-                        .map(
-                            function (
-                                t
-                            ) {
-                                let delta = -1
-                                let esApertura = t.text === '{'
 
-                                if (
-                                    esApertura
-                                ) {
-                                    delta = 1
-
-                                }
-
-                                return {
-                                    pos: t.start,
-                                    delta
-                                }
-
+                            return {
+                                pos: t.start,
+                                delta
                             }
-                        )
+
+                        }
+                    )
                 )
 
                 let huboCambiosDeIndentacion = reindentedText !== sourceText
