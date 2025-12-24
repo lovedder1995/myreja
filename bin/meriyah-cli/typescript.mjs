@@ -1677,10 +1677,22 @@ export function scanTokensTypescript(
     sourceText,
     isTsx
 ) {
+    let languageVariant = ts.LanguageVariant.Standard
+    let esJsx = Boolean(
+        isTsx
+    )
+
+    if (
+        esJsx
+    ) {
+        languageVariant = ts.LanguageVariant.JSX
+
+    }
+
     let scanner = ts.createScanner(
         ts.ScriptTarget.Latest,
         true,
-        isTsx ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+        languageVariant,
         sourceText
     )
 
@@ -1981,9 +1993,19 @@ export function fixArrowFunctionsToFunctionsTypescript(
 
             let arrowToken = node.equalsGreaterThanToken
 
-            let arrowPos = arrowToken ? arrowToken.getStart(
-                sourceFile
-            ) : -1
+            let arrowPos = -1
+            let hayArrowToken = Boolean(
+                arrowToken
+            )
+
+            if (
+                hayArrowToken
+            ) {
+                arrowPos = arrowToken.getStart(
+                    sourceFile
+                )
+
+            }
 
             let posicionDeFlechaInvalida = typeof arrowPos !== 'number' || arrowPos < start
 
@@ -2049,7 +2071,14 @@ export function fixArrowFunctionsToFunctionsTypescript(
 
             }
 
-            let functionPrefix = isAsync ? 'async function ' : 'function '
+            let functionPrefix = 'function '
+
+            if (
+                isAsync
+            ) {
+                functionPrefix = 'async function '
+
+            }
 
             let bodyText
 
@@ -2122,6 +2151,79 @@ export function fixArrowFunctionsToFunctionsTypescript(
 
 }
 
+export function fixTernaryOperatorsTypescript(
+    filePath,
+    ts,
+    sourceText,
+    ext
+) {
+    let scriptKind = ts.ScriptKind.TS
+    let esTsx = ext === '.tsx'
+
+    if (
+        esTsx
+    ) {
+        scriptKind = ts.ScriptKind.TSX
+
+    }
+
+    let sourceFile = ts.createSourceFile(
+        filePath,
+        sourceText,
+        ts.ScriptTarget.Latest,
+        true,
+        scriptKind
+    )
+
+    let unfixableFindings = []
+
+    function visit(
+        node
+    ) {
+        let noHayNodo = !node
+
+        if (
+            noHayNodo
+        ) {
+            return
+
+        }
+
+        let esConditionalExpression = node.kind === ts.SyntaxKind.ConditionalExpression
+
+        if (
+            esConditionalExpression
+        ) {
+            createTsFinding(
+                unfixableFindings,
+                filePath,
+                '?:',
+                'formatear/no-ternary',
+                sourceFile,
+                node.getStart(
+                    sourceFile
+                )
+            )
+        }
+
+        ts.forEachChild(
+            node,
+            visit
+        )
+
+    }
+
+    visit(
+        sourceFile
+    )
+
+    return {
+        fixedText: sourceText,
+        unfixableFindings
+    }
+
+}
+
 export function fixMissingBracesIfTypescript(
     filePath,
     ts,
@@ -2183,8 +2285,18 @@ export function fixMissingBracesIfTypescript(
         if (
             rangoInvalido
         ) {
+            let startForLc = 0
+            let startEsNumero = typeof start === 'number'
+
+            if (
+                startEsNumero
+            ) {
+                startForLc = start
+
+            }
+
             let lc = sourceFile.getLineAndCharacterOfPosition(
-                typeof start === 'number' ? start : 0
+                startForLc
             )
 
             unfixableFindings.push(
@@ -2512,7 +2624,15 @@ export function fixFunctionArgumentsLayoutTypescript(
 
             let t = tokens[mid]
 
-            let tokenPos = typeof t?.pos === 'number' ? t.pos : 0
+            let tokenPos = 0
+            let tokenPosEsNumero = typeof t?.pos === 'number'
+
+            if (
+                tokenPosEsNumero
+            ) {
+                tokenPos = t.pos
+
+            }
 
             let debeIrDerecha = tokenPos < pos
 
@@ -2559,7 +2679,15 @@ export function fixFunctionArgumentsLayoutTypescript(
 
             let t = tokens[mid]
 
-            let tokenPos = typeof t?.pos === 'number' ? t.pos : 0
+            let tokenPos = 0
+            let tokenPosEsNumero = typeof t?.pos === 'number'
+
+            if (
+                tokenPosEsNumero
+            ) {
+                tokenPos = t.pos
+
+            }
 
             let debeIrDerecha = tokenPos <= pos
 
@@ -2747,7 +2875,16 @@ export function fixFunctionArgumentsLayoutTypescript(
                 line
             )
 
-            return match ? match[0].length : 0
+            let outLen = 0
+
+            if (
+                match
+            ) {
+                outLen = match[0].length
+
+            }
+
+            return outLen
         }
 
         function normalizeMultilineItemText(
@@ -3240,7 +3377,15 @@ export function fixFunctionArgumentsLayoutTypescript(
 
             let toPos = node.end
 
-            let bodyPos = typeof node.body?.pos === 'number' ? node.body.pos : node.end
+            let bodyPos = node.end
+            let bodyPosEsNumero = typeof node.body?.pos === 'number'
+
+            if (
+                bodyPosEsNumero
+            ) {
+                bodyPos = node.body.pos
+
+            }
 
             let tieneBodyPos = typeof bodyPos === 'number'
 
@@ -3256,7 +3401,15 @@ export function fixFunctionArgumentsLayoutTypescript(
             if (
                 esArrow
             ) {
-                let arrowTokenPos = typeof node.equalsGreaterThanToken?.pos === 'number' ? node.equalsGreaterThanToken.pos : toPos
+                let arrowTokenPos = toPos
+                let arrowTokenPosEsNumero = typeof node.equalsGreaterThanToken?.pos === 'number'
+
+                if (
+                    arrowTokenPosEsNumero
+                ) {
+                    arrowTokenPos = node.equalsGreaterThanToken.pos
+
+                }
 
                 let tieneArrowTokenPos = typeof arrowTokenPos === 'number'
 

@@ -492,50 +492,56 @@ export function reindentFourSpacesOutsideTokens(
         len
     )
 
-    let events = Array.isArray(
+    let events = []
+    let braceEventsEsLista = Array.isArray(
         braceEvents
     )
-    ? braceEvents
-    .slice()
-    .filter(
-        function (
-            e
-        ) {
-            return e && typeof e.pos === 'number' && Number.isFinite(
-                e.pos
-            ) && (e.delta === 1 || e.delta === -1)
 
-        }
-    )
-    .map(
-        function (
-            e
-        ) {
-            let pos = Math.max(
-                0,
-                Math.min(
-                    len,
+    if (
+        braceEventsEsLista
+    ) {
+        events = braceEvents
+        .slice()
+        .filter(
+            function (
+                e
+            ) {
+                return e && typeof e.pos === 'number' && Number.isFinite(
                     e.pos
-                )
-            )
+                ) && (e.delta === 1 || e.delta === -1)
 
-            return {
-                pos,
-                delta: e.delta
             }
+        )
+        .map(
+            function (
+                e
+            ) {
+                let pos = Math.max(
+                    0,
+                    Math.min(
+                        len,
+                        e.pos
+                    )
+                )
 
-        }
-    )
-    .sort(
-        function (
-            a,
-            b
-        ) {
-            return a.pos - b.pos
+                return {
+                    pos,
+                    delta: e.delta
+                }
 
-        }
-    )
-    : []
+            }
+        )
+        .sort(
+            function (
+                a,
+                b
+            ) {
+                return a.pos - b.pos
+
+            }
+        )
+
+    }
 
     let out = ''
 
@@ -826,7 +832,17 @@ export function reindentFourSpacesOutsideTokens(
                 /^}+/
             )
 
-            let leadingCloseCount = closeMatch ? closeMatch[0].length : 0
+            let leadingCloseCount = 0
+            let hayLlavesDeCierre = Boolean(
+                closeMatch
+            )
+
+            if (
+                hayLlavesDeCierre
+            ) {
+                leadingCloseCount = closeMatch[0].length
+
+            }
 
             let indentLevel = depth - leadingCloseCount
 

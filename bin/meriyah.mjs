@@ -17,6 +17,7 @@ import {
     fixFunctionArgumentsLayoutTypescript,
     fixMissingBracesIfTypescript,
     fixSemicolonsTypescript,
+    fixTernaryOperatorsTypescript,
     fixVarConstToLetTypescript,
     scanTokensTypescript,
 } from './meriyah-cli/typescript.mjs'
@@ -1667,11 +1668,20 @@ function parseSourceMeriyah(
             )
 
         } catch {
-            let err = moduleError instanceof Error ? moduleError : new Error(
-                String(
-                    moduleError
+            let err = moduleError
+            let moduleErrorEsError = moduleError instanceof Error
+            let moduleErrorNoEsError = !moduleErrorEsError
+
+            if (
+                moduleErrorNoEsError
+            ) {
+                err = new Error(
+                    String(
+                        moduleError
+                    )
                 )
-            )
+
+            }
 
             throw err
 
@@ -1734,11 +1744,20 @@ function parseCommentsMeriyah(
             )
 
         } catch {
-            let err = moduleError instanceof Error ? moduleError : new Error(
-                String(
-                    moduleError
+            let err = moduleError
+            let moduleErrorEsError = moduleError instanceof Error
+            let moduleErrorNoEsError = !moduleErrorEsError
+
+            if (
+                moduleErrorNoEsError
+            ) {
+                err = new Error(
+                    String(
+                        moduleError
+                    )
                 )
-            )
+
+            }
 
             throw err
 
@@ -1926,7 +1945,15 @@ function findLineIndent(
 function normalizeLineCommentValue(
     value
 ) {
-    let str = typeof value === 'string' ? value : ''
+    let str = ''
+    let valueEsString = typeof value === 'string'
+
+    if (
+        valueEsString
+    ) {
+        str = value
+
+    }
 
     str = str.replace(
         /[ \t]+$/g,
@@ -1963,7 +1990,15 @@ function buildLineCommentBlockFromValue(
     eol,
     omitFirstIndent
 ) {
-    let raw = typeof value === 'string' ? value : ''
+    let raw = ''
+    let valueEsString = typeof value === 'string'
+
+    if (
+        valueEsString
+    ) {
+        raw = value
+
+    }
 
     let lines = raw.split(
         /\r\n|\r|\n/
@@ -2191,10 +2226,22 @@ function scanCommentsTypescript(
     sourceText,
     isTsx
 ) {
+    let languageVariant = ts.LanguageVariant.Standard
+    let esJsx = Boolean(
+        isTsx
+    )
+
+    if (
+        esJsx
+    ) {
+        languageVariant = ts.LanguageVariant.JSX
+
+    }
+
     let scanner = ts.createScanner(
         ts.ScriptTarget.Latest,
         false,
-        isTsx ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+        languageVariant,
         sourceText
     )
 
@@ -2461,8 +2508,32 @@ function fixFunctionArgumentsLayoutMeriyah(
                 let esApertura = t.type === 'Punctuator' && t.text === openChar
                 let esCierre = t.type === 'Punctuator' && t.text === closeChar
 
-                let inc = esApertura ? 1 : 0
-                let dec = esCierre ? 1 : 0
+                let inc
+let condicionTernario50604 = esApertura
+if (
+    condicionTernario50604
+) {
+                    inc = 1
+}
+let condicionTernario50604Negada = !condicionTernario50604
+if (
+    condicionTernario50604Negada
+) {
+                    inc = 0
+}
+                let dec
+let condicionTernario50649 = esCierre
+if (
+    condicionTernario50649
+) {
+                    dec = 1
+}
+let condicionTernario50649Negada = !condicionTernario50649
+if (
+    condicionTernario50649Negada
+) {
+                    dec = 0
+}
 
                 let nextDepth = depth + inc - dec
 
@@ -2574,7 +2645,18 @@ function fixFunctionArgumentsLayoutMeriyah(
                 line
             )
 
-            return match ? match[0].length : 0
+            let condicionTernario52802 = match
+if (
+    condicionTernario52802
+) {
+                return match[0].length
+}
+let condicionTernario52802Negada = !condicionTernario52802
+if (
+    condicionTernario52802Negada
+) {
+                return 0
+}
         }
 
         function normalizeMultilineItemText(
@@ -2953,7 +3035,19 @@ function fixFunctionArgumentsLayoutMeriyah(
             return
         }
 
-        let nodeType = typeof node.type === 'string' ? node.type : ''
+        let nodeType
+let condicionTernario60841 = typeof node.type === 'string'
+if (
+    condicionTernario60841
+) {
+            nodeType = node.type
+}
+let condicionTernario60841Negada = !condicionTernario60841
+if (
+    condicionTernario60841Negada
+) {
+            nodeType = ''
+}
 
         let esCallExpression = nodeType === 'CallExpression'
 
@@ -2964,7 +3058,19 @@ function fixFunctionArgumentsLayoutMeriyah(
                 callee
             } = node
 
-            let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
+            let fromPos
+let condicionTernario61094 = typeof callee?.end === 'number'
+if (
+    condicionTernario61094
+) {
+                fromPos = callee.end
+}
+let condicionTernario61094Negada = !condicionTernario61094
+if (
+    condicionTernario61094Negada
+) {
+                fromPos = node.start
+}
 
             let items = collectItemsFromNodeArray(
                 node.arguments
@@ -2988,7 +3094,19 @@ function fixFunctionArgumentsLayoutMeriyah(
                 callee
             } = node
 
-            let fromPos = typeof callee?.end === 'number' ? callee.end : node.start
+            let fromPos
+let condicionTernario61618 = typeof callee?.end === 'number'
+if (
+    condicionTernario61618
+) {
+                fromPos = callee.end
+}
+let condicionTernario61618Negada = !condicionTernario61618
+if (
+    condicionTernario61618Negada
+) {
+                fromPos = node.start
+}
 
             let items = collectItemsFromNodeArray(
                 node.arguments
@@ -3022,7 +3140,19 @@ function fixFunctionArgumentsLayoutMeriyah(
                 node.params
             )
 
-            let bodyStart = typeof node.body?.start === 'number' ? node.body.start : node.end
+            let bodyStart
+let condicionTernario62586 = typeof node.body?.start === 'number'
+if (
+    condicionTernario62586
+) {
+                bodyStart = node.body.start
+}
+let condicionTernario62586Negada = !condicionTernario62586
+if (
+    condicionTernario62586Negada
+) {
+                bodyStart = node.end
+}
 
             maybeAddList(
                 node.start,
@@ -3638,9 +3768,21 @@ function fixCommentsMeriyah(
         sourceText
     )
 
-    let comments = Array.isArray(
-        parsed.comments
-    ) ? parsed.comments : []
+    let comments
+let condicionTernario76069 = Array.isArray(
+    parsed.comments
+)
+if (
+    condicionTernario76069
+) {
+        comments = parsed.comments
+}
+let condicionTernario76069Negada = !condicionTernario76069
+if (
+    condicionTernario76069Negada
+) {
+        comments = []
+}
 
     let normalized = comments
     .filter(
@@ -4021,7 +4163,19 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
         }
 
-        let functionPrefix = node.async === true ? 'async function ' : 'function '
+        let functionPrefix
+let condicionTernario82891 = node.async === true
+if (
+    condicionTernario82891
+) {
+            functionPrefix = 'async function '
+}
+let condicionTernario82891Negada = !condicionTernario82891
+if (
+    condicionTernario82891Negada
+) {
+            functionPrefix = 'function '
+}
 
         let bodyText
 
@@ -4187,6 +4341,127 @@ function fixArrowFunctionsToFunctionsMeriyah(
 
     return {
         fixedText,
+        unfixableFindings
+    }
+
+}
+
+function fixTernaryOperatorsMeriyah(
+    filePath,
+    parse,
+    sourceText
+) {
+    let {
+        ast
+    } = parseSourceMeriyah(
+        parse,
+        sourceText
+    )
+
+    let unfixableFindings = []
+
+    function visit(
+        node
+    ) {
+        let noEsNodo = !node || typeof node !== 'object'
+
+        if (
+            noEsNodo
+        ) {
+            return
+
+        }
+
+        let esLista = Array.isArray(
+            node
+        )
+
+        if (
+            esLista
+        ) {
+            node.forEach(
+                function (
+                    item
+                ) {
+                    visit(
+                        item
+                    )
+
+                }
+            )
+
+            return
+
+        }
+
+        let noTieneTipo = typeof node.type !== 'string'
+
+        if (
+            noTieneTipo
+        ) {
+            Object.values(
+                node
+            ).forEach(
+                function (
+                    child
+                ) {
+                    visit(
+                        child
+                    )
+
+                }
+            )
+
+            return
+
+        }
+
+        let esConditionalExpression = node.type === 'ConditionalExpression'
+
+        if (
+            esConditionalExpression
+        ) {
+            addFinding(
+                unfixableFindings,
+                filePath,
+                '?:',
+                node,
+                'formatear/no-ternary'
+            )
+        }
+
+        Object.entries(
+            node
+        ).forEach(
+            function (
+                pair
+            ) {
+                let childKey = pair[0]
+
+                let esClaveDeUbicacion = childKey === 'loc' || childKey === 'range' || childKey === 'start' || childKey === 'end'
+
+                if (
+                    esClaveDeUbicacion
+                ) {
+                    return
+
+                }
+
+                visit(
+                    pair[1]
+                )
+
+            }
+        )
+
+    }
+
+    visit(
+        ast
+    )
+
+    return {
+        fixedText: sourceText,
         unfixableFindings
     }
 
@@ -4494,9 +4769,21 @@ async function run(
         parse = meriyahModule.parse
 
     } catch (error) {
-        let message = error instanceof Error ? error.message : String(
-            error
-        )
+        let message
+let condicionTernario105642 = error instanceof Error
+if (
+    condicionTernario105642
+) {
+            message = error.message
+}
+let condicionTernario105642Negada = !condicionTernario105642
+if (
+    condicionTernario105642Negada
+) {
+            message = String(
+                error
+            )
+}
 
         process.stderr.write(
             `${message}\n`
@@ -4739,6 +5026,45 @@ async function run(
                     }
                 )
 
+                let ternaryFixed = fixTernaryOperatorsTypescript(
+                    inputFilePath,
+                    ts,
+                    sourceText,
+                    ext
+                )
+
+                let huboCambiosDeTernarios = ternaryFixed.fixedText !== sourceText
+
+                if (
+                    huboCambiosDeTernarios
+                ) {
+                    await fs.writeFile(
+                        inputFilePath,
+                        ternaryFixed.fixedText,
+                        'utf8'
+                    )
+
+                    sourceText = ternaryFixed.fixedText
+
+                }
+
+                ternaryFixed.unfixableFindings.forEach(
+                    function (
+                        finding
+                    ) {
+                        issueCount += 1
+
+                        let normalizedFilePath = normalize(
+                            finding.filePath
+                        )
+
+                        process.stdout.write(
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar el operador ternario  formatear/no-ternary\n`
+                        )
+
+                    }
+                )
+
                 let commentsFixed = fixCommentsTypescript(
                     inputFilePath,
                     ts,
@@ -4793,9 +5119,19 @@ async function run(
                         function (
                             t
                         ) {
+                            let delta = -1
+                            let esApertura = t.text === '{'
+
+                            if (
+                                esApertura
+                            ) {
+                                delta = 1
+
+                            }
+
                             return {
                                 pos: t.pos,
-                                delta: t.text === '{' ? 1 : -1
+                                delta
                             }
 
                         }
@@ -5091,6 +5427,44 @@ async function run(
                     }
                 )
 
+                let ternaryFixed = fixTernaryOperatorsMeriyah(
+                    inputFilePath,
+                    parse,
+                    sourceText
+                )
+
+                let huboCambiosDeTernarios = ternaryFixed.fixedText !== sourceText
+
+                if (
+                    huboCambiosDeTernarios
+                ) {
+                    await fs.writeFile(
+                        inputFilePath,
+                        ternaryFixed.fixedText,
+                        'utf8'
+                    )
+
+                    sourceText = ternaryFixed.fixedText
+
+                }
+
+                ternaryFixed.unfixableFindings.forEach(
+                    function (
+                        finding
+                    ) {
+                        issueCount += 1
+
+                        let normalizedFilePath = normalize(
+                            finding.filePath
+                        )
+
+                        process.stdout.write(
+                            `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se debe usar el operador ternario  formatear/no-ternary\n`
+                        )
+
+                    }
+                )
+
                 let commentsFixed = fixCommentsMeriyah(
                     inputFilePath,
                     parse,
@@ -5143,9 +5517,19 @@ async function run(
                         function (
                             t
                         ) {
+                            let delta = -1
+                            let esApertura = t.text === '{'
+
+                            if (
+                                esApertura
+                            ) {
+                                delta = 1
+
+                            }
+
                             return {
                                 pos: t.start,
-                                delta: t.text === '{' ? 1 : -1
+                                delta
                             }
 
                         }
@@ -5258,8 +5642,19 @@ async function run(
                         finding.keyword
                     )
 
-                    let ruleIdValue =
-                    typeof finding.ruleId === 'string' && finding.ruleId.length > 0 ? finding.ruleId : 'formatear/unknown'
+                    let ruleIdValue
+                    let condicionTernario129924 = typeof finding.ruleId === 'string' && finding.ruleId.length > 0
+                    if (
+                        condicionTernario129924
+                    ) {
+                        ruleIdValue = finding.ruleId
+                    }
+                    let condicionTernario129924Negada = !condicionTernario129924
+                    if (
+                        condicionTernario129924Negada
+                    ) {
+                        ruleIdValue = 'formatear/unknown'
+                    }
 
                     let ruleId = normalize(
                         ruleIdValue
@@ -5292,9 +5687,21 @@ async function run(
         } catch (error) {
             parseErrorCount += 1
 
-            let message = error instanceof Error ? error.message : String(
-                error
-            )
+            let message
+let condicionTernario130996 = error instanceof Error
+if (
+    condicionTernario130996
+) {
+                message = error.message
+}
+let condicionTernario130996Negada = !condicionTernario130996
+if (
+    condicionTernario130996Negada
+) {
+                message = String(
+                    error
+                )
+}
 
             process.stderr.write(
                 `${inputFilePath}  error  ${message}\n`
@@ -5330,7 +5737,18 @@ async function run(
 
     }
 
-    return issueCount > 0 ? 1 : 0
+    let condicionTernario131672 = issueCount > 0
+if (
+    condicionTernario131672
+) {
+        return 1
+}
+let condicionTernario131672Negada = !condicionTernario131672
+if (
+    condicionTernario131672Negada
+) {
+        return 0
+}
 
 }
 
