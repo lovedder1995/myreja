@@ -155,7 +155,7 @@ export async function collectFiles(
     if (
         esArchivo
     ) {
-        let esExtensionSoportada = /\.(?:[cm]?jsx?|mjs|cjs)$/.test(
+        let esExtensionSoportada = /\.(?:[mc]?js)$/.test(
             inputPath
         )
 
@@ -235,7 +235,7 @@ export async function collectFiles(
 
                 }
 
-                let noEsExtensionSoportada = !/\.(?:[cm]?jsx?|mjs|cjs)$/.test(
+                let noEsExtensionSoportada = !/\.(?:[mc]?js)$/.test(
                     entry.name
                 )
 
