@@ -17,18 +17,6 @@ export async function importMeriyah() {
     }
 }
 
-export async function importTypescript() {
-    try {
-        return await import('typescript')
-
-    } catch {
-        throw new Error(
-            'No se encontró `typescript`. Instalalo y reintentá.'
-        )
-
-    }
-}
-
 export async function loadForbiddenWords() {
     let fallback = new Set(
         [
@@ -167,6 +155,19 @@ export async function collectFiles(
     if (
         esArchivo
     ) {
+        let esExtensionSoportada = /\.(?:[cm]?jsx?|mjs|cjs)$/.test(
+            inputPath
+        )
+
+        let noEsUnaExtensionSoportada = !esExtensionSoportada
+
+        if (
+            noEsUnaExtensionSoportada
+        ) {
+            return
+
+        }
+
         out.add(
             path.resolve(
                 inputPath
@@ -234,7 +235,7 @@ export async function collectFiles(
 
                 }
 
-                let noEsExtensionSoportada = !/\.(?:[cm]?[jt]sx?|mjs|cjs|mts|cts)$/.test(
+                let noEsExtensionSoportada = !/\.(?:[cm]?jsx?|mjs|cjs)$/.test(
                     entry.name
                 )
 
