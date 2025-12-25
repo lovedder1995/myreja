@@ -18,76 +18,37 @@ export async function importMeriyah() {
 }
 
 export async function loadForbiddenWords() {
-    let fallback = new Set(
+    return new Set(
         [
-            'this'
+            'this',
+            'var',
+            'else',
+            'for',
+            'in',
+            'while',
+            'case',
+            'break',
+            'switch',
+            'continue',
+            'do',
+            'void',
+            'finally',
+            'class',
+            'const',
+            'extends',
+            'implements',
+            'interface',
+            'package',
+            'private',
+            'protected',
+            'public',
+            'static',
+            'super',
+            'with',
+            'yield',
+            'enum'
         ]
     )
-
-    let scriptPath = process.argv[1]
-
-    let esScriptPathInvalido = typeof scriptPath !== 'string' || scriptPath.length === 0
-
-    if (
-        esScriptPathInvalido
-    ) {
-        scriptPath = process.cwd()
-
-    }
-
-    let tokenFilePath = path.resolve(
-        path.dirname(
-            path.resolve(
-                scriptPath
-            )
-        ),
-        '..',
-        'src',
-        'token.ts'
-    )
-
-    let content
-
-    try {
-        content = await fs.readFile(
-            tokenFilePath,
-            'utf8'
-        )
-
-    } catch {
-        return fallback
-
-    }
-
-    let forbidden = new Set()
-
-    let entryRegExp = /^\s*([A-Za-z_$][\w$]*):\s*Token\.[A-Za-z0-9_$]+,\s*\/\/\s*Prohibida\b/gm
-
-    Array.from(
-        content.matchAll(
-            entryRegExp
-        )
-    ).forEach(
-        function (
-            match
-        ) {
-            forbidden.add(
-                match[1]
-            )
-
-        }
-    )
-
-    let hayPalabrasProhibidas = forbidden.size > 0
-
-    if (
-        hayPalabrasProhibidas
-    ) {
-        return forbidden
-
-    }
-
-    return fallback
 
 }
 
