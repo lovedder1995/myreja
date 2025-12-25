@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises'
-import path from 'node:path'
 import process from 'node:process'
 import {
     convertTabsToFourSpacesOutsideTokens,
-    fixCommentsText,
     reindentFourSpacesOutsideTokens,
     stripTrailingWhitespace,
 } from './meriyah-cli/formatting.mjs'
@@ -18,6 +16,7 @@ import { parseSourceMeriyah } from './meriyah-cli/utils/meriyah_parse.mjs'
 import { fixArrowFunctionsToFunctionsMeriyah } from './meriyah-cli/reglas/no_arrow_function_meriyah.mjs'
 import { fixSemicolonsMeriyah } from './meriyah-cli/reglas/no_semicolon_meriyah.mjs'
 import { fixTernaryOperatorsMeriyah } from './meriyah-cli/reglas/no_ternary_meriyah.mjs'
+import { collectNoUnusedVarsFindingsMeriyah } from './meriyah-cli/reglas/no_unused_vars_meriyah.mjs'
 import { fixVarConstToLetMeriyah } from './meriyah-cli/reglas/no_var_const_meriyah.mjs'
 import { fixMissingBracesIfMeriyah } from './meriyah-cli/reglas/require_braces_meriyah.mjs'
 
@@ -97,25 +96,25 @@ function inferAutocorregibleFromContent(
 function getAutocorregibleLabel(
     autocorregible
 ) {
-    let esAutocorregibleSi = autocorregible === true
+    let esAutocorregible = autocorregible === true
 
     if (
-        esAutocorregibleSi
+        esAutocorregible
     ) {
-        return 'Lo puede corregir el formateador'
+        return 'Sí'
 
     }
 
-    let esAutocorregibleNo = autocorregible === false
+    let noEsAutocorregible = autocorregible === false
 
     if (
-        esAutocorregibleNo
+        noEsAutocorregible
     ) {
-        return 'No lo puede corregir el formateador'
+        return 'No'
 
     }
 
-    return 'A veces lo puede corregir el formateador'
+    return 'Parcial'
 }
 
 async function getReglas() {
@@ -432,6 +431,7 @@ async function run(
         try {
             let findings
             let conditionFindings = []
+            let noUnusedVarsFindings = []
 
             let noEsTsFile = true
 
@@ -812,6 +812,11 @@ async function run(
                     forbiddenWords
                 )
 
+                noUnusedVarsFindings = collectNoUnusedVarsFindingsMeriyah(
+                    parsed.ast,
+                    inputFilePath
+                )
+
             }
 
             findings.forEach(
@@ -861,6 +866,27 @@ async function run(
 
                     process.stdout.write(
                         `${normalizedFilePath}:${finding.line}:${finding.column}  error  La condición debe ser una sola variable  formatear/condition-single-variable\n`
+                    )
+
+                }
+            )
+
+            noUnusedVarsFindings.forEach(
+                function (
+                    finding
+                ) {
+                    issueCount += 1
+
+                    let normalizedFilePath = normalize(
+                        finding.filePath
+                    )
+
+                    let variable = normalize(
+                        finding.keyword
+                    )
+
+                    process.stdout.write(
+                        `${normalizedFilePath}:${finding.line}:${finding.column}  error  No se deben dejar variables sin usar («${variable}»)  formatear/no-unused-vars\n`
                     )
 
                 }

@@ -273,7 +273,7 @@ export const descKeywordTable: { [key: string]: Token } =  {
   await: Token.AwaitKeyword,
   class: Token.ClassKeyword, // Prohibida
   const: Token.ConstKeyword, // Prohibida
-  constructor: Token.ConstructorKeyword, // Prohibida
+  constructor: Token.ConstructorKeyword,
   debugger: Token.DebuggerKeyword, 
   export: Token.ExportKeyword,
   extends: Token.ExtendsKeyword, // Prohibida
@@ -285,22 +285,22 @@ export const descKeywordTable: { [key: string]: Token } =  {
   interface: Token.InterfaceKeyword, // Prohibida
   let: Token.LetKeyword,
   null: Token.NullKeyword,
-  of: Token.OfKeyword, // Prohibida
+  of: Token.OfKeyword,
   package: Token.PackageKeyword, // Prohibida
   private: Token.PrivateKeyword, // Prohibida
   protected: Token.ProtectedKeyword, // Prohibida
   public: Token.PublicKeyword, // Prohibida
-  set: Token.SetKeyword, // Prohibida
+  set: Token.SetKeyword,
   static: Token.StaticKeyword, // Prohibida
   super: Token.SuperKeyword, // Prohibida
   true: Token.TrueKeyword,
   with: Token.WithKeyword, // Prohibida
   yield: Token.YieldKeyword, // Prohibida
   enum: Token.EnumKeyword, // Prohibida
-  eval: Token.Eval, // Prohibida
+  eval: Token.Eval,
   as: Token.AsKeyword,
   arguments: Token.Arguments,
-  target: Token.Target, // Prohibida
+  target: Token.Target,
   meta: Token.Meta,
-  accessor: Token.AccessorKeyword, // Prohibida
+  accessor: Token.AccessorKeyword,
 }
