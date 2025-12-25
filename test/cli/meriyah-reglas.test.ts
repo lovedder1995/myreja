@@ -78,19 +78,19 @@ function () {
 
             assert.ok(
                 result.stdout.includes(
-                    'formatear/no-this\t'
+                    'formatear/no-ternary\n'
                 )
             )
 
             assert.ok(
                 result.stdout.includes(
-                    'formatear/no-ternary\t'
+                    'formatear/no-semicolon\n'
                 )
             )
 
             assert.ok(
                 result.stdout.includes(
-                    'formatear/no-interface\t'
+                    'Autocorrección: Lo puede corregir el formateador'
                 )
             )
 
@@ -123,15 +123,21 @@ function () {
                 /\r?\n/g
             )
             .filter(
-                Boolean
+                function (
+                    line
+                ) {
+                    return Boolean(
+                        line
+                    ) && line.startsWith(
+                        'formatear/'
+                    )
+                }
             )
             .map(
                 function (
                     line
                 ) {
-                    return line.split(
-                        '\t'
-                    )[0]
+                    return line.trim()
                 }
             )
 

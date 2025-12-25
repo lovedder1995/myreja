@@ -33,6 +33,103 @@ import { fixTernaryOperatorsMeriyah } from './meriyah-cli/reglas/no_ternary_meri
 import { fixVarConstToLetMeriyah } from './meriyah-cli/reglas/no_var_const_meriyah.mjs'
 import { fixMissingBracesIfMeriyah } from './meriyah-cli/reglas/require_braces_meriyah.mjs'
 
+function parseAutocorregibleFromFirstLine(
+    firstLine
+) {
+    let esComentario = typeof firstLine === 'string' && firstLine.startsWith(
+        '//'
+    )
+
+    let noEsComentario = !esComentario
+
+    if (
+        noEsComentario
+    ) {
+        return undefined
+
+    }
+
+    let match = /autocorregible\s*:\s*(si|sí|no|a_veces|a veces|sometimes)/i.exec(
+        firstLine
+    )
+
+    let noHayMatch = !match
+
+    if (
+        noHayMatch
+    ) {
+        return undefined
+
+    }
+
+    let raw = String(
+        match[1] || ''
+    )
+    .trim()
+    .toLowerCase()
+
+    let rawEsSi = raw === 'si' || raw === 'sí'
+
+    if (
+        rawEsSi
+    ) {
+        return true
+
+    }
+
+    let rawEsNo = raw === 'no'
+
+    if (
+        rawEsNo
+    ) {
+        return false
+
+    }
+
+    return 'a_veces'
+}
+
+function inferAutocorregibleFromContent(
+    content
+) {
+    let tieneFixExport = /export\s+(?:async\s+)?function\s+fix/i.test(
+        content
+    )
+
+    if (
+        tieneFixExport
+    ) {
+        return true
+
+    }
+
+    return false
+}
+
+function getAutocorregibleLabel(
+    autocorregible
+) {
+    let esAutocorregibleSi = autocorregible === true
+
+    if (
+        esAutocorregibleSi
+    ) {
+        return 'Lo puede corregir el formateador'
+
+    }
+
+    let esAutocorregibleNo = autocorregible === false
+
+    if (
+        esAutocorregibleNo
+    ) {
+        return 'No lo puede corregir el formateador'
+
+    }
+
+    return 'A veces lo puede corregir el formateador'
+}
+
 async function getReglas() {
     let reglasDir = new URL(
         './meriyah-cli/reglas/',
@@ -84,6 +181,21 @@ async function getReglas() {
                 ).trim()
             }
 
+            let autocorregible = parseAutocorregibleFromFirstLine(
+                firstLine
+            )
+
+            let noHayOverrideDeAutocorregible = typeof autocorregible === 'undefined'
+
+            if (
+                noHayOverrideDeAutocorregible
+            ) {
+                autocorregible = inferAutocorregibleFromContent(
+                    content
+                )
+
+            }
+
             let id = 'formatear/' + file.replace(
                 '_meriyah.mjs',
                 ''
@@ -95,7 +207,7 @@ async function getReglas() {
             return {
                 id: id,
                 descripcion: descripcion,
-                autocorregible: true
+                autocorregible: autocorregible
             }
 
         }
@@ -130,24 +242,28 @@ async function printReglas() {
         }
     )
 
+    process.stdout.write(
+        'Reglas disponibles:\n\n'
+    )
+
     reglas.forEach(
         function (
             regla
         ) {
-            let autocorregible = 'no'
-            let esAutocorregible = Boolean(
+            let autocorregibleLabel = getAutocorregibleLabel(
                 regla.autocorregible
             )
 
-            if (
-                esAutocorregible
-            ) {
-                autocorregible = 'sí'
-
-            }
+            process.stdout.write(
+                `${regla.id}\n`
+            )
 
             process.stdout.write(
-                `${regla.id}\t${autocorregible}\t${regla.descripcion}\n`
+                `  Autocorrección: ${autocorregibleLabel}\n`
+            )
+
+            process.stdout.write(
+                `  Descripción: ${regla.descripcion}\n\n`
             )
 
         }
