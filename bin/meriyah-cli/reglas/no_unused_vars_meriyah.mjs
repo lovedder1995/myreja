@@ -1,3 +1,4 @@
+// No dejar variables sin usar
 import { addFinding, isSkippableIdentifierContext } from '../utils/meriyah_findings.mjs'
 
 function collectBindingIdentifiers(

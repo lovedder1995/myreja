@@ -1,4 +1,4 @@
-// Normalizar algunos formatos de comentarios
+// No utilizar comentarios de bloque
 import { fixCommentsText } from '../formatting.mjs'
 import { parseCommentsMeriyah } from '../utils/meriyah_parse.mjs'
 

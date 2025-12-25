@@ -1,4 +1,4 @@
-// Verificar condiciones de una sola variable
+// Las condiciones no deben contener directamente la lógica, sino una variable que describa esa lógica.
 import { addFinding } from '../utils/meriyah_findings.mjs'
 
 export function collectConditionSingleVariableFindingsMeriyah(
@@ -136,4 +136,3 @@ export function collectConditionSingleVariableFindingsMeriyah(
     return findings
 
 }
-
